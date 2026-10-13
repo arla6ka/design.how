@@ -6,36 +6,23 @@ import {cn} from '../lib/utils';
 import {Button} from '../ui/button';
 import {Amount, amountAffordability} from '../ui/amount';
 
-// The box a person writes a request in, laid out like a phone composer: one row, 44px tall, with the extra
-// controls at the start, the text in the middle and a 32px Send at the end. The text grows up to 8 lines and
-// the controls stay on the last line. Enter sends, Shift+Enter breaks the line. The field clears when it
-// sends, so to keep the draft when a request fails, control `value` and put the text back yourself. Send is
-// the only lime in the row. Show the amount it will move beside Send with `amount`, before the person
-// presses it.
-
 type ChatInputProps = Omit<React.ComponentProps<'form'>, 'onSubmit' | 'onChange'> & {
   value?: string;
   defaultValue?: string;
   onValueChange?: (value: string) => void;
-  /** Called with the trimmed text when the person sends. */
   onSubmit: (text: string) => void;
   placeholder?: string;
-  /** The money this request will move, and what is available. Negative is money out. */
   amount?: number;
   available?: number;
   currency?: string;
-  /** A request is running. Send turns into Stop, which calls onStop. */
   running?: boolean;
   onStop?: () => void;
   disabled?: boolean;
-  /** One or two 32px ghost icon buttons before the text, such as attach. */
   actions?: React.ReactNode;
-  /** The names of the field, Send and Stop, for another language. The placeholder is its own prop. */
   labels?: ChatInputLabels;
 };
 
 type ChatInputLabels = {
-  /** The field's label, read by screen readers. */
   message?: string;
   send?: string;
   stop?: string;
@@ -51,8 +38,6 @@ function ChatInput({value, defaultValue = '', onValueChange, onSubmit, placehold
   const id = useId();
   const canSend = !disabled && !running && text.trim().length > 0 && (amount === undefined || available === undefined || amountAffordability(amount, available) !== 'insufficient');
 
-  // Fit the field to its text on every change, typed or set from outside. max-h-50 caps it at 8 lines, so the
-  // height is the text's own and CSS clips it.
   useLayoutEffect(() => {
     const el = field.current;
     if (!el) return;
@@ -98,8 +83,6 @@ function ChatInput({value, defaultValue = '', onValueChange, onSubmit, placehold
         onKeyDown={e => {
           if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); send(); }
         }}
-        // The box shows focus on its border (focus-within), so the field draws no ring of its own; Lime's base
-        // focus-visible ring would otherwise sit inside the box as a square.
         className={cn(
           'block h-8 max-h-50 min-w-0 flex-1 resize-none bg-transparent py-1 text-base leading-6 text-fg focus-visible:outline-none placeholder:text-fg-3 disabled:cursor-not-allowed disabled:text-fg-disabled',
           !actions && 'ps-2.5',

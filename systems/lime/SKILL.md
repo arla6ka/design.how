@@ -7,10 +7,15 @@ description: Lime design system rules for this project's UI. Use when building o
 
 Lime is a white page, warm-grey surfaces and near-black text with one acid lime on the main action, for consumer apps. Build with these components before writing markup.
 
+## Setup
+Once, in the root layout: put the "lime" class on `<body>` or the root element of the UI, with `LimePortalProvider` inside it. Lime's styles and tokens apply only inside that class.
+Menus, dialogs, popovers and toasts render at the end of the body; LimePortalProvider keeps them inside the scope, and without it they lose every token. `import {LimePortalProvider} from '@/lib/lime/portal'`
+`<body className="lime"><LimePortalProvider>{children}</LimePortalProvider></body>`
+
 ## Steps
-1. For a whole screen, start from a block under Blocks when one fits: install it, then swap its sample names, amounts and copy for the real ones.
+1. For a whole screen, start from a block under Blocks when one fits: install it, then swap its sample data and copy for the real ones.
 2. Pick the components the screen needs from the index below. Fetch each one's page before using it: it has the props, variants and that component's rules.
-3. Build only from those components and the tokens under Tokens, inside an element with the "lime" class. Import each from the path in the index; support pieces are under Imports.
+3. Build only from those components and the tokens under Tokens, inside an element with the "lime" class. Import each from the path in the index; support pieces are under Imports. Dark mode: put data-theme="dark" on the lime element or any ancestor, such as <html>. The theme does not follow the system setting (prefers-color-scheme) on its own.
 4. Frame the screen with the Page shell. If a component is missing, build the stand-in under Coverage gaps; if none is listed, compose it from existing components and tokens and say what you built. Never invent a token.
 5. Ask the person only when the screen needs an amount, a payee or an autonomy limit you were not given; never invent one. Decide everything else from these rules and say what you chose.
 6. Porting an existing screen: swap one piece at a time for its component, keep the behavior and copy, and delete the old styles once nothing uses them. For a whole app, run migrate-design-system when it is installed.
@@ -119,24 +124,25 @@ Not in the system yet, and what to build meanwhile.
 
 ## Icons
 Import a glyph beside Icon from the path under Imports and pass it in: `<Icon icon={Add} size={16}/>`. These are all the names; another needs adding to that file first.
-Add, ArrowDown, ArrowRight, ArrowUp, Attachment, Checkmark, CheckmarkFilled, ChevronDown, ChevronRight, ChevronSort, ChevronUp, Close, Copy, ErrorFilled, Image, Information, Menu, Play, Receipt, Renew, Search, Send, Subtract, Time, Upload, Wallet, PiggyBank, Warning, WarningFilled, ChevronLeft, ArrowLeft, Pause, OverflowMenuHorizontal, Folder, Star, Plus, Delete, Cafe, ShoppingBag, Notification, Locked, Undo, Edit, CircleDash
+Add, ArrowDown, ArrowRight, ArrowUp, Attachment, Checkmark, CheckmarkFilled, ChevronDown, ChevronRight, ChevronSort, ChevronUp, Close, Copy, ErrorFilled, Image, Information, Menu, Play, Receipt, Renew, Search, Send, Subtract, Time, Upload, Wallet, PiggyBank, Warning, WarningFilled, ChevronLeft, ArrowLeft, Pause, OverflowMenuHorizontal, Folder, Star, Plus, Delete, Cafe, ShoppingBag, Notification, Locked, Undo, Edit, CircleDash, Location
 
 ## Tokens
-The closed list. Colors are utilities named after the role (bg-surface, text-fg-2, border-line); sizes read the scale (text-sm, rounded-panel, shadow-menu, h-(--control-lg), duration-(--dur-fast)).
-- Surfaces: --page, --surface, --surface-2, --surface-3, --raised, --field, --scrim
-- Text: --fg, --fg-2, --fg-3, --fg-disabled, --fg-inverse, --on-accent, --glow-accent-fg
-- Lines: --line, --line-strong, --control
-- Solid ink: --ink, --ink-hover, --ink-active
-- Accent: --accent, --accent-hover, --accent-active, --accent-wash, --accent-line, --ring
-- Status: --success, --success-tint, --success-text, --warn, --warn-tint, --warn-text, --danger, --danger-hover, --danger-tint, --on-danger, --danger-text
-- Elevation: --shadow-ink, --shadow-card, --shadow-menu, --shadow-overlay, --thumb, --switch-on, --switch-on-thumb, --shadow-thumb
+The closed list. Use a token through its class, never a raw value: colors are utilities named after the role (bg-surface, text-fg, border-line); sizes read the scale (text-sm, rounded-field, shadow-card, h-(--control-lg), duration-(--dur-fast)).
+The class to use follows each token in brackets. Color names take bg-, text- or border-. A token with no class is read as a value, such as h-(--name).
+- Surfaces: --page (bg-page), --surface (bg-surface), --surface-2 (bg-surface-2), --surface-3 (bg-surface-3), --raised (bg-raised), --field (bg-field), --scrim (bg-scrim)
+- Text: --fg (text-fg), --fg-2 (text-fg-2), --fg-3 (text-fg-3), --fg-disabled (text-fg-disabled), --fg-inverse (text-fg-inverse), --on-accent (text-on-accent), --glow-accent-fg
+- Lines: --line (border-line), --line-strong (border-line-strong), --control (border-control)
+- Solid ink: --ink (bg-/text-/border-ink), --ink-hover (bg-/text-/border-ink-hover), --ink-active (bg-/text-/border-ink-active)
+- Accent: --accent (bg-/text-/border-accent), --accent-hover (bg-/text-/border-accent-hover), --accent-active (bg-/text-/border-accent-active), --accent-wash (bg-/text-/border-accent-wash), --accent-line (bg-/text-/border-accent-line), --ring (bg-/text-/border-ring)
+- Status: --success (bg-/text-/border-success), --success-tint (bg-/text-/border-success-tint), --success-text (bg-/text-/border-success-text), --warn (bg-/text-/border-warn), --warn-tint (bg-/text-/border-warn-tint), --warn-text (bg-/text-/border-warn-text), --danger (bg-/text-/border-danger), --danger-hover (bg-/text-/border-danger-hover), --danger-tint (bg-/text-/border-danger-tint), --on-danger (bg-/text-/border-on-danger), --danger-text (bg-/text-/border-danger-text)
+- Elevation: --shadow-ink, --shadow-card (shadow-card), --shadow-menu (shadow-menu), --shadow-overlay (shadow-overlay), --thumb, --switch-on, --switch-on-thumb, --shadow-thumb
 - Glow: 37 tokens read only through their classes and components; never by name.
-- Type: --font-sans, --font-mono, --text-xs, --text-sm, --text-base, --text-lg, --text-xl, --text-2xl, --text-3xl, --leading-tight, --leading-snug, --leading-normal, --tracking-tight, --weight-normal, --weight-medium, --weight-semibold
+- Type: --font-sans (font-sans), --font-mono (font-mono), --text-xs (text-xs), --text-sm (text-sm), --text-base (text-base), --text-lg (text-lg), --text-xl (text-xl), --text-2xl (text-2xl), --text-3xl (text-3xl), --leading-tight (leading-tight), --leading-snug (leading-snug), --leading-normal (leading-normal), --tracking-tight (tracking-tight), --weight-normal (font-normal), --weight-medium (font-medium), --weight-semibold (font-semibold)
 - Size: --control-sm, --control-md, --control-lg
-- Radius: --radius-sm, --radius-md, --radius-field, --radius-panel, --radius-sheet, --radius-control
-- Motion: --dur-instant, --dur-fast, --dur-base, --dur-slow, --dur-spin, --ease-out, --ease-in, --scale-enter, --scale-press
+- Radius: --radius-sm (rounded-sm), --radius-md (rounded-md), --radius-field (rounded-field), --radius-panel (rounded-panel), --radius-sheet (rounded-sheet), --radius-control (rounded-control)
+- Motion: --dur-instant, --dur-fast, --dur-base, --dur-slow, --dur-spin, --ease-out (ease-out), --ease-in (ease-in), --scale-enter, --scale-press
 - Layers: --z-dialog, --z-popover, --z-toast
-- Layout: --overlay-sm, --overlay, --overlay-lg, --popover, --sheet, --popup-max, --focus-offset, --line-focus, --scrollbar-thumb
+- Layout: --overlay-sm (max-w-overlay-sm), --overlay (max-w-overlay), --overlay-lg (max-w-overlay-lg), --popover (max-w-popover), --sheet (max-w-sheet), --popup-max (max-w-popup), --focus-offset, --line-focus, --scrollbar-thumb
 
 ## Components
 

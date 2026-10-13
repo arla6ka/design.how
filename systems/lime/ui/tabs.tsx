@@ -3,10 +3,6 @@
 import {Tabs as TabsPrimitive} from '@base-ui/react/tabs';
 import {mergeClass} from '../lib/utils';
 
-// Switches the panel of content below it: Activity, Scheduled, Shared. The chosen tab is ink with a 2px ink
-// underline that slides to it; the rest are grey. Arrow keys move between tabs. Tabs change what is shown
-// in one place; to set a value use Segmented, and to move to another page use links.
-
 function Tabs({className, ...props}: TabsPrimitive.Root.Props) {
   return <TabsPrimitive.Root data-slot="tabs" className={mergeClass('flex flex-col gap-4', className)} {...props}/>;
 }
@@ -30,7 +26,6 @@ function TabsTrigger({className, children, ...props}: TabsPrimitive.Tab.Props) {
       ], className)}
       {...props}
     >
-      {/* A text label truncates when the row runs out of room, so the row never pushes past its container. */}
       {typeof children === 'string' ? <span className="truncate">{children}</span> : children}
     </TabsPrimitive.Tab>
   );

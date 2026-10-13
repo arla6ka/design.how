@@ -1,72 +1,33 @@
-/* Lime's Tailwind entry. Import it once, in the root layout, as its own stylesheet.
-
-   Scoping, so none of this reaches the rest of the page:
-   - No preflight. The base rules in base.css apply inside .lime and [data-system="lime"] only.
-   - The theme is `inline reference`: utilities compile to var(--lime-token) and nothing is written to
-     :root, where the app may keep its own --color-*, --space-* and --font-* tokens.
-   - Utilities come only from Lime's own files (source(none) plus the @source lines).
-   - base.css comes before the utilities, so a utility beats a base rule of the same specificity.
-   - Utilities are unlayered on purpose. Unlayered rules beat every layer, so layered utilities would lose
-     to an app's own unlayered `a` and `button` rules. */
-
 @import "./tokens.css";
 @import "./base.css";
-@import "tailwindcss/utilities.css" source(none);
-
-/* Lime's own files, but not the lint: it names every class Lime has and many it bans, and none of it is markup. */
-@source "./";
-@source not "./lint";
-
-/* dark: matches inside the dark theme. Components never use it (tokens flip instead); it is here for
-   one-off cases in your own markup. */
+:where(.lime, [data-system="lime"]) {
+  @tailwind utilities source(none);
+}
+@source "../../app";
+@source "../../pages";
+@source "../../src";
+@source "../../components";
+@source "../../lib/lime";
+@source not "../../lib/lime/lint";
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
-
-/* A docs page or a test can show a state by setting data-force-hover, data-force-focus,
-   data-force-focus-visible or data-force-active on a component's root. These variants
-   answer to the attribute as well as the real pseudo-class, so a forced state is the component's own
-   style, never a copy that drifts. Hover keeps Tailwind's guard: it only fires on devices that can hover. */
 @custom-variant hover { @media (hover: hover) { &:hover { @slot; } } &[data-force-hover] { @slot; } }
 @custom-variant focus { &:focus { @slot; } &[data-force-focus] { @slot; } }
 @custom-variant focus-visible { &:focus-visible { @slot; } &[data-force-focus-visible] { @slot; } }
 @custom-variant active { &:active { @slot; } &[data-force-active] { @slot; } }
-
-/* The same goes for reduced motion: data-force-reduced-motion on a wrapper. motion-reduce: answers to it as
-   well as the media query, and motion-safe: stands down under it. */
 @custom-variant motion-reduce { @media (prefers-reduced-motion: reduce) { @slot; } &:where([data-force-reduced-motion], [data-force-reduced-motion] *) { @slot; } }
 @custom-variant motion-safe { @media (prefers-reduced-motion: no-preference) { &:not(:where([data-force-reduced-motion], [data-force-reduced-motion] *)) { @slot; } } }
-
-/* The same durations tokens.css zeroes under the media query, for a forced wrapper. */
 .lime [data-force-reduced-motion], [data-system="lime"] [data-force-reduced-motion] { --dur-instant: 0ms; --dur-fast: 0ms; --dur-base: 0ms; --dur-slow: 0ms; --scale-enter: 1; --scale-press: 1; }
-
-/* Glow: the one gradient in Lime. A solid accent body lit from inside.
-   For the primary action, the balance chip and one featured card; never a background, text or an icon.
-   - body: a darker top running to a bright bottom, so the light inside has something to read against.
-   - top sheen, an off-centre bloom at the upper left, and a whisper of shade at the bottom edge.
-   - a crisp highlight on the top edge, a light line on the lower edge, a faint white inner rim and an inner
-     bloom; outside, only an olive hairline. It casts no shadow and no halo.
-   - light pools at the bottom centre, so the surface reads as lit from below as well as above.
-   - ::before holds the same stack, brighter, at opacity 0 and fades in on hover: the surface powers up
-     without changing colour. Pressed swaps in a darker body. Disabled has no glow at all.
-   Specificity is one class, scoped with :where, so a utility can still beat it. The colours are the
-   --glow-* tokens in tokens.css, bound per hue by glow-accent, glow-danger and glow-success. */
 :where(.lime, [data-system="lime"]) {
   .glow {
     position: relative;
     isolation: isolate;
     overflow: hidden;
-    /* Layers, top to bottom, each one faint on its own:
-       1. a sheen across the upper half       2. a bloom at the upper left
-       3. light pooling at the bottom centre  4. a whisper of shade on the lowest edge
-       5. the body, a darker top running to a bright bottom */
     background-image:
       linear-gradient(180deg, rgb(255 255 255 / calc(0.3 * var(--glow-light, 1))) 0%, rgb(255 255 255 / 0) 45%),
       radial-gradient(110% 90% at 22% 0%, rgb(255 255 255 / calc(0.24 * var(--glow-light, 1))) 0%, rgb(255 255 255 / 0) 60%),
       radial-gradient(70% 60% at 50% 115%, rgb(255 255 255 / calc(0.32 * var(--glow-light, 1))) 0%, rgb(255 255 255 / 0) 70%),
       linear-gradient(0deg, rgb(0 0 0 / 0.05) 0%, rgb(0 0 0 / 0) 18%),
       linear-gradient(180deg, var(--glow-from) 0%, var(--glow-to) 100%);
-    /* Edges and light: a crisp highlight on the top edge, the light line on the lower edge, a faint white
-       inner rim, the inner bloom, then outside only a hairline edge. No shadow or halo outside the button: a
-       button never casts a shadow. */
     box-shadow:
       inset 0 1px 0 0 rgb(255 255 255 / calc(0.75 * var(--glow-light, 1))),
       inset 0 -1.5px 2px 0 var(--glow-edge),
@@ -96,19 +57,11 @@
       inset 0 0 0 1px rgb(255 255 255 / calc(0.28 * var(--glow-light, 1))),
       inset 0 0 14px 0 var(--glow-bloom-lit);
   }
-  /* Powered on. Only on a device that can hover, and data-force-hover forces it. */
   @media (hover: hover) { .glow:not(.glow-still):hover::before { opacity: 1; } }
   .glow:not(.glow-still)[data-force-hover]::before { opacity: 1; }
-
-  /* Pressed: a darker body. The lit layer drops out and the base gradient takes the press colours. */
   .glow:not(.glow-still):is(:active, [data-force-active]) { --glow-from: var(--glow-press-from); --glow-to: var(--glow-press-to); }
   .glow:not(.glow-still):is(:active, [data-force-active])::before { opacity: 0; }
-
-  /* Keep the label and icons above the overlay. */
   .glow > * { position: relative; z-index: 1; }
-
-  /* Small and dense surfaces (a 32px button, the balance chip): keep the gradient and the lower edge line,
-     drop the wide blooms, which turn to mud in the room they have. */
   .glow-subtle {
     box-shadow:
       inset 0 1px 0 0 rgb(255 255 255 / calc(0.7 * var(--glow-light, 1))),
@@ -123,9 +76,6 @@
       inset 0 -1px 2.5px 0 var(--glow-edge-lit),
       inset 0 0 8px 0 var(--glow-bloom-lit);
   }
-
-  /* Disabled has no glow: the gradient, the edge and the cast go, and the component's own disabled fill
-     shows. A pending button is disabled too but keeps its colour, so aria-busy is left alone. */
   .glow:is(:disabled, [data-disabled], [aria-disabled="true"]):not([aria-busy="true"]) { background-image: none; box-shadow: none; }
   .glow:is(:disabled, [data-disabled], [aria-disabled="true"])::before { display: none; }
 
@@ -136,7 +86,6 @@
     --glow-from-lit: var(--glow-accent-from-lit); --glow-to-lit: var(--glow-accent-to-lit);
     --glow-edge-lit: var(--glow-accent-edge-lit); --glow-bloom-lit: var(--glow-accent-bloom-lit);
     --glow-press-from: var(--glow-accent-from-press); --glow-press-to: var(--glow-accent-to-press);
-    /* Text on the glow: ink on the bright light-theme body, white on the deep dark one. Flat accent fills keep --on-accent. */
     --on-accent: var(--glow-accent-fg);
   }
   .glow-danger {
@@ -157,30 +106,27 @@
     color: var(--glow-success-fg);
   }
 }
-
-/* Forced colors drops backgrounds and shadows, so a state that only a fill or a ring carries disappears.
-   These rules give each one a system color it keeps. They are the only forced-colors rules Lime has. Focus rings are outlines, which the browser keeps in
-   forced colors; the rules here cover the places where focus or selection is carried by a fill or a border colour. */
 @media (forced-colors: active) {
-  .glow { background-image: none; box-shadow: none; border: 1px solid ButtonText; }
-  .glow::before { display: none; }
-  [data-slot="button"]:not([data-variant="link"]), [data-slot="copy-button"]:not([data-variant="link"]) { border: 1px solid ButtonText; }
-  [data-slot="avatar"] { border: 1px solid CanvasText; }
-  [data-slot="switch"][data-checked], [data-slot="checkbox"][data-checked], [data-slot="checkbox"][data-indeterminate], [data-slot="radio"][data-checked], [data-slot="segmented-item"][data-checked], [data-slot="chip"][data-pressed] { background-color: Highlight; border-color: Highlight; color: HighlightText; }
-  [data-slot="switch-thumb"] { background-color: ButtonText; }
-  [data-slot="switch"][data-checked] [data-slot="switch-thumb"] { background-color: HighlightText; }
-  [data-slot="radio-indicator"] { background-color: HighlightText; }
-  [data-slot="slider-track"] { background-color: GrayText; }
-  [data-slot="slider-range"] { background-color: Highlight; }
-  [data-slot="dropzone"][data-over] { outline: 2px solid Highlight; outline-offset: 2px; }
-  [data-highlighted] { background-color: Highlight; color: HighlightText; }
-  [data-slot="toolbar-toggle"][data-pressed] { background-color: Highlight; color: HighlightText; }
-  [data-slot="tabs-indicator"] { background-color: Highlight; }
-  [data-slot="chat-input"]:focus-within { outline: 2px solid Highlight; outline-offset: 2px; }
-  [data-slot="select-trigger"][data-popup-open] { outline: 2px solid Highlight; outline-offset: 2px; }
-  [data-slot="table-row"][data-state="selected"] { outline: 2px solid Highlight; outline-offset: -2px; }
+  :where(.lime, [data-system="lime"]) {
+    .glow { background-image: none; box-shadow: none; border: 1px solid ButtonText; }
+    .glow::before { display: none; }
+    [data-slot="button"]:not([data-variant="link"]), [data-slot="copy-button"]:not([data-variant="link"]) { border: 1px solid ButtonText; }
+    [data-slot="avatar"] { border: 1px solid CanvasText; }
+    [data-slot="switch"][data-checked], [data-slot="checkbox"][data-checked], [data-slot="checkbox"][data-indeterminate], [data-slot="radio"][data-checked], [data-slot="segmented-item"][data-checked], [data-slot="chip"][data-pressed] { background-color: Highlight; border-color: Highlight; color: HighlightText; }
+    [data-slot="switch-thumb"] { background-color: ButtonText; }
+    [data-slot="switch"][data-checked] [data-slot="switch-thumb"] { background-color: HighlightText; }
+    [data-slot="radio-indicator"] { background-color: HighlightText; }
+    [data-slot="slider-track"] { background-color: GrayText; }
+    [data-slot="slider-range"] { background-color: Highlight; }
+    [data-slot="dropzone"][data-over] { outline: 2px solid Highlight; outline-offset: 2px; }
+    [data-highlighted] { background-color: Highlight; color: HighlightText; }
+    [data-slot="toolbar-toggle"][data-pressed] { background-color: Highlight; color: HighlightText; }
+    [data-slot="tabs-indicator"] { background-color: Highlight; }
+    [data-slot="chat-input"]:focus-within { outline: 2px solid Highlight; outline-offset: 2px; }
+    [data-slot="select-trigger"][data-popup-open] { outline: 2px solid Highlight; outline-offset: 2px; }
+    [data-slot="table-row"][data-state="selected"] { outline: 2px solid Highlight; outline-offset: -2px; }
+  }
 }
-
 
 @theme inline reference {
   --*: initial;
@@ -211,8 +157,6 @@
   --container-sheet: var(--sheet);
 
   --aspect-video: 16 / 9;
-
-  /* 4px base: p-1 is 4px, p-4 is 16px. */
   --spacing: 4px;
 
   --color-page: var(--page);
@@ -301,9 +245,6 @@
 }
 
 @keyframes lime-spin { to { transform: rotate(1turn); } }
-
-/* Text roles: the size, weight, leading and tracking for each job, so a title or a caption is set the same way
-   in every component. Color stays separate; pick it by role (text-fg, text-fg-2, text-fg-3). */
 @utility title-page { @apply text-xl sm:text-2xl leading-tight font-semibold tracking-tight; }
 @utility title-overlay { @apply text-xl leading-tight font-semibold tracking-tight; }
 @utility label { @apply text-sm leading-snug font-medium; }

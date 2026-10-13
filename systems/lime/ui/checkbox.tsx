@@ -4,9 +4,6 @@ import {Checkbox as CheckboxPrimitive} from '@base-ui/react/checkbox';
 import {Checkmark, Subtract} from '../icon';
 import {mergeClass} from '../lib/utils';
 
-// A 20px box with a 3:1 outline. Checked fills with the lime and an olive edge, the check is near-black.
-// Put it in a label, or inside a Field, so the box has a name.
-
 function Checkbox({className, ...props}: CheckboxPrimitive.Root.Props) {
   return (
     <CheckboxPrimitive.Root
@@ -18,7 +15,6 @@ function Checkbox({className, ...props}: CheckboxPrimitive.Root.Props) {
         'data-checked:not-data-disabled:border-accent-line data-checked:not-data-disabled:bg-accent data-indeterminate:not-data-disabled:border-accent-line data-indeterminate:not-data-disabled:bg-accent',
         'data-disabled:cursor-not-allowed data-disabled:border-line-strong data-disabled:bg-surface-2 data-disabled:text-fg-disabled',
         'data-checked:hover:not-data-disabled:bg-accent-hover data-indeterminate:hover:not-data-disabled:bg-accent-hover',
-        // Invalid keeps its red edge when checked too.
         'aria-invalid:not-data-disabled:border-danger!',
       ], className)}
       {...props}
@@ -30,7 +26,6 @@ function Checkbox({className, ...props}: CheckboxPrimitive.Root.Props) {
   );
 }
 
-// The indicator also renders for the indeterminate state, which Base UI reports through data-indeterminate.
 function CheckboxIcon() {
   return (
     <>

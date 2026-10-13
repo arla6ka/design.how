@@ -3,27 +3,12 @@
 import {cn} from '../lib/utils';
 import {Input} from '../ui/input';
 
-// How far the assistant may go on its own, written as one sentence with the limit inside it: "Ask me before
-// paying over [$50]". The sentence is the label, so the person reads the rule and the number
-// together and never has to map a slider to a meaning. The field is small and sits in the line; the whole
-// sentence is its accessible name. kind="amount" puts a dollar sign in the field; kind="number" leaves it
-// bare for a count of days or payments.
-//
-// size="inline" sets the field into a line of other text, such as a list row's second line: the field is one
-// line tall, takes that line's type and grows with its value, sized in ch so it fits whatever size the text is
-// (touch screens set fields to 16px). Its ring sits inside its edge, so a row that clips its overflow keeps it.
-
 type AutonomyRuleProps = Omit<React.ComponentProps<'div'>, 'children' | 'onChange'> & {
-  /** The words before the field, such as "Ask me before paying over". */
   before?: string;
-  /** The words after the field, such as "days before it's due". */
   after?: string;
-  /** The limit as the person typed it. Empty is allowed and reads as no limit set. */
   value: string;
   onValueChange?: (value: string) => void;
-  /** amount shows a dollar sign; number is a bare count. */
   kind?: 'amount' | 'number';
-  /** sm is a 32px field; inline is one line of the surrounding text. */
   size?: 'sm' | 'inline';
   disabled?: boolean;
 };
@@ -37,7 +22,6 @@ function AutonomyRule({before, after, value, onValueChange, kind = 'amount', siz
       data-slot="autonomy-rule"
       data-kind={kind}
       data-size={size}
-      // An inline field is as wide as its characters, the dollar sign included.
       style={inline ? {'--autonomy-chars': Math.max(value.length, 1) + (amount ? 1 : 0), ...style} as React.CSSProperties : style}
       className={cn('flex min-w-0 items-center', inline ? 'gap-1.5' : 'gap-2 text-sm', disabled ? 'text-fg-disabled' : !inline && 'text-fg', className)}
       {...props}

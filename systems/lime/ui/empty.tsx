@@ -1,9 +1,5 @@
 import {cn} from '../lib/utils';
 
-// A region with nothing in it yet. An empty state is a designed state: say what belongs here, then offer
-// the one action that fills it. Title in sentence case, one line of help, at most two buttons. It has no fill
-// of its own: it takes the color of the list, card or page it empties, so it never adds a surface.
-
 function Empty({className, ...props}: React.ComponentProps<'div'>) {
   return <div data-slot="empty" className={cn('flex flex-col items-center gap-3 px-6 py-10 text-center', className)} {...props}/>;
 }

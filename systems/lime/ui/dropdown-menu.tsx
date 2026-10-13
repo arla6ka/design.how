@@ -6,11 +6,6 @@ import {useLimePortal} from '../lib/portal';
 import {groupLabelClass, itemClass, popupClass, separatorClass} from '../lib/popup';
 import {mergeClass} from '../lib/utils';
 
-// A list of commands behind a button: rename, duplicate, delete. Arrow keys move, typing jumps, Enter runs
-// the command and the menu closes. Put the destructive command last, after a separator, and mark it
-// `destructive`. Choices that stay on belong in CheckboxItem or RadioItem. A single choice from a long list
-// is a Select, not a menu.
-
 function DropdownMenu(props: MenuPrimitive.Root.Props) {
   return <MenuPrimitive.Root data-slot="dropdown-menu" {...props}/>;
 }
@@ -41,7 +36,6 @@ function DropdownMenuLabel({className, ...props}: MenuPrimitive.GroupLabel.Props
 }
 
 type DropdownMenuItemProps = MenuPrimitive.Item.Props & {
-  /** Red text for a command that deletes or cannot be undone. */
   destructive?: boolean;
 };
 

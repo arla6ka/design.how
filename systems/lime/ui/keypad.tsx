@@ -3,25 +3,16 @@
 import {Delete, Icon} from '../icon';
 import {cn} from '../lib/utils';
 
-// The number pad for entering an amount on a phone, under a large figure: 1 to 9, the decimal point, 0 and
-// delete. It edits a plain string such as "42.5" through value and onValueChange, so the screen formats
-// the figure itself (formatAmount) and parses it once on Continue. The pad keeps the string valid: no
-// leading zeros, one point, two decimals, and no more than maxDigits whole digits. A key that would break
-// a rule does nothing. With focus inside, the hardware keys 0 to 9, the point and Backspace work too.
-
 type KeypadProps = Omit<React.ComponentProps<'div'>, 'onChange' | 'children'> & {
   value: string;
   onValueChange?: (value: string) => void;
-  /** Allow cents. Off for whole units, such as a savings target. */
   decimal?: boolean;
-  /** The most digits before the point. */
   maxDigits?: number;
   disabled?: boolean;
 };
 
 const DIGITS = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
-/** The string after pressing `key` ("0" to "9", "." or "delete"), or the same string if the key is refused. */
 function pressKey(value: string, key: string, {decimal = true, maxDigits = 7}: {decimal?: boolean; maxDigits?: number} = {}) {
   if (key === 'delete') return value.slice(0, -1);
   const [whole, cents] = value.split('.');

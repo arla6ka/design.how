@@ -3,10 +3,6 @@
 import {Switch as SwitchPrimitive} from '@base-ui/react/switch';
 import {mergeClass} from '../lib/utils';
 
-// An on or off setting that takes effect at once. Off is a white knob on a grey track, on a white knob on the
-// lime, in both themes. The knob is lifted like a phone's switch (a soft drop, a contact shadow, a hairline edge),
-// a little deeper on a dark page so it still reads on the lime. The track has no outline. For a choice that waits for a Save button use Checkbox.
-
 function Switch({className, ...props}: SwitchPrimitive.Root.Props) {
   return (
     <SwitchPrimitive.Root

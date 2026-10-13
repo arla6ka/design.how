@@ -1,10 +1,6 @@
 import {cva, type VariantProps} from 'class-variance-authority';
 import {cn} from '../lib/utils';
 
-// Static metadata: a plan, a count, a state. It is not clickable (use Chip for that). Sentence case, never
-// capitals. neutral is the default; accent is the one highlight, such as "New"; the three status tones
-// carry a state and always sit beside a word.
-
 const badgeVariants = cva(
   'inline-flex h-6 w-fit shrink-0 items-center gap-1 rounded-control px-2.5 text-xs font-medium whitespace-nowrap [&_svg]:shrink-0',
   {

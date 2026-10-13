@@ -1,9 +1,5 @@
 import {cn} from '../lib/utils';
 
-// A table for data you scan across: rows of transactions, payments, statements. Sentence case headings in grey,
-// hairline rules, numbers right aligned with tabular figures. Wrapped so a wide table scrolls inside
-// itself and never the page. For a list of mixed content use a list of Cards.
-
 function Table({className, ...props}: React.ComponentProps<'table'>) {
   return (
     <div data-slot="table-wrapper" className="w-full overflow-x-auto">

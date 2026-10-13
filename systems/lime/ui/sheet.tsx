@@ -7,15 +7,6 @@ import {useLimePortal} from '../lib/portal';
 import {cn, mergeClass} from '../lib/utils';
 import {Button} from './button';
 
-// A panel that slides in from an edge and keeps the page in view: a transaction's details, filters, a
-// short choice. On a phone it is a bottom sheet with a grab handle that a swipe down dismisses; from 640px
-// it floats in from the right, 400px wide, and a swipe right dismisses it. side="auto" picks between the
-// two by the window width; pass "bottom", "right" or "left" to fix it. Sides are physical, so a
-// right-to-left app passes "left" for the trailing edge.
-//
-// Built on Base UI's Drawer, which traps focus, closes on Escape and the scrim, follows the finger while
-// swiping and returns focus to the trigger. The header and footer stay put while SheetBody scrolls.
-
 type SheetSide = 'auto' | 'bottom' | 'right' | 'left';
 type ResolvedSide = Exclude<SheetSide, 'auto'>;
 
@@ -30,14 +21,12 @@ const subscribe = (change: () => void) => {
   return () => query.removeEventListener('change', change);
 };
 
-/** The side "auto" resolves to: bottom on a phone, right from 640px. Bottom on the server. */
 function useSheetSide(side: SheetSide): ResolvedSide {
   const isWide = useSyncExternalStore(subscribe, () => window.matchMedia(wide).matches, () => false);
   return side === 'auto' ? (isWide ? 'right' : 'bottom') : side;
 }
 
 type SheetProps = Omit<DrawerPrimitive.Root.Props, 'swipeDirection'> & {
-  /** The edge it comes from. auto is bottom on a phone and right from 640px. */
   side?: SheetSide;
 };
 
@@ -110,7 +99,6 @@ function SheetContent({className, children, ...props}: SheetContentProps) {
 }
 
 type SheetHeaderProps = React.ComponentProps<'div'> & {
-  /** The round close button at the end of the header. On by default. */
   showClose?: boolean;
 };
 
@@ -135,7 +123,6 @@ function SheetDescription({className, ...props}: DrawerPrimitive.Description.Pro
   return <DrawerPrimitive.Description data-slot="sheet-description" className={mergeClass('text-sm text-fg-2', className)} {...props}/>;
 }
 
-/** The part that scrolls. Text inside can be selected with a mouse without starting a swipe. */
 function SheetBody({className, ...props}: DrawerPrimitive.Content.Props) {
   return <DrawerPrimitive.Content data-slot="sheet-body" className={mergeClass('min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-2', className)} {...props}/>;
 }

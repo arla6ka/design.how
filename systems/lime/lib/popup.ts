@@ -1,9 +1,5 @@
 import {cn} from './utils';
 
-// The class sets every floating list shares (select, combobox, dropdown menu), so all of them look the
-// same: a white panel with the menu shadow, 16px corners around 10px items, a 4px inset. The panel eases
-// in from 0.97 and out again; reduced motion zeroes the duration in tokens.css.
-
 export const popupClass = cn(
   'relative isolate z-(--z-popover) max-h-(--available-height) min-w-(--anchor-width) origin-(--transform-origin) overflow-hidden rounded-panel bg-raised p-1 text-fg shadow-menu outline-none',
   'transition-[opacity,scale] duration-(--dur-base) ease-(--ease-out)',

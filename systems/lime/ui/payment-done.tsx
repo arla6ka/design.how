@@ -9,14 +9,6 @@ import {Button} from './button';
 import {Card} from './card';
 import {Status} from './status';
 
-// The confirmation after a payment the person made themselves: who it went to, the amount, its Status, and
-// Undo for a short time. The assistant's own actions use Action receipt instead.
-//
-// The footer is a polite live region holding the Status and Undo. Undo counts down beside its label (the
-// seconds are hidden from screen readers, which hear the limit once in its description) and goes away when
-// the time runs out. When the Undo button leaves while it has focus, focus moves to the Status, so a
-// keyboard user is never dropped to the top of the page. The footer keeps one height through every state.
-
 type PaymentDoneState = 'sending' | 'sent' | 'undone';
 
 type PaymentDoneLabels = {
@@ -29,22 +21,15 @@ type PaymentDoneLabels = {
 const defaultLabels: Required<PaymentDoneLabels> = {sending: 'Sending', sent: 'Sent', undone: 'Undone', undo: 'Undo'};
 
 type PaymentDoneProps = Omit<React.ComponentProps<'div'>, 'children'> & {
-  /** Who the money went to, such as "Maya Chen". */
   to: string;
-  /** Signed: negative is money out. */
   amount: number;
   currency?: string;
-  /** An Avatar or a ListIcon for the recipient. */
   leading?: ReactNode;
-  /** One line under the name, such as "From Checking, arrives today". */
   detail?: string;
   state?: PaymentDoneState;
-  /** Seconds Undo stays after the payment is sent. 0 leaves Undo out. */
   undoFor?: number;
-  /** Undo is pressed and the payment is being pulled back. */
   undoPending?: boolean;
   onUndo?: () => void;
-  /** The status words and the Undo label, for another language. */
   labels?: PaymentDoneLabels;
 };
 
@@ -53,7 +38,6 @@ function PaymentDone({to, amount, currency, leading, detail, state = 'sent', und
   const [left, setLeft] = useState(undoFor);
   const canUndo = state === 'sent' && undoFor > 0 && (left > 0 || !!undoPending);
 
-  // The clock starts when the payment is sent and stops while Undo is working.
   useEffect(() => {
     if (state !== 'sent') return;
     setLeft(undoFor);
@@ -65,7 +49,6 @@ function PaymentDone({to, amount, currency, leading, detail, state = 'sent', und
   }, [state, undoPending, left]);
 
   const limitId = useId();
-  // When Undo leaves while it has focus, focus moves to the Status.
   const {region: footer, target: outcome} = useFocusWhenReplaced(!canUndo);
 
   const minutes = Math.floor(Math.max(left, 0) / 60);

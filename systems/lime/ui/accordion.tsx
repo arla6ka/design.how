@@ -4,10 +4,6 @@ import {Accordion as AccordionPrimitive} from '@base-ui/react/accordion';
 import {ChevronDown, Icon} from '../icon';
 import {mergeClass} from '../lib/utils';
 
-// A stack of sections, each with a heading that opens its panel. Good for questions and answers, or a
-// settings page with a few groups. One open at a time by default; pass `multiple` to allow several. Each
-// item needs a `value`. Hairlines separate the items.
-
 function Accordion({className, ...props}: AccordionPrimitive.Root.Props) {
   return <AccordionPrimitive.Root data-slot="accordion" className={mergeClass('flex w-full flex-col', className)} {...props}/>;
 }

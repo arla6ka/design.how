@@ -4,12 +4,8 @@ import {useState} from 'react';
 import {ApprovalRequest, type ApprovalRequestState} from '../ai/approval-request';
 import {Message} from '../ai/message';
 
-// A block: the assistant asking before it pays a bill. Wire onApprove and onDecline to the real payment.
-
 const balance = 2481.2;
 
-/** You ask, the assistant answers in plain text and asks before it pays. Approve is the glow; it works for a
- * moment, then settles to a status line. */
 export function PayingABill() {
   const [state, setState] = useState<ApprovalRequestState>('waiting');
   const [pending, setPending] = useState(false);

@@ -4,13 +4,9 @@ import {Button} from '../ui/button';
 import {formatAmount} from '../ui/amount';
 import {Progress} from '../ui/progress';
 
-// A block: an app home screen. Replace the sample name, balance and goal with the person's own.
-
 const balance = 2481.2;
 const goal = {name: 'Vacation fund', saved: 290, target: 480};
 
-/** An app home, kept to its structure: who you are, the balance, three quick actions (Add is the one glow) and
- * the savings goal as one row with its bar. */
 export function HomeScreen() {
   const actions = [
     {label: 'Add', icon: Add, primary: true},

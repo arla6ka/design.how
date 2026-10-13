@@ -4,12 +4,7 @@ import {Slider as SliderPrimitive} from '@base-ui/react/slider';
 import {useMemo} from 'react';
 import {cn, mergeClass} from '../lib/utils';
 
-// A value on a range, set by dragging or by arrow keys. One thumb, or two for a range. The fill is the
-// lime with an olive edge, the thumb is a white disc with an ink ring, so the value reads without colour.
-// `showValue` prints the current value beside the track.
-
 type SliderProps = SliderPrimitive.Root.Props & {
-  /** Accessible name per thumb, such as ['Minimum', 'Maximum']. */
   thumbLabels?: string[];
   showValue?: boolean;
 };

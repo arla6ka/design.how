@@ -3,25 +3,13 @@
 import {Meter as MeterPrimitive} from '@base-ui/react/meter';
 import {cn, mergeClass} from '../lib/utils';
 
-// How far something has come toward a known end: a savings goal, a budget spent, a card's limit. A bar
-// for a row or a card, a ring for a goal tile with the figure inside. The lime fill is one flat color on the
-// grey track, with no edge. It is a meter (role meter) because it measures an amount; work that is running uses
-// Status or a Button's pending state instead.
-//
-// label names it for a screen reader, and valueText says the amount in words, such as "$640 of $1,000".
-// The visible figure is the caller's: a bar is bare, so put the words above it.
-
 type ProgressProps = Omit<MeterPrimitive.Root.Props, 'children' | 'aria-label'> & {
   value: number;
   max?: number;
-  /** The accessible name, such as "Saved toward Vacation fund". */
   label: string;
-  /** The value in words, such as "$640 of $1,000". Without it a reader hears a percentage. */
   valueText?: string;
   shape?: 'bar' | 'ring';
-  /** The ring's diameter: 40, 64 or 96px. Bars ignore it. */
   size?: 'sm' | 'md' | 'lg';
-  /** Shown in the middle of a ring, such as the percentage. */
   children?: React.ReactNode;
 };
 

@@ -9,10 +9,6 @@ import {Button} from '../ui/button';
 import {List, ListIcon, ListItem} from '../ui/list';
 import {Status} from '../ui/status';
 
-// A block: the assistant flagging something with one row and the answers to it. UnusualCharge is a charge to
-// confirm, CancelSubscription a subscription nobody opens.
-
-/** A charge that doesn't look like you, with the two answers. Freezing is solid, not a glow: it is a choice, not the push. */
 export function UnusualCharge() {
   return (
     <section aria-label="Unusual charge" className="flex w-full max-w-sm flex-col gap-4">
@@ -28,11 +24,8 @@ export function UnusualCharge() {
   );
 }
 
-/** A subscription nobody opens, found by the assistant: one row and one action, which holds the glow. Cancel it
- * works for a moment, then the buttons give way to a status line in the same height. */
 export function CancelSubscription() {
   const [state, setState] = useState<'open' | 'pending' | 'canceled' | 'kept'>('open');
-  // The pressed button is gone once the status shows, so focus moves to the status instead of the page top.
   const {region, target: outcome} = useFocusWhenReplaced(state === 'canceled' || state === 'kept');
   const cancel = () => {
     setState('pending');

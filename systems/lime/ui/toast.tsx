@@ -6,42 +6,21 @@ import {Close, Icon} from '../icon';
 import {useLimePortal} from '../lib/portal';
 import {cn} from '../lib/utils';
 
-// A short note after the person did something: "Moved $50 to Vacation fund". Ink on the page, one line, at
-// the bottom centre, with at most one action (usually Undo) and a close button. Base UI Toast underneath.
-//
-// One at a time: a new toast replaces the one showing. It closes itself after 5 seconds, or 8 with an action
-// so there is time to reach Undo. Hovering, focusing or touching it pauses the timer, and F6 jumps to it from
-// anywhere. The region is polite, so a screen reader reads it after what it is saying now.
-//
-// It confirms; it never carries an error the person has to act on, and it is never the only place a result
-// shows. A failed payment stays on the screen it failed on.
-//
-// Mount ToastProvider once inside the Lime scope, then call useToast().show() from any component under it.
-// contained keeps the toast inside the nearest positioned parent, for a phone frame or a preview.
-
 const DEFAULT_TIMEOUT = 5000;
 const ACTION_TIMEOUT = 8000;
 
 type ToastOptions = {
-  /** What happened, past tense, with the amount: "Moved $50 to Vacation fund". */
   title: string;
-  /** A second line, only when the title cannot carry it. */
   description?: string;
-  /** One action, usually Undo. Pressing it runs onClick and closes the toast. */
   action?: {label: string; onClick: () => void};
-  /** Milliseconds before it closes itself. 0 keeps it until it is closed. */
   timeout?: number;
-  /** Replaces the toast with this id instead of adding a new one. */
   id?: string;
 };
 
 type ToastProviderProps = {
   children?: ReactNode;
-  /** Milliseconds before a toast with no action closes itself. */
   timeout?: number;
-  /** Shows toasts in the nearest positioned parent instead of the window. */
   contained?: boolean;
-  /** A manager from createToastManager(), to show a toast from outside React. */
   toastManager?: ToastPrimitive.Provider.Props['toastManager'];
 };
 
@@ -101,11 +80,9 @@ function ToastList() {
   ));
 }
 
-/** Shows and closes toasts. Call it in a component under ToastProvider. */
 function useToast() {
   const manager = ToastPrimitive.useToastManager();
   return useMemo(() => ({
-    /** Shows a toast and returns its id. A toast already showing gives way to it. */
     show({title, description, action, timeout, id}: ToastOptions) {
       const toastId: string = manager.add({
         id,

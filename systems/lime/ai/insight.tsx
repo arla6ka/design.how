@@ -3,21 +3,11 @@
 import {cn} from '../lib/utils';
 import {Button} from '../ui/button';
 
-// One thing the assistant noticed about your money, said in a sentence with the number that proves it and
-// a tiny line of the last few weeks or months. No card and no button row: at most one link to act on it,
-// such as "Set a budget". The sparkline is drawn in ink with its last point marked, has no axes, and is
-// hidden from screen readers because the sentence already says what it shows.
-
 type InsightProps = Omit<React.ComponentProps<'div'>, 'children' | 'title'> & {
-  /** The finding as a plain sentence, such as "Groceries are up this month". */
   title: string;
-  /** The number that proves it, such as "+18%" or "$412". */
   figure: string;
-  /** What the figure compares against, such as "vs. your 3 month average". */
   basis?: string;
-  /** Oldest first. Four to twelve points read best. */
   points: number[];
-  /** The one thing to do about it, such as Set a budget. A quiet link button at the end of the figure. */
   action?: string;
   onAction?: () => void;
 };

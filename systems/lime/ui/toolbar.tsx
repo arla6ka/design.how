@@ -4,11 +4,6 @@ import {Toggle as TogglePrimitive} from '@base-ui/react/toggle';
 import {Toolbar as ToolbarPrimitive} from '@base-ui/react/toolbar';
 import {cn, mergeClass} from '../lib/utils';
 
-// A row of related controls that act on one thing, such as formatting or playback. It is one tab stop;
-// arrow keys move between the controls inside. Icon buttons need an aria-label. A pressed toggle takes the
-// soft lime wash.
-// Items never wrap. A toolbar wider than its container scrolls sideways, and keeps its 32px pill.
-
 function Toolbar({className, ...props}: ToolbarPrimitive.Root.Props) {
   return <ToolbarPrimitive.Root data-slot="toolbar" className={mergeClass('inline-flex w-fit max-w-full items-center gap-0.5 overflow-x-auto rounded-control bg-surface p-1', className)} {...props}/>;
 }

@@ -3,18 +3,6 @@
 import {cva, type VariantProps} from 'class-variance-authority';
 import {cn} from '../lib/utils';
 
-// A grouped block of content. The default sits on the warm-grey surface with no edge, so a page of
-// cards reads as quiet. outline is white with a hairline for a card on a grey area; raised adds the one
-// card shadow for a card that floats. Radius is 16px.
-//
-// glow is the one featured surface of a screen, such as an upgrade card or the plan to pick: the lime body lit
-// from inside, with near-black text. It powers up on hover only when interactive. One per view.
-//
-// interactive makes the whole card one control. With `href` it renders a link. Without, it renders a
-// native button (type="button"), so Enter, Space, focus and the button role come from the browser. Do not
-// put a button or link inside an interactive card (a control inside a control); use a plain card with one
-// stretched link for that.
-
 const cardVariants = cva('flex flex-col gap-4 rounded-panel p-5 text-fg', {
   variants: {
     variant: {
@@ -33,7 +21,6 @@ const cardVariants = cva('flex flex-col gap-4 rounded-panel p-5 text-fg', {
 
 type CardLook = {variant?: VariantProps<typeof cardVariants>['variant']};
 
-/** A plain card is a div; an interactive one is a button, or a link with href. Each takes its own element's props. */
 type CardProps =
   | (React.ComponentProps<'div'> & CardLook & {interactive?: false; href?: never})
   | (React.ComponentProps<'button'> & CardLook & {interactive: true; href?: never})
@@ -49,7 +36,6 @@ function Card(props: CardProps) {
   }
   if (props.interactive) {
     const {className, variant, interactive: _, href: __, ...rest} = props;
-    // A button is inline by default and centres its text; the card fills its column and reads from the start.
     return <button data-slot="card" type="button" className={cn(cardClass(variant, true, className), 'w-full text-start')} {...rest}/>;
   }
   const {className, variant, interactive: _, href: __, ...rest} = props;

@@ -5,11 +5,6 @@ import {useLimePortal} from '../lib/portal';
 import {cn, mergeClass} from '../lib/utils';
 import {backdropClass, dialogVariants} from './dialog';
 
-// A blocking decision with no way out except choosing: delete a goal, discard a draft, send a large payment.
-// It cannot be dismissed by clicking outside. Focus starts on the first control in the popup (Base UI's
-// default, or `initialFocus` on the content), so put the safe action first in the markup and Enter never
-// confirms by accident. The confirm button repeats the verb of the trigger ("Delete goal"), never "OK".
-
 function AlertDialog(props: AlertDialogPrimitive.Root.Props) {
   return <AlertDialogPrimitive.Root data-slot="alert-dialog" {...props}/>;
 }

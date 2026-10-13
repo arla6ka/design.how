@@ -4,11 +4,6 @@ import {Tooltip as TooltipPrimitive} from '@base-ui/react/tooltip';
 import {useLimePortal} from '../lib/portal';
 import {mergeClass} from '../lib/utils';
 
-// A short label for a control, shown on hover and keyboard focus. One line of plain text in sentence case,
-// such as "Copy link". Never put a link, a button or a second sentence in it; use Popover for that.
-// An icon button must name itself with aria-label, and the tooltip repeats it for sighted people.
-// The chip is ink on light and light on ink in the dark theme.
-
 function TooltipProvider({delay = 400, closeDelay = 0, ...props}: TooltipPrimitive.Provider.Props) {
   return <TooltipPrimitive.Provider delay={delay} closeDelay={closeDelay} {...props}/>;
 }

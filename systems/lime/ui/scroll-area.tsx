@@ -3,9 +3,6 @@
 import {ScrollArea as ScrollAreaPrimitive} from '@base-ui/react/scroll-area';
 import {cn, mergeClass} from '../lib/utils';
 
-// A scrolling region with a slim thumb that appears while the pointer is over it or the region scrolls.
-// Give it a height. The viewport is focusable, so keyboard users can scroll it with the arrow keys.
-
 type ScrollAreaProps = ScrollAreaPrimitive.Root.Props & {
   orientation?: 'vertical' | 'horizontal' | 'both';
 };

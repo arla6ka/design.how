@@ -36,5 +36,6 @@ Each skill swaps a guess for a step it can prove. It screenshots every route bef
 Each one installs with shadcn and brings a skill, so your agent builds with its components and follows its rules.
 
 - **[Lime](./systems/lime)**. Warm and light, for consumer apps, with one glowing action. `npx shadcn@latest add https://design.how/r/lime/theme.json`
+- **[Quartz](./systems/quartz)**. Cold and calm, for AI agents and developer tools, with colour only for what a thing is and what went wrong. `npx shadcn@latest add https://design.how/r/quartz/theme.json`
 
 MIT licensed.

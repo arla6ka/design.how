@@ -5,20 +5,6 @@ import {cva, type VariantProps} from 'class-variance-authority';
 import type {ReactNode} from 'react';
 import {cn, mergeClass} from '../lib/utils';
 
-// Lime's button. Base UI Button underneath, cva variants on top, a pill by default.
-// primary is the lime and is the one main action on a screen. solid is the ink fill for the action beside
-// it. secondary, outline and ghost carry everything else. Text on the lime is always near-black.
-//
-// primary and destructive carry the glow (see styles.css): a solid body lit from inside that powers up on
-// hover and darkens on press. Disabled drops it. Small sizes use the subtle glow.
-//
-// pending: the button started work and is waiting. It becomes disabled against repeat presses, keeps
-// focus, sets aria-busy and shows a spinner before the label. The label never changes, so the accessible
-// name stays put. Pass the prop (true or false) on any button that can be pending: the idle content and
-// the pending content (spinner plus label) then share one grid cell, so the box is as wide as the pending
-// layer from the first render and never changes size when pending starts. Without the prop there is no
-// reserved room and a spinner added later grows the button.
-
 const buttonVariants = cva(
   [
     'group/button relative inline-flex max-w-full shrink-0 items-center justify-center gap-2 rounded-control font-medium whitespace-nowrap select-none',
@@ -54,7 +40,6 @@ const buttonVariants = cva(
   },
 );
 
-/** A three quarter arc turning once. The only looping motion in Lime. */
 function Spinner({className, size = 16}: {className?: string; size?: number}) {
   return (
     <svg data-slot="spinner" viewBox="0 0 16 16" width={size} height={size} fill="none" aria-hidden="true" className={cn('animate-spin', className)}>
@@ -65,14 +50,10 @@ function Spinner({className, size = 16}: {className?: string; size?: number}) {
 }
 
 type ButtonProps = ButtonPrimitive.Props & VariantProps<typeof buttonVariants> & {
-  /** Waiting on the action this button started. Disables repeat presses and shows a spinner. */
   pending?: boolean;
-  /** An icon before the label. */
   icon?: ReactNode;
 };
 
-// A text label never wraps. A button is never wider than its container, so a label too long for it ends in an
-// ellipsis instead of running out of the column; the full label stays the accessible name.
 function Button({className, variant, size, pending, icon, disabled, children: content, ...props}: ButtonProps) {
   const children = typeof content === 'string' ? <span data-slot="button-text" className="min-w-0 truncate">{content}</span> : content;
   return (

@@ -1,190 +1,135 @@
-/* Lime tokens. The one file to retune.
-
-   Lime is a light system for consumer apps with one acid yellow-green accent: a white page,
-   warm-grey surfaces, near-black text, no blue. The one gradient is the glow: see Glow below.
-
-   Rules
-   - Lime is for the primary action, the chosen thing, a highlight and focus. It is never a page, card or
-     section background. Everything else is white, warm grey and ink.
-   - Text on the accent is --on-accent, near-black, in both themes. Black on the mark is 15.6:1.
-   - The accent has five steps. mark: the fill of a primary action. hover and active: its states.
-     wash: a selected row, a highlighted answer, a soft chip. line: a darker olive for focus rings,
-     outlines and icons on white (3.95:1 on the page, 3.62:1 on a warm-grey surface). The mark alone is
-     1.23:1 on white, so it never draws a line or a ring on a light surface.
-   - Status keeps its own hues (green, amber, red). There is no info hue, so there is no blue.
-   - Components read roles, never hex and never a dark: variant. The dark theme redefines the roles.
-   - No gradients, with one deliberate exception: the glow, a solid accent body lit from inside, on the primary
-     action, the balance chip and one featured card. Shadows are a warm ink at low alpha and appear on overlays
-     and raised cards only.
-
-   Format, read by the docs
-   - One declaration per line: --name: value; followed by a comment of the form job | used by.
-   - A line that starts with == opens a token group. Keep both formats when you retune.
-
-   Font: Hanken Grotesk, SIL OFL, from Google Fonts. */
-
 @import url("https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&display=swap");
 
 [data-system="lime"], .lime {
-  /* == Surfaces == */
-  --page: #ffffff; /* the page | app background */
-  --surface: #f6f5f2; /* warm grey: cards, wells, quiet panels | card, sidebar, table header */
-  --surface-2: #efeeea; /* a control at rest or a row on hover | secondary button, chip, hover */
-  --surface-3: #e6e4df; /* pressed, a track | pressed control, slider and switch track */
-  --raised: #ffffff; /* a surface that floats above the page | popover, menu, dialog, sheet */
-  --field: #f6f5f2; /* the fill of a text field | input, textarea, select trigger */
-  --scrim: rgb(15 15 13 / 0.5); /* the layer behind a dialog or sheet | dialog, sheet */
-
-  /* == Text == */
-  --fg: #0f0f0d; /* primary text, 17.6:1 on --surface | headings, body, labels */
-  --fg-2: #4a4943; /* secondary text, 9.0:1 on --page | descriptions, table cells */
-  --fg-3: #6b6a63; /* supporting text and icons, 5.4:1 on --page and 5.0:1 on --surface | hints, captions, placeholders */
-  --fg-disabled: #a6a49b; /* a disabled label; no contrast claim | disabled controls */
-  --fg-inverse: #ffffff; /* text on the solid ink fill | solid button, tooltip, toast */
-  --on-accent: #0f0f0d; /* text and icons on the lime in both themes, 15.6:1 on --accent | primary button, selected chip */
-  --glow-accent-fg: #0f0f0d; /* text and icons on the lime glow: ink, on the light body and the calmer dark one alike (Customize turns it white for a picked hue whose dark body runs deep) | primary button, balance chip, featured card */
-
-  /* == Lines == */
-  --line: #e6e4df; /* a hairline between things; decorative | card edge, divider, table rule */
-  --line-strong: #cfcdc6; /* a hairline that must read a little more | field edge, hovered edge */
-  --control: #85827a; /* the outline of a control, 3.8:1 on --page, 3.5:1 on --surface and 3.3:1 on --surface-2, all over the minimum of WCAG 1.4.11; darkened one step from #8f8c84, which fell under it on --surface-2 | checkbox, radio, switch off, slider thumb */
-
-  /* == Solid ink == */
-  --ink: #0f0f0d; /* the ink fill: the second action beside the lime | solid button, tooltip, toast */
-  --ink-hover: #2a2a26; /* ink on hover | solid button */
-  --ink-active: #3f3f3a; /* ink pressed | solid button */
-
-  /* == Accent: acid lime == */
-  --accent: #e4f222; /* the mark: the fill of a primary action, 15.6:1 with --on-accent | primary button, selected segment, switch on, slider fill, progress */
-  --accent-hover: #d6e41a; /* the mark on hover, 13.7:1 with --on-accent | primary button */
-  --accent-active: #c4d211; /* the mark pressed, 11.5:1 with --on-accent | primary button */
-  --accent-wash: #f5f9c4; /* a soft highlight, 17.6:1 with --fg | selected row, highlighted option, the current answer */
-  --accent-line: #7c8700; /* olive line step, 3.95:1 on --page and 3.62:1 on --surface | focus ring, outline, icon on white */
-  --ring: var(--accent-line); /* the focus ring colour | every focus-visible state */
-
-  /* == Status: three hues, each with a mark, a tint and a text step == */
-  --success: #1e8e4a; /* success mark, 4.2:1 on --page | status dot, progress done */
-  --success-tint: #e5f5ea; /* success wash | success badge, alert */
-  --success-text: #17703a; /* success text, 6.1:1 on --page and 5.4:1 on --success-tint | success label */
-  --warn: #c27a00; /* warning mark, 3.5:1 on --page | status dot */
-  --warn-tint: #fff3d6; /* warning wash | warning badge, alert */
-  --warn-text: #8a5200; /* warning text, 6.4:1 on --page and 5.8:1 on --warn-tint | warning label */
-  --danger: #d93636; /* error fill, 4.6:1 with --on-danger | destructive button, invalid ring */
-  --danger-hover: #c02c2c; /* error fill on hover, 5.8:1 with --on-danger | destructive button */
-  --danger-tint: #fdebeb; /* error wash | error badge, alert */
-  --on-danger: #ffffff; /* text on the error fill | destructive button */
-  --danger-text: #b42323; /* error text, 6.6:1 on --page and 5.7:1 on --danger-tint | error message, error label */
-
-  /* == Elevation: a warm ink, low alpha == */
-  --shadow-ink: 40 36 20; /* the shadow channel | every shadow */
-  --shadow-card: 0 1px 2px rgb(var(--shadow-ink) / 0.06), 0 1px 1px rgb(var(--shadow-ink) / 0.04); /* a raised card | card with the raised prop */
-  --shadow-menu: 0 8px 24px -6px rgb(var(--shadow-ink) / 0.16), 0 2px 6px rgb(var(--shadow-ink) / 0.06); /* a menu, popover or select popup | popover, dropdown-menu, select, combobox */
-  --shadow-overlay: 0 24px 48px -12px rgb(var(--shadow-ink) / 0.24), 0 4px 12px rgb(var(--shadow-ink) / 0.08); /* a dialog or sheet | dialog, alert-dialog, sheet */
-  --thumb: #ffffff; /* the knob of a switch, white | switch */
-  --switch-on: var(--accent); /* a switch's track when on | switch */
-  --switch-on-thumb: var(--thumb); /* a switch's knob when on: white on the lime | switch */
-  --shadow-thumb: 0 2px 5px rgb(var(--shadow-ink) / 0.1), 0 1px 1px rgb(var(--shadow-ink) / 0.07), 0 0 0 0.5px rgb(var(--shadow-ink) / 0.1); /* the knob's lift, like a phone's switch: a soft drop, a contact shadow and a hairline edge | switch */
-
-  /* == Glow: a lit surface == */
-  --glow-accent-from: #dbec1c; /* top of the lime body, black text 15.1:1 at the darkest stop | primary button, balance chip, featured card */
-  --glow-accent-to: #f6ff7c; /* bottom of the lime body | primary button, balance chip, featured card */
-  --glow-accent-edge: rgb(255 255 255 / 0.7); /* the crisp light line on the lower inner edge | glow-accent */
-  --glow-accent-bloom: rgb(255 255 255 / 0.28); /* the soft inner bloom | glow-accent */
-  --glow-accent-cast: 112 120 20; /* the olive outer cast, an RGB triplet | glow-accent */
-  --glow-accent-light: 1; /* strength of the white sheen and bloom on the body | glow-accent */
-  --glow-accent-from-lit: #e4f42c; /* top of the body when powered on (hover), black text 16.3:1 at the darkest stop | glow-accent */
-  --glow-accent-to-lit: #faff9c; /* bottom of the body when powered on | glow-accent */
-  --glow-accent-edge-lit: rgb(255 255 255 / 0.9); /* the lower edge line when powered on | glow-accent */
-  --glow-accent-bloom-lit: rgb(255 255 255 / 0.4); /* the inner bloom when powered on | glow-accent */
-  --glow-accent-from-press: #c8d915; /* top of the body while pressed, a darker body, black text 12.4:1 at the darkest stop | glow-accent */
-  --glow-accent-to-press: #e6f24a; /* bottom of the body while pressed | glow-accent */
-  --glow-danger-from: #a31f1f; /* top of the red body, white text 6.1:1 at the worst point | destructive button */
-  --glow-danger-to: #c42b2b; /* bottom of the red body | destructive button */
-  --glow-danger-edge: rgb(255 255 255 / 0.4); /* the lower edge line | glow-danger */
-  --glow-danger-bloom: rgb(255 255 255 / 0.16); /* the inner bloom | glow-danger */
-  --glow-danger-cast: 130 30 30; /* the red outer cast | glow-danger */
-  --glow-danger-light: 0.4; /* a dimmer sheen, so white text keeps 4.5:1 | glow-danger */
-  --glow-danger-from-lit: #b02424; /* top when powered on, white text 5.2:1 at the worst point | glow-danger */
-  --glow-danger-to-lit: #d03333; /* bottom when powered on | glow-danger */
-  --glow-danger-edge-lit: rgb(255 255 255 / 0.6); /* the lower edge line when powered on | glow-danger */
-  --glow-danger-bloom-lit: rgb(255 255 255 / 0.24); /* the inner bloom when powered on | glow-danger */
-  --glow-danger-from-press: #8a1818; /* top while pressed, white text 7.6:1 at the worst point | glow-danger */
-  --glow-danger-to-press: #a82121; /* bottom while pressed | glow-danger */
-  --glow-success-from: #136b35; /* top of the green body, white text 5.2:1 at the worst point | glow-success */
-  --glow-success-to: #1a8445; /* bottom of the green body | glow-success */
-  --glow-success-edge: rgb(255 255 255 / 0.4); /* the lower edge line | glow-success */
-  --glow-success-bloom: rgb(255 255 255 / 0.16); /* the inner bloom | glow-success */
-  --glow-success-cast: 20 100 55; /* the green outer cast | glow-success */
-  --glow-success-light: 0.4; /* a dimmer sheen, so white text keeps 4.5:1 | glow-success */
-  --glow-success-fg: #ffffff; /* text on the green body | glow-success */
-  --glow-success-from-lit: #126f39; /* top when powered on, white text 4.6:1 at the worst point | glow-success */
-  --glow-success-to-lit: #1a8445; /* bottom when powered on | glow-success */
-  --glow-success-edge-lit: rgb(255 255 255 / 0.6); /* the lower edge line when powered on | glow-success */
-  --glow-success-bloom-lit: rgb(255 255 255 / 0.24); /* the inner bloom when powered on | glow-success */
-  --glow-success-from-press: #0f5a2b; /* top while pressed, white text 6.5:1 at the worst point | glow-success */
-  --glow-success-to-press: #157038; /* bottom while pressed | glow-success */
-
-  /* == Type == */
-  --font-sans: "Hanken Grotesk", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; /* every word | all text */
-  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace; /* code and keys only | code, shortcut */
-  --text-xs: 12px; /* captions, counters | badge, hint */
-  --text-sm: 14px; /* controls and body | button, input, menu item */
-  --text-base: 16px; /* prose, large controls | message, large button */
-  --text-lg: 18px; /* a small heading | card title, empty title */
-  --text-xl: 22px; /* a section or overlay heading | page section, dialog, alert-dialog and sheet titles */
-  --text-2xl: 28px; /* a page heading | page title */
-  --text-3xl: 36px; /* a display figure | account balance */
-  --leading-tight: 1.2; /* headings | text-lg and up */
-  --leading-snug: 1.35; /* labels and short copy | button, card */
-  --leading-normal: 1.5; /* prose | body */
-  --tracking-tight: -0.01em; /* large headings only; Lime never tracks out | text-xl and up */
-  --weight-normal: 400; /* body | prose */
-  --weight-medium: 500; /* controls and labels | button, label */
-  --weight-semibold: 600; /* headings | titles */
-
-  /* == Size: the control height ramp == */
-  --control-sm: 32px; /* a compact control | sm button, chip, input */
-  --control-md: 40px; /* the default control | button, input, select */
-  --control-lg: 48px; /* a primary mobile action | lg button, chat input */
-
-  /* == Radius: controls are pills, fields and panels are soft == */
-  --radius-sm: 6px; /* a tiny inner shape | kbd, checkbox */
-  --radius-md: 10px; /* a menu item | menu item, tab list inner */
-  --radius-field: 12px; /* a text field | input, textarea, select trigger */
-  --radius-panel: 16px; /* a card, popover or dialog | card, popover, dialog, alert */
-  --radius-sheet: 24px; /* a dialog or sheet | dialog, sheet */
-  --radius-control: 999px; /* a button, chip, badge, segment | button, chip, badge, segmented */
-
-  /* == Motion: short, ease-out, never decorative == */
-  --dur-instant: 80ms; /* hover and press colour | every control */
-  --dur-fast: 140ms; /* a small state change | switch, chip, checkbox */
-  --dur-base: 200ms; /* a popup or tab opening | popover, menu, tooltip */
-  --dur-slow: 280ms; /* a dialog or sheet moving | dialog, sheet */
-  --dur-spin: 900ms; /* one turn of the spinner, the only looping motion | spinner */
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1); /* the house curve | all transitions */
-  --ease-in: cubic-bezier(0.4, 0, 1, 1); /* an element leaving | closing popups */
-  --scale-enter: 0.97; /* a popup's starting scale | popover, menu, dialog */
-  --scale-press: 0.98; /* a control's scale while pressed | button, balance, keypad key */
-
-  /* == Layers: what sits above what == */
-  --z-dialog: 40; /* a dialog or sheet and its scrim | dialog, alert-dialog, sheet */
-  --z-popover: 50; /* a popup anchored to a control, above the dialog it opens from | popover, menu, select, combobox, tooltip */
-  --z-toast: 60; /* a toast, above everything else | toast */
-
-  /* == Layout == */
-  --overlay-sm: 384px; /* a small dialog | alert-dialog */
-  --overlay: 480px; /* the default dialog | dialog */
-  --overlay-lg: 640px; /* a wide dialog | dialog size lg */
-  --popover: 320px; /* a popover's width | popover */
-  --sheet: 400px; /* a side sheet's width, so the page stays in view beside it | sheet */
-  --popup-max: 320px; /* the tallest a list popup grows before it scrolls | select, combobox, menu */
-  --focus-offset: 2px; /* the gap between a control and its ring | every focus-visible state */
-  --line-focus: 2px; /* the ring weight | every focus-visible state */
-  --scrollbar-thumb: var(--line-strong); /* the scrollbar thumb | scroll-area, native scrollbars */
+  --page: #ffffff;
+  --surface: #f6f5f2;
+  --surface-2: #efeeea;
+  --surface-3: #e6e4df;
+  --raised: #ffffff;
+  --field: #f6f5f2;
+  --scrim: rgb(15 15 13 / 0.5);
+  --fg: #0f0f0d;
+  --fg-2: #4a4943;
+  --fg-3: #6b6a63;
+  --fg-disabled: #a6a49b;
+  --fg-inverse: #ffffff;
+  --on-accent: #0f0f0d;
+  --glow-accent-fg: #0f0f0d;
+  --line: #e6e4df;
+  --line-strong: #cfcdc6;
+  --control: #85827a;
+  --ink: #0f0f0d;
+  --ink-hover: #2a2a26;
+  --ink-active: #3f3f3a;
+  --accent: #e4f222;
+  --accent-hover: #d6e41a;
+  --accent-active: #c4d211;
+  --accent-wash: #f5f9c4;
+  --accent-line: #7c8700;
+  --ring: var(--accent-line);
+  --success: #1e8e4a;
+  --success-tint: #e5f5ea;
+  --success-text: #17703a;
+  --warn: #c27a00;
+  --warn-tint: #fff3d6;
+  --warn-text: #8a5200;
+  --danger: #d93636;
+  --danger-hover: #c02c2c;
+  --danger-tint: #fdebeb;
+  --on-danger: #ffffff;
+  --danger-text: #b42323;
+  --shadow-ink: 40 36 20;
+  --shadow-card: 0 1px 2px rgb(var(--shadow-ink) / 0.06), 0 1px 1px rgb(var(--shadow-ink) / 0.04);
+  --shadow-menu: 0 8px 24px -6px rgb(var(--shadow-ink) / 0.16), 0 2px 6px rgb(var(--shadow-ink) / 0.06);
+  --shadow-overlay: 0 24px 48px -12px rgb(var(--shadow-ink) / 0.24), 0 4px 12px rgb(var(--shadow-ink) / 0.08);
+  --thumb: #ffffff;
+  --switch-on: var(--accent);
+  --switch-on-thumb: var(--thumb);
+  --shadow-thumb: 0 2px 5px rgb(var(--shadow-ink) / 0.1), 0 1px 1px rgb(var(--shadow-ink) / 0.07), 0 0 0 0.5px rgb(var(--shadow-ink) / 0.1);
+  --glow-accent-from: #dbec1c;
+  --glow-accent-to: #f6ff7c;
+  --glow-accent-edge: rgb(255 255 255 / 0.7);
+  --glow-accent-bloom: rgb(255 255 255 / 0.28);
+  --glow-accent-cast: 112 120 20;
+  --glow-accent-light: 1;
+  --glow-accent-from-lit: #e4f42c;
+  --glow-accent-to-lit: #faff9c;
+  --glow-accent-edge-lit: rgb(255 255 255 / 0.9);
+  --glow-accent-bloom-lit: rgb(255 255 255 / 0.4);
+  --glow-accent-from-press: #c8d915;
+  --glow-accent-to-press: #e6f24a;
+  --glow-danger-from: #a31f1f;
+  --glow-danger-to: #c42b2b;
+  --glow-danger-edge: rgb(255 255 255 / 0.4);
+  --glow-danger-bloom: rgb(255 255 255 / 0.16);
+  --glow-danger-cast: 130 30 30;
+  --glow-danger-light: 0.4;
+  --glow-danger-from-lit: #b02424;
+  --glow-danger-to-lit: #d03333;
+  --glow-danger-edge-lit: rgb(255 255 255 / 0.6);
+  --glow-danger-bloom-lit: rgb(255 255 255 / 0.24);
+  --glow-danger-from-press: #8a1818;
+  --glow-danger-to-press: #a82121;
+  --glow-success-from: #136b35;
+  --glow-success-to: #1a8445;
+  --glow-success-edge: rgb(255 255 255 / 0.4);
+  --glow-success-bloom: rgb(255 255 255 / 0.16);
+  --glow-success-cast: 20 100 55;
+  --glow-success-light: 0.4;
+  --glow-success-fg: #ffffff;
+  --glow-success-from-lit: #126f39;
+  --glow-success-to-lit: #1a8445;
+  --glow-success-edge-lit: rgb(255 255 255 / 0.6);
+  --glow-success-bloom-lit: rgb(255 255 255 / 0.24);
+  --glow-success-from-press: #0f5a2b;
+  --glow-success-to-press: #157038;
+  --font-sans: "Hanken Grotesk", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-lg: 18px;
+  --text-xl: 22px;
+  --text-2xl: 28px;
+  --text-3xl: 36px;
+  --leading-tight: 1.2;
+  --leading-snug: 1.35;
+  --leading-normal: 1.5;
+  --tracking-tight: -0.01em;
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --control-sm: 32px;
+  --control-md: 40px;
+  --control-lg: 48px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-field: 12px;
+  --radius-panel: 16px;
+  --radius-sheet: 24px;
+  --radius-control: 999px;
+  --dur-instant: 80ms;
+  --dur-fast: 140ms;
+  --dur-base: 200ms;
+  --dur-slow: 280ms;
+  --dur-spin: 900ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --scale-enter: 0.97;
+  --scale-press: 0.98;
+  --z-dialog: 40;
+  --z-popover: 50;
+  --z-toast: 60;
+  --overlay-sm: 384px;
+  --overlay: 480px;
+  --overlay-lg: 640px;
+  --popover: 320px;
+  --sheet: 400px;
+  --popup-max: 320px;
+  --focus-offset: 2px;
+  --line-focus: 2px;
+  --scrollbar-thumb: var(--line-strong);
 }
-
-/* The dark theme redefines the roles. The lime steps down a little in lightness and saturation so it does not glare
-   on a near-black page, and black stays the text on it. */
 [data-system="lime"][data-theme="dark"], .lime[data-theme="dark"], [data-theme="dark"] [data-system="lime"], [data-theme="dark"] .lime {
   --page: #0e0e0c;
   --surface: #1a1a17;
@@ -194,27 +139,26 @@
   --field: #1a1a17;
   --scrim: rgb(0 0 0 / 0.64);
 
-  --fg: #f4f3ee; /* 15.7:1 on --surface */
+  --fg: #f4f3ee;
   --fg-2: #c9c7be;
-  --fg-3: #9a9890; /* 5.3:1 on --surface-2 */
+  --fg-3: #9a9890;
   --fg-disabled: #5e5d57;
   --fg-inverse: #0f0f0d;
   --on-accent: #0f0f0d;
 
   --line: #2e2e29;
   --line-strong: #3f3f39;
-  --control: #8a8880; /* 4.9:1 on --surface */
+  --control: #8a8880;
 
   --ink: #f4f3ee;
   --ink-hover: #e1dfd7;
   --ink-active: #cfcdc4;
 
-  --accent: #cad649; /* the lime a step calmer for a dark page: 12.2:1 on --page, 12.1:1 with --on-accent */
+  --accent: #cad649;
   --accent-hover: #d6e262;
   --accent-active: #bac534;
-  --accent-wash: #2b2e0c; /* 12.6:1 with --fg */
-  --accent-line: #cad649; /* the line step is the mark on dark */
-  /* A switch's white knob on the lime needs a little more lift on a dark page. */
+  --accent-wash: #2b2e0c;
+  --accent-line: #cad649;
   --shadow-thumb: 0 2px 5px rgb(0 0 0 / 0.22), 0 1px 1px rgb(0 0 0 / 0.16), 0 0 0 0.5px rgb(0 0 0 / 0.2);
 
   --success: #4ade80;
@@ -235,8 +179,6 @@
   --shadow-overlay: 0 24px 48px -12px rgb(var(--shadow-ink) / 0.7), 0 0 0 1px var(--line);
 
   --glow-accent-cast: 0 0 0;
-  /* The glow on a dark page: the same calmer lime with ink on it, lit faintly, so it glows from inside instead of
-     shining a light rim on the page. Black text is 9.8:1 or more at the darkest (pressed) stop. */
   --glow-accent-fg: #0f0f0d;
   --glow-accent-from: #c2cd3f;
   --glow-accent-to: #d1e376;
@@ -249,19 +191,19 @@
   --glow-accent-bloom: rgb(255 255 255 / 0.12);
   --glow-accent-edge-lit: rgb(255 255 255 / 0.45);
   --glow-accent-bloom-lit: rgb(255 255 255 / 0.18);
-  --glow-danger-from: #da474c; /* black text 4.9:1 at the worst point */
+  --glow-danger-from: #da474c;
   --glow-danger-to: #f36a6f;
   --glow-danger-edge: rgb(255 255 255 / 0.5);
   --glow-danger-bloom: rgb(255 255 255 / 0.2);
   --glow-danger-cast: 0 0 0;
   --glow-danger-light: 1;
-  --glow-danger-from-lit: #e45a5f; /* black text 5.9:1 */
+  --glow-danger-from-lit: #e45a5f;
   --glow-danger-to-lit: #f98285;
   --glow-danger-edge-lit: rgb(255 255 255 / 0.75);
   --glow-danger-bloom-lit: rgb(255 255 255 / 0.3);
-  --glow-danger-from-press: #d24449; /* black text 4.6:1 */
+  --glow-danger-from-press: #d24449;
   --glow-danger-to-press: #ec6368;
-  --glow-success-from: #27a75d; /* black text 7.0:1 at the worst point */
+  --glow-success-from: #27a75d;
   --glow-success-to: #55d88a;
   --glow-success-edge: rgb(255 255 255 / 0.5);
   --glow-success-bloom: rgb(255 255 255 / 0.2);
@@ -272,11 +214,9 @@
   --glow-success-to-lit: #68e49b;
   --glow-success-edge-lit: rgb(255 255 255 / 0.75);
   --glow-success-bloom-lit: rgb(255 255 255 / 0.3);
-  --glow-success-from-press: #1f8f4d; /* black text 5.3:1 */
+  --glow-success-from-press: #1f8f4d;
   --glow-success-to-press: #43bf74;
 }
-
-/* Reduced motion zeroes every duration except the spinner, which is the only signal that work is running. */
 @media (prefers-reduced-motion: reduce) {
   [data-system="lime"], .lime { --dur-instant: 0ms; --dur-fast: 0ms; --dur-base: 0ms; --dur-slow: 0ms; --scale-enter: 1; --scale-press: 1; }
 }

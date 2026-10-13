@@ -4,9 +4,6 @@ import {Radio as RadioPrimitive} from '@base-ui/react/radio';
 import {RadioGroup as RadioGroupPrimitive} from '@base-ui/react/radio-group';
 import {mergeClass} from '../lib/utils';
 
-// One choice from a short list, all options visible. Chosen fills with the lime, an olive edge and a
-// near-black dot. For more than about six options use Select. For a view switch use Segmented.
-
 function RadioGroup({className, ...props}: RadioGroupPrimitive.Props) {
   return <RadioGroupPrimitive data-slot="radio-group" className={mergeClass('flex flex-col gap-3', className)} {...props}/>;
 }

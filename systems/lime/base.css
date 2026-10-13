@@ -1,5 +1,3 @@
-/* Scoped base for Lime. Replaces Tailwind preflight inside .lime only; imported before the utilities. */
-
 [data-system="lime"], .lime {
   background: var(--page);
   color: var(--fg);
@@ -12,33 +10,29 @@
   -moz-osx-font-smoothing: grayscale;
   color-scheme: light;
 }
-/* The same four dark selectors as tokens.css, so native controls and scrollbars turn dark with the tokens. */
 [data-system="lime"][data-theme="dark"], .lime[data-theme="dark"], [data-theme="dark"] [data-system="lime"], [data-theme="dark"] .lime { color-scheme: dark; }
-.lime :where(*, ::before, ::after), [data-system="lime"] :where(*, ::before, ::after) { box-sizing: border-box; border: 0 solid var(--line); margin: 0; padding: 0; }
-.lime :where(h1, h2, h3, h4, h5, h6, p, figure, blockquote, dl, dd, pre) { margin: 0; font: inherit; }
-.lime :where(ul, ol) { list-style: none; }
-.lime :where(a) { color: inherit; text-decoration: inherit; }
-.lime :where(button, input, select, textarea) { font: inherit; letter-spacing: inherit; color: inherit; background: transparent; }
-.lime :where(button, [role="button"]) { cursor: pointer; }
-.lime :where(button:disabled, [aria-disabled="true"]) { cursor: not-allowed; }
-.lime :where(img, video, canvas, svg) { display: block; max-width: 100%; }
-.lime :where(table) { border-collapse: collapse; }
-.lime :where(code, kbd, samp, pre) { font-family: var(--font-mono); }
-.lime :where(td, th, time, data, output) { font-variant-numeric: tabular-nums; }
-/* Every interactive element declares its transition, so no control cuts while its neighbour tweens. */
-.lime :where(a, button, summary, input, select, textarea, label, [role="button"], [role="tab"], [role="menuitem"], [role="option"], [role="switch"], [role="checkbox"], [role="radio"]) {
-  transition-property: color, background-color, border-color, box-shadow, opacity;
-  transition-duration: var(--dur-instant);
-  transition-timing-function: var(--ease-out);
+@layer base {
+  .lime :where(*, ::before, ::after), [data-system="lime"] :where(*, ::before, ::after) { box-sizing: border-box; border: 0 solid var(--line); margin: 0; padding: 0; }
+  .lime :where(h1, h2, h3, h4, h5, h6, p, figure, blockquote, dl, dd, pre) { margin: 0; font: inherit; }
+  .lime :where(ul, ol) { list-style: none; }
+  .lime :where(a) { color: inherit; text-decoration: inherit; }
+  .lime :where(button, input, select, textarea) { font: inherit; letter-spacing: inherit; color: inherit; background: transparent; }
+  .lime :where(button, [role="button"]) { cursor: pointer; }
+  .lime :where(button:disabled, [aria-disabled="true"]) { cursor: not-allowed; }
+  .lime :where(img, video, canvas, svg) { display: block; max-width: 100%; }
+  .lime :where(table) { border-collapse: collapse; }
+  .lime :where(code, kbd, samp, pre) { font-family: var(--font-mono); }
+  .lime :where(td, th, time, data, output) { font-variant-numeric: tabular-nums; }
+  .lime :where(a, button, summary, input, select, textarea, label, [role="button"], [role="tab"], [role="menuitem"], [role="option"], [role="switch"], [role="checkbox"], [role="radio"]) {
+    transition-property: color, background-color, border-color, box-shadow, opacity;
+    transition-duration: var(--dur-instant);
+    transition-timing-function: var(--ease-out);
+  }
+  .lime :where(*, ::before, ::after), [data-system="lime"] :where(*, ::before, ::after) { outline-color: var(--ring); }
 }
 .lime ::selection { background: var(--accent); color: var(--on-accent); }
-/* The ring's colour is set at rest, so a control that transitions its colours never fades the ring in from black. */
-.lime :where(*, ::before, ::after), [data-system="lime"] :where(*, ::before, ::after) { outline-color: var(--ring); }
-/* Focus is a 2px outline in the accent's line step (3.95:1 on white), 2px out. Two classes of specificity beat a site-wide a:focus-visible. */
 .lime :where(*):is(:focus-visible, [data-force-focus-visible]) { outline: var(--line-focus) solid var(--ring); outline-offset: var(--focus-offset); }
 .lime, .lime * { scrollbar-color: var(--scrollbar-thumb) transparent; }
-
-/* iOS Safari zooms the page when a field under 16px takes focus. On a coarse pointer every text field is at least 16px. */
 @media (pointer: coarse) {
   .lime input:not([type="checkbox"], [type="radio"], [type="range"], [type="button"], [type="submit"], [type="file"]),
   .lime textarea,

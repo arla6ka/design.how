@@ -5,12 +5,6 @@ import {AutonomyRule} from '../ai/autonomy-rule';
 import {List, ListItem} from '../ui/list';
 import {Switch} from '../ui/switch';
 
-// A block: settings as standing rules, one row each. PaydayRule is what happens to money on payday,
-// AssistantLimits what the assistant may do without asking.
-
-/** Payday, as three standing rules in one list, so every row shares the list's padding: a title, a second line and a
- * switch. The first rule's second line is an inline AutonomyRule, the amount to move editable in place, one text line
- * tall so the row is as tall as the next. No glow. */
 export function PaydayRule() {
   const [save, setSave] = useState('200');
   const [onPayday, setOnPayday] = useState(true);
@@ -26,8 +20,6 @@ export function PaydayRule() {
   );
 }
 
-/** What the assistant may do without asking, as a settings list: one row per limit. A limit is an inline
- * AutonomyRule on the row's second line, the same shape as PaydayRule. */
 export function AssistantLimits() {
   const [limit, setLimit] = useState('50');
   const [days, setDays] = useState('3');

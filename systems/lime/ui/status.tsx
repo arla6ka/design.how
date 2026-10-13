@@ -1,9 +1,6 @@
 import {cn} from '../lib/utils';
 import {Spinner} from './button';
 
-// The state of a piece of work, as a dot and a word. Color never carries it alone: every status has a
-// label and running has a turning mark. One map holds the words so no screen invents its own.
-
 type StatusName = 'queued' | 'running' | 'done' | 'failed' | 'canceled';
 
 const STATUS_META: Record<StatusName, {label: string; dot: string}> = {
@@ -16,9 +13,7 @@ const STATUS_META: Record<StatusName, {label: string; dot: string}> = {
 
 type StatusProps = Omit<React.ComponentProps<'span'>, 'children'> & {
   status: StatusName;
-  /** Replaces the default word, such as "Sending, 42%". */
   label?: string;
-  /** Lets a script move focus here, for a status that replaces the button that had it. It stays out of the Tab order. */
   focusable?: boolean;
 };
 

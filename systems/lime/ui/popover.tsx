@@ -4,10 +4,6 @@ import {Popover as PopoverPrimitive} from '@base-ui/react/popover';
 import {useLimePortal} from '../lib/portal';
 import {mergeClass} from '../lib/utils';
 
-// A small floating panel anchored to its trigger, holding content a person can interact with: a filter, a
-// share link, a short form. It opens on click, closes on Escape or an outside press and returns focus to
-// the trigger. A label for hover is a Tooltip; a list of commands is a DropdownMenu.
-
 function Popover(props: PopoverPrimitive.Root.Props) {
   return <PopoverPrimitive.Root data-slot="popover" {...props}/>;
 }

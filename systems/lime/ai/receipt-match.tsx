@@ -4,26 +4,15 @@ import {Add, CheckmarkFilled, Icon, WarningFilled} from '../icon';
 import {cn} from '../lib/utils';
 import {Amount} from '../ui/amount';
 
-// A receipt paired with the payment it belongs to: a small paper thumbnail at the start, the merchant and
-// date beside it, the amount at the end, and one line saying how the two match. Matched shows a check on
-// the paper's corner; review means the receipt and the payment disagree, and the line says by how much;
-// missing draws an empty paper that is the button to add one. The match is told in words as well as by the
-// mark, so color never carries it alone.
-
 type ReceiptMatchState = 'matched' | 'review' | 'missing';
 
 type ReceiptMatchProps = Omit<React.ComponentProps<'div'>, 'children'> & {
   merchant: string;
-  /** When it was paid, such as "Oct 2". */
   date: string;
-  /** Signed: negative is money out. */
   amount: number;
   state: ReceiptMatchState;
-  /** The line under the merchant. Defaults to a word for the state; for review, say what differs. */
   note?: string;
-  /** A photo of the receipt. Without one the paper is drawn. */
   src?: string;
-  /** Opens the camera or a file picker when there is no receipt yet. */
   onAdd?: () => void;
 };
 
@@ -44,7 +33,7 @@ function Paper({src, state}: {src?: string; state: ReceiptMatchState}) {
 function ReceiptMatch({merchant, date, amount, state, note, src, onAdd, className, ...props}: ReceiptMatchProps) {
   return (
     <div data-slot="receipt-match" data-state={state} className={cn('flex w-full min-w-0 items-center gap-3', className)} {...props}>
-      {state === 'missing' // value-ok: the button is the 48 by 40 receipt thumbnail it stands in for, not a control size
+      {state === 'missing'
         ? <button type="button" onClick={onAdd} aria-label={`Add a receipt for ${merchant}`} className="flex h-12 w-10 shrink-0 items-center justify-center rounded-field border border-dashed border-control text-fg-3 hover:border-fg-3 hover:text-fg">
             <Icon icon={Add} size={16}/>
           </button>

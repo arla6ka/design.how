@@ -7,12 +7,6 @@ import {useLimePortal} from '../lib/portal';
 import {cn, mergeClass} from '../lib/utils';
 import {Button} from './button';
 
-// A focused task that takes over the screen: rename a goal, pick a plan, send money. The page stays
-// behind a scrim and cannot be reached until the dialog closes. Escape and the close button dismiss it,
-// and focus returns to the trigger. For a decision that must not be dismissed by accident use AlertDialog;
-// for a panel that keeps the page visible use Sheet.
-// The title is required: it names the dialog for screen readers. Buttons name the action ("Save name").
-
 const backdropClass = cn(
   'fixed inset-0 z-(--z-dialog) bg-scrim transition-opacity duration-(--dur-base) ease-(--ease-out)',
   'data-starting-style:opacity-0 data-ending-style:opacity-0 data-ending-style:duration-(--dur-fast)',
@@ -46,7 +40,6 @@ function DialogTrigger(props: DialogPrimitive.Trigger.Props) {
 }
 
 type DialogContentProps = DialogPrimitive.Popup.Props & VariantProps<typeof dialogVariants> & {
-  /** The corner close button. On by default; turn it off when the footer already has a Close action. */
   showClose?: boolean;
 };
 

@@ -1,0 +1,49 @@
+.quartz {
+  min-height: 100dvh;
+  background: var(--surface-canvas);
+  color: var(--text-1);
+  font: var(--type-body);
+  font-variation-settings: var(--width-normal);
+  letter-spacing: var(--tracking-text);
+  text-wrap: pretty;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color-scheme: light;
+}
+@layer base {
+  .quartz :where(*, ::before, ::after) { box-sizing: border-box; border: 0 solid var(--line-row); margin: 0; padding: 0; }
+  .quartz :where(h1, h2, h3, h4, h5, h6, p, figure, blockquote, dl, dd, pre) { margin: 0; font: inherit; }
+  .quartz :where(ul, ol) { list-style: none; }
+  .quartz :where(a) { color: inherit; text-decoration: inherit; }
+  .quartz :where(button, input, select, textarea) { font: inherit; letter-spacing: inherit; color: inherit; background: transparent; }
+  .quartz :where(button, [role="button"]) { cursor: pointer; }
+  .quartz :where(button:disabled, [aria-disabled="true"]) { cursor: not-allowed; }
+  .quartz :where(img, video, canvas, svg:not(.overflow-visible, [overflow="visible"])) { display: block; max-width: 100%; }
+  .quartz :where(svg.overflow-visible, svg[overflow="visible"]) { display: block; }
+  .quartz :where(table) { border-collapse: collapse; }
+  .quartz :where(code, kbd, samp, pre) { font-family: var(--font-mono); }
+  .quartz :where(td, th, time, data, output) { font-variant-numeric: tabular-nums; }
+  .quartz :where(a, button, summary, input, select, textarea, label, [role="button"], [role="tab"], [role="menuitem"], [role="option"], [role="switch"], [role="checkbox"], [role="radio"]) {
+    transition-property: color, background-color, border-color, outline-color, text-decoration-color, box-shadow, opacity;
+    transition-duration: var(--dur-fast);
+    transition-timing-function: var(--ease-step);
+  }
+  .quartz :where(a, button, [role="button"]):where(:active) { transition-duration: var(--dur-press); }
+}
+.quartz :where([data-prose]) a:where(:not([data-slot])) {
+  text-decoration: underline 1px var(--text-3);
+  text-underline-offset: 4px;
+  border-radius: var(--radius-soft);
+  padding-inline: 2px;
+  margin-inline: -2px;
+}
+@media (hover: hover) { .quartz :where([data-prose]) a:where(:not([data-slot])):hover { text-decoration-color: var(--ink); color: var(--text-1); } }
+.quartz ::selection { background: var(--hue-3-field); color: var(--text-on-field); }
+.quartz :where(*, ::before, ::after) { outline-color: var(--border-focus); }
+.quartz :where(*):is(:focus-visible, [data-force-focus-visible]) { outline: var(--line-focus) solid var(--border-focus); outline-offset: var(--focus-offset); }
+.quartz :where([data-control]):is(:focus-visible, [data-force-focus-visible]) { outline: none; }
+@media (pointer: coarse) {
+  .quartz input:not([type="checkbox"], [type="radio"], [type="range"], [type="button"], [type="submit"], [type="file"], [type="color"]),
+  .quartz textarea,
+  .quartz select { font-size: max(16px, 1em); }
+}

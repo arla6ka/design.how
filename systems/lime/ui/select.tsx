@@ -7,11 +7,6 @@ import {useLimePortal} from '../lib/portal';
 import {groupLabelClass, itemClass, popupClass} from '../lib/popup';
 import {mergeClass} from '../lib/utils';
 
-// One choice from a list in a popup. The trigger looks like an Input with a caret; the popup is the same
-// white panel every list uses. Pass `items` to Select so the trigger can show the chosen label before the
-// popup has ever opened. Up to about six options with room to spare, prefer Radio or Segmented; past
-// about twenty, Combobox, which can be searched.
-
 const triggerVariants = cva(
   [
     'group/select-trigger flex w-fit min-w-40 items-center justify-between gap-2 rounded-field border border-line-strong bg-field ps-3 pe-2.5 text-start whitespace-nowrap text-fg select-none',
@@ -41,7 +36,6 @@ function SelectLabel({className, ...props}: SelectPrimitive.GroupLabel.Props) {
 }
 
 type SelectTriggerProps = SelectPrimitive.Trigger.Props & VariantProps<typeof triggerVariants> & {
-  /** Shown while nothing is chosen. */
   placeholder?: string;
 };
 

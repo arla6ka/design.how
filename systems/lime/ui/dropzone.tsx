@@ -4,18 +4,11 @@ import {useId, useRef, useState} from 'react';
 import {Icon, Upload} from '../icon';
 import {cn} from '../lib/utils';
 
-// A target for files: drop them here or press to choose. The whole box is a label for a real file input,
-// so it works with a keyboard and a screen reader, and dragging over it takes the lime wash and an olive
-// edge. Say what is accepted in the hint ("JPG, PNG or PDF, up to 10 MB") before anyone drops the wrong file.
-// Files that miss `accept` or `maxSize` are reported through onReject with a reason, never dropped silently.
-
 type RejectReason = 'type' | 'size' | 'count';
 
 type DropzoneProps = Omit<React.ComponentProps<'label'>, 'onDrop' | 'onChange'> & {
-  /** Same syntax as the input's accept attribute, such as "image/*,.pdf". */
   accept?: string;
   multiple?: boolean;
-  /** Bytes. */
   maxSize?: number;
   disabled?: boolean;
   onFiles: (files: File[]) => void;
@@ -59,7 +52,6 @@ function Dropzone({accept, multiple, maxSize, disabled, onFiles, onReject, title
       data-over={over || undefined}
       data-disabled={disabled || undefined}
       onDragOver={e => { if (!disabled) { e.preventDefault(); setOver(true); } }}
-      // Leaving for a child (the icon, the text) is still over the zone; only leaving the label ends it.
       onDragLeave={e => { if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setOver(false); }}
       onDrop={e => { e.preventDefault(); setOver(false); if (!disabled) take(e.dataTransfer.files); }}
       className={cn(

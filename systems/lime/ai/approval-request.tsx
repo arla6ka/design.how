@@ -10,69 +10,44 @@ import {Card} from '../ui/card';
 import {Collapsible, CollapsibleContent, CollapsibleTrigger} from '../ui/collapsible';
 import {Status} from '../ui/status';
 
-// The assistant asking before it moves money: what it wants to do, the amount, one line of reason, then
-// Approve, Edit and Decline. Approve is the lime primary and should be the one glow on the screen. Edit is a
-// pencil so the row fits a phone. When `available` cannot cover the amount, Approve is off and a line under the
-// reason says why, so Edit and Decline are the ways on. Decline is quiet, never red, since saying no is safe. After a choice the
-// buttons give way to a status line in the same height, so nothing below jumps. The footer is a polite live
-// region, so the outcome is announced. The status line takes focus when it replaces the button that had it, so
-// keyboard and screen reader users are not dropped to the top of the page.
-//
-// reasons adds a small "Why?" under the reason line that opens two or three reasons, each naming where it came
-// from (a rule you set, past activity), so the person can check it rather than trust it. Closed by default.
-
 type ApprovalRequestState = 'waiting' | 'approved' | 'declined';
 
 type ApprovalReason = {
-  /** The reason as a plain sentence, such as "Same as last month". */
   text: string;
-  /** Where it came from, such as "Your rent rule" or "3 past payments". */
   source: string;
-  /** Opens the source. */
   href?: string;
 };
 
 type ApprovalRequestLabels = {
   approve?: string;
   decline?: string;
-  /** The name of the pencil button. */
   edit?: string;
   why?: string;
   approved?: string;
   declined?: string;
-  /** Why Approve is off when the amount is more than available. */
   insufficient?: string;
 };
 
 const defaultLabels: Required<ApprovalRequestLabels> = {approve: 'Approve', decline: 'Decline', edit: 'Edit', why: 'Why?', approved: 'Approved', declined: 'Declined', insufficient: 'More than you have available'};
 
 type ApprovalRequestProps = Omit<React.ComponentProps<'div'>, 'title'> & {
-  /** The action as a verb and its object, such as "Pay Lena for rent". */
   title: string;
-  /** Signed: negative is money out. */
   amount: number;
-  /** The money in the account, so the amount warns when it is tight and Approve is off when it is short. */
   available?: number;
-  /** One line on why the assistant is asking. */
   reason: string;
-  /** More reasons behind a "Why?" under the reason line, each with its source. */
   reasons?: ApprovalReason[];
   state?: ApprovalRequestState;
-  /** Approve is pressed and the assistant is working. */
   pending?: boolean;
   onApprove?: () => void;
   onEdit?: () => void;
   onDecline?: () => void;
-  /** The words on the buttons and the status line, for another language or tone. */
   labels?: ApprovalRequestLabels;
 };
 
 function ApprovalRequest({title, amount, available, reason, reasons, state = 'waiting', pending, onApprove, onEdit, onDecline, labels, className, children, ...props}: ApprovalRequestProps) {
   const words = {...defaultLabels, ...labels};
-  // Like ChatInput's Send, Approve is off when the account cannot cover the amount, and the line under the reason says why.
   const short = amountAffordability(amount, available) === 'insufficient';
   const shortId = useId();
-  // The button that had focus is gone once the outcome shows; focus moves to the outcome.
   const {region: footer, target: outcome} = useFocusWhenReplaced(state !== 'waiting');
   return (
     <Card data-slot="approval-request" data-state={state} role="group" aria-label={title} className={cn('w-full min-w-0 gap-3 p-4', className)} {...props}>

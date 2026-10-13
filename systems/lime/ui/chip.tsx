@@ -4,10 +4,6 @@ import {Toggle as TogglePrimitive} from '@base-ui/react/toggle';
 import {Checkmark, Close, Icon} from '../icon';
 import {cn, mergeClass} from '../lib/utils';
 
-// Something the person acts on: a filter, a topic, a model to pick. Chosen takes the soft lime wash, an
-// olive edge and a check that appears in front of the label (the chip grows by the check's width), so it reads without colour. Badge is the static one. With `onRemove` the chip
-// grows a close button as a sibling control, so there are never two buttons inside one button.
-
 const chipClass = cn(
   'group/chip inline-flex h-(--control-sm) items-center gap-1.5 rounded-control border border-line-strong bg-page px-3 text-sm font-medium whitespace-nowrap text-fg select-none',
   'transition-[background-color,border-color] duration-(--dur-instant) ease-out [-webkit-tap-highlight-color:transparent]',
@@ -16,7 +12,6 @@ const chipClass = cn(
 );
 
 type ChipProps = TogglePrimitive.Props & {
-  /** Adds a close button after the label. Name the chip in `removeLabel`: "Remove Dining". */
   onRemove?: () => void;
   removeLabel?: string;
 };

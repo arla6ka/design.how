@@ -4,17 +4,9 @@ import {useEffect, useRef, useState} from 'react';
 import {Checkmark, Copy, Icon, WarningFilled} from '../icon';
 import {Button, type ButtonProps} from './button';
 
-// Copies a string and says so: the icon turns to a check for a moment and a polite live region announces
-// "Copied". If the clipboard write is refused, the icon turns to a warning and the region says "Copy
-// failed". The region is a sibling of the button, so the button's name stays "Copy". Icon only by default,
-// so it needs `label`; with `children` it becomes a labelled button.
-
 type CopyButtonProps = Omit<ButtonProps, 'onClick' | 'icon'> & {
-  /** The text to put on the clipboard. */
   value: string;
-  /** The accessible name when there are no children, such as "Copy invite link". */
   label?: string;
-  /** How long the check stays, in ms. */
   resetAfter?: number;
 };
 

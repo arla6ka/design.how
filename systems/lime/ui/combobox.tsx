@@ -7,16 +7,11 @@ import {itemClass, popupClass} from '../lib/popup';
 import {mergeClass} from '../lib/utils';
 import {fieldControl} from './input';
 
-// A text field with a list under it: type to narrow, arrow to move, Enter to choose. Use it when the list
-// is long or the person knows the name (a country, a friend, a merchant). Pass the full list as `items`
-// and the list filters itself. For a short list with no typing use Select.
-
 function Combobox<Value, Multiple extends boolean | undefined = false>(props: ComboboxPrimitive.Root.Props<Value, Multiple>) {
   return <ComboboxPrimitive.Root data-slot="combobox" {...props}/>;
 }
 
 type ComboboxInputProps = ComboboxPrimitive.Input.Props & {
-  /** Hides the caret button that opens the list. */
   hideTrigger?: boolean;
   showClear?: boolean;
 };

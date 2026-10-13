@@ -4,10 +4,6 @@ import {Input as InputPrimitive} from '@base-ui/react/input';
 import {cva, type VariantProps} from 'class-variance-authority';
 import {mergeClass} from '../lib/utils';
 
-// A single line text field on the warm-grey field fill, with a hairline that darkens on hover and an
-// accent-line ring on focus. 40px by default. An invalid field turns its edge red; the message belongs to
-// Field, which also gives the control its label.
-
 const fieldControl = cva(
   [
     'w-full min-w-0 rounded-field border border-line-strong bg-field px-3 text-fg',

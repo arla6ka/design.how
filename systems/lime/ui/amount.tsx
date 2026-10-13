@@ -1,12 +1,6 @@
 import {cva, type VariantProps} from 'class-variance-authority';
 import {cn} from '../lib/utils';
 
-// A money amount: a sign, a currency and tabular figures, so a column of them lines up. Negative is money
-// out and reads "−$12.40"; `signed` adds a plus to money in. Pass `available` and an outgoing amount tones
-// itself: amber when the payment leaves under 20% of it in the account, red when it cannot be covered. The
-// spoken amount is real text (sr-only), so it is read in order and found by page search, not an aria-label
-// on a role-less span.
-
 type Affordability = 'unknown' | 'insufficient' | 'tight' | 'comfortable';
 
 type FormatOptions = {currency?: string; compact?: boolean; signed?: boolean};
@@ -15,14 +9,11 @@ const MINUS = '−';
 
 const UNAVAILABLE = 'Unavailable';
 
-/** A finite number, or a string that is one ("12.40"), as a number; anything else, such as "" or "$12", is null. */
 function toMoney(value: unknown): number | null {
   const n = typeof value === 'number' ? value : typeof value === 'string' && value.trim() !== '' ? Number(value) : Number.NaN;
   return Number.isFinite(n) ? n : null;
 }
 
-/** The amount as text: "$12.40", "−$12.40", or "+$12.40" with `signed`. Compact drops the cents. A value that is
- * not a number reads "Unavailable", never "$NaN". */
 function formatAmount(raw: number, {currency = 'USD', compact, signed}: FormatOptions = {}) {
   const value = toMoney(raw);
   if (value === null) return UNAVAILABLE;
@@ -32,7 +23,6 @@ function formatAmount(raw: number, {currency = 'USD', compact, signed}: FormatOp
   return signed && value > 0 ? `+${number}` : number;
 }
 
-/** The amount in words for a screen reader: "minus 12.40 US dollars". */
 function spokenAmount(raw: number, {currency = 'USD', signed}: Pick<FormatOptions, 'currency' | 'signed'> = {}) {
   const value = toMoney(raw);
   if (value === null) return 'amount unavailable';
@@ -41,7 +31,6 @@ function spokenAmount(raw: number, {currency = 'USD', signed}: Pick<FormatOption
   return signed && value > 0 ? `plus ${words}` : words;
 }
 
-/** Whether `available` covers an outgoing `value`. Tight is under 20% of the payment left after paying. */
 function amountAffordability(raw: number, rawAvailable: number | null | undefined): Affordability {
   const value = toMoney(raw);
   const available = toMoney(rawAvailable);
@@ -70,19 +59,12 @@ const amountVariants = cva('inline-flex shrink-0 items-center rounded-control fo
 });
 
 type AmountProps = Omit<React.ComponentProps<'span'>, 'children'> & VariantProps<typeof amountVariants> & {
-  /** Signed. Negative is money out. */
   value: number;
-  /** An ISO 4217 code. */
   currency?: string;
-  /** The money in the account. Sets the tone of an outgoing amount by affordability. */
   available?: number | null;
-  /** Show a plus on money in. */
   signed?: boolean;
-  /** Whole units, without the cents. */
   compact?: boolean;
-  /** An estimate: renders a tilde before the amount. */
   approximate?: boolean;
-  /** The least it can be: renders "$12+". An estimate wins if both are set. */
   atLeast?: boolean;
 };
 

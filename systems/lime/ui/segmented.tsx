@@ -6,10 +6,6 @@ import {cva, type VariantProps} from 'class-variance-authority';
 import {createContext, useContext} from 'react';
 import {mergeClass} from '../lib/utils';
 
-// A short row of exclusive options that sets a value: Grid or List, Weekly or Monthly, 9:16 or 16:9. The
-// chosen segment is a white pill lifted off the grey track. Arrow keys move and choose. Two to five
-// segments; for more use Select, and to switch a panel of content use Tabs.
-
 const trackVariants = cva('inline-flex w-fit max-w-full items-stretch gap-0.5 rounded-control bg-surface-2 p-0.5', {
   variants: {
     size: {sm: 'h-(--control-sm)', md: 'h-(--control-md)'},
@@ -53,7 +49,6 @@ function SegmentedItem({className, children, ...props}: RadioPrimitive.Root.Prop
       ], className)}
       {...props}
     >
-      {/* A text label truncates when the track runs out of room, rather than spilling into its neighbour. */}
       {typeof children === 'string' ? <span className="truncate">{children}</span> : children}
     </RadioPrimitive.Root>
   );

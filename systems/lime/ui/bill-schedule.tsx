@@ -1,28 +1,17 @@
 import {cn} from '../lib/utils';
 import {Amount, amountAffordability} from './amount';
 
-// The bills coming up, in date order, each under a small date tile: the weekday over the day of the month.
-// The tile is what sets it apart from a list of payments: the person reads when first, then who, then how
-// much. Each bill says who pays it, the assistant on its own or you, so nothing goes out unseen. Pass
-// `available` and a bill the account cannot cover tones its amount and says so under its name. A paid
-// bill greys out and keeps its place, so the order never jumps.
-
 type Bill = {
   name: string;
-  /** The due date. Only the weekday and day are shown. */
   due: Date;
-  /** Signed: negative is money out. */
   amount: number;
-  /** autopay is paid by the assistant on the day; manual waits for you. */
   pay: 'autopay' | 'manual';
   paid?: boolean;
 };
 
 type BillScheduleProps = Omit<React.ComponentProps<'ol'>, 'children'> & {
   bills: Bill[];
-  /** The money in the account, so a bill it cannot cover warns. */
   available?: number;
-  /** The words for a bill the assistant pays, such as "Lime pays". */
   autopayLabel?: string;
 };
 
@@ -30,7 +19,6 @@ const weekday = new Intl.DateTimeFormat('en-US', {weekday: 'short', timeZone: 'U
 const day = new Intl.DateTimeFormat('en-US', {day: 'numeric', timeZone: 'UTC'});
 const spoken = new Intl.DateTimeFormat('en-US', {weekday: 'long', month: 'long', day: 'numeric', timeZone: 'UTC'});
 
-// A bill with no pay makes no claim: guessing "You pay" would hide a bill that goes out on its own.
 function payer(bill: Bill, autopayLabel: string) {
   if (bill.paid) return 'Paid';
   return bill.pay === 'autopay' ? autopayLabel : bill.pay === 'manual' ? 'You pay' : null;

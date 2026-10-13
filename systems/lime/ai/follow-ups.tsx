@@ -2,11 +2,7 @@
 
 import {cn} from '../lib/utils';
 
-// Suggested next requests under an answer. Each is a full sentence the person could have typed, so one
-// press sends it as written. Three at most. They wrap on a narrow screen and never scroll sideways.
-
 type FollowUpsLabels = {
-  /** The name of the row, read by screen readers. */
   group?: string;
 };
 
@@ -15,7 +11,6 @@ const defaultLabels: Required<FollowUpsLabels> = {group: 'Suggested follow ups'}
 type FollowUpsProps = Omit<React.ComponentProps<'div'>, 'onSelect'> & {
   suggestions: string[];
   onSelect: (suggestion: string) => void;
-  /** The row's name, for another language. */
   labels?: FollowUpsLabels;
 };
 

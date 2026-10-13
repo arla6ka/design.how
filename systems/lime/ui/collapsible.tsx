@@ -4,16 +4,11 @@ import {Collapsible as CollapsiblePrimitive} from '@base-ui/react/collapsible';
 import {ChevronDown, Icon} from '../icon';
 import {mergeClass} from '../lib/utils';
 
-// One section that opens and closes: advanced settings, a long description, a receipt's details. The
-// trigger is a real button with aria-expanded, and the panel animates its height over 200ms. For a stack
-// of sections where one opens at a time use Accordion.
-
 function Collapsible(props: CollapsiblePrimitive.Root.Props) {
   return <CollapsiblePrimitive.Root data-slot="collapsible" {...props}/>;
 }
 
 type CollapsibleTriggerProps = CollapsiblePrimitive.Trigger.Props & {
-  /** Hides the caret, for a trigger that draws its own. */
   hideIcon?: boolean;
 };
 
