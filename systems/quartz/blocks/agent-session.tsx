@@ -6,7 +6,7 @@ import {
   useConversation, type ConversationRow, type ConversationStatus,
 } from '../ai/conversation';
 import {AgentTurn as Turn, Message, MessageBubble, MessageBubbleContent, MessageContent, MessageFooter, MessageHeader, MessageModel, MessageTime, type MessageStatusProps} from '../ai/message';
-import {PromptInput, PromptInputModel, PromptQueue, type PromptInputHandle, type PromptValue, type QueuedMessage} from '../ai/prompt-input';
+import {PromptInput, PromptQueue, type PromptInputHandle, type PromptValue, type QueuedMessage} from '../ai/prompt-input';
 import {Response} from '../ai/response';
 import type {SendStatus} from '../ai/send-button';
 import {ToolCallList, registerTool, useToolCalls, type ToolCallData, type ToolRenderer} from '../ai/tool-call';
@@ -85,7 +85,6 @@ export function AgentRun() {
         onStop={stop}
         onSubmit={send}
         onAttach={() => {}}
-        tools={<PromptInputModel model="model-s"/>}
       />
     </section>
   );
