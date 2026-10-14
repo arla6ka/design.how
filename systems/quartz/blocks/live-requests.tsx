@@ -43,9 +43,9 @@ const agentKind: Record<string, Kind> = {'support-agent': 'agent', triage: 'depl
 const columns: ColumnDef<Request, any>[] = [
   {accessorKey: 'result', header: 'Result', size: 80, enableSorting: false, cell: ({getValue}) => <ResultTag result={getValue<Result>()}/>},
   {accessorKey: 'tool', header: 'Tool', size: 112, enableSorting: false, meta: {mono: true}},
-  {accessorKey: 'agent', header: 'Agent', size: 128, enableSorting: false, meta: {hideBelow: 340}, cell: ({getValue}) => <Badge kind={agentKind[getValue<string>()] ?? 'agent'} label={getValue<string>()} size="sm"/>},
+  {accessorKey: 'agent', header: 'Agent', size: 128, enableSorting: false, meta: {hideBelow: 396}, cell: ({getValue}) => <Badge kind={agentKind[getValue<string>()] ?? 'agent'} label={getValue<string>()} size="sm"/>},
   {accessorKey: 'ms', header: 'Took', size: 76, minSize: 72, meta: {numeric: true}, cell: ({getValue}) => <span className="data">{took(getValue<number>())}</span>},
-  {accessorKey: 'time', header: 'Time', size: 84, meta: {hideBelow: 420}, cell: ({getValue}) => <span className="text-text-2 data">{getValue<string>()}</span>},
+  {accessorKey: 'time', header: 'Time', size: 84, meta: {hideBelow: 480}, cell: ({getValue}) => <span className="text-text-2 data">{getValue<string>()}</span>},
 ];
 
 function useRequests(start = 18, still = false) {
@@ -146,7 +146,7 @@ function RequestsTable({rows, agent, paused, setPaused, maxHeight, onRowClick, a
 export function LiveRequestsLook({still, rows: tall = 6, className}: {still?: boolean; rows?: number; className?: string}) {
   const {rows, paused, setPaused} = useRequests(18, still);
   return <section aria-label="Live activity" className={className ?? 'flex w-full max-w-md flex-col'}>
-    <RequestsTable rows={rows} agent="support-agent" paused={paused} setPaused={setPaused} maxHeight={32 + tall * 36}/>
+    <RequestsTable rows={rows} agent="support-agent" paused={paused} setPaused={setPaused} maxHeight={32 * (tall + 1)}/>
   </section>;
 }
 
