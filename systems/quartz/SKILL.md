@@ -142,6 +142,7 @@ Not in the system yet, and what to build meanwhile.
 - One duration on its own: `formatDuration(ms)` from the tool-call item; a column uses `formatDurations` from the format item. Reasoning takes seconds; ToolCall and the formatters take ms.
 
 ## Imports
+- `import {PageHeader, PageHeaderRow, PageHeaderContent, PageHeaderTitle, PageHeaderDescription, PageHeaderActions, PageHeaderStats, PageHeaderStat, pageHeaderVariants} from '@/components/quartz/ui/page-header'`: Title, description, stats and actions.
 - `import {SendButton} from '@/components/quartz/ai/send-button'`: Send, which becomes stop while the agent streams.
 - `import {Mention, mentionVariants, mentionTypeLabels, isMentionKind, mentionToText, encodeMentionId, parseMentions, uniqueLabel} from '@/components/quartz/ai/mention'`: A resource named in a prompt or an answer.
 - `import {BulkActionBar, BulkAction} from '@/components/quartz/ui/bulk-action-bar'`: Actions for the rows a person has selected.
@@ -244,7 +245,6 @@ The class to use follows each token in brackets. Color names take bg-, text- or 
 
 ### Layout
 - [Collapsible](https://design.how/systems/quartz/components/collapsible.md): Shows and hides one region, or a group of them. `import {Collapsible, CollapsibleGroup, CollapsibleTrigger, CollapsibleCaret, CollapsibleContent} from '@/components/quartz/ui/collapsible'`
-- [Page header](https://design.how/systems/quartz/components/page-header.md): Title, description, stats and actions. `import {PageHeader, PageHeaderRow, PageHeaderContent, PageHeaderTitle, PageHeaderDescription, PageHeaderActions, PageHeaderStats, PageHeaderStat, pageHeaderVariants} from '@/components/quartz/ui/page-header'`
 
 ### Data
 - [Table](https://design.how/systems/quartz/components/table.md): Rows and columns with sort, selection, row actions and virtualization. `import {Table, TableHeader, TableBody, TableFooter, TableHead, TableRow, TableCell, TableCaption, TableEmpty, TableFrameHeader, TableToolbar, tableFrameClassName, tableRowClassName, TableRowActions, TableRowAction, TableRowActionsMenu, TableRowActionsItem, TableRowActionsSeparator, DataTable, DataTableCheckbox, DataTableColumnHeader, DataTableColumnsMenu, selectColumn, severitySort, statusSeverity, useWindowedRows} from '@/components/quartz/ui/table'`

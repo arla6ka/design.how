@@ -84,7 +84,7 @@ type LogViewerProps = Omit<React.ComponentProps<'div'>, 'children'> & {
   kind?: Kind;
 };
 
-function LogViewer({lines, follow = true, streaming = false, toolbar = true, header = true, timestamps = true, wrap: defaultWrap = true, height = 360, label = 'Logs', kind, className, ...props}: LogViewerProps) {
+function LogViewer({lines, follow = true, streaming = false, toolbar = false, header = true, timestamps = true, wrap: defaultWrap = true, height = 360, label = 'Logs', kind, className, ...props}: LogViewerProps) {
   const [query, setQuery] = useState('');
   const searchRef = useRef<HTMLInputElement>(null);
   const [shown, setShown] = useState<Set<LogLevel>>(() => new Set());

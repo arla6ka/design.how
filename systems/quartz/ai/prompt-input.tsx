@@ -790,7 +790,7 @@ function PromptInput({
           {mode === 'shell' && <span aria-hidden data-slot="prompt-input-shell" className="type-code text-(--code-prompt) pointer-coarse:type-code-touch">$</span>}
           {editorEl}
         </div>
-        <div inert={mode === 'shell'} className={cn('flex shrink-0 items-center empty:hidden', mode === 'shell' && 'opacity-(--dim-opacity)')}>{tools}</div>
+        <div inert={mode === 'shell'} className={cn('flex h-(--control-sm) shrink-0 items-center empty:hidden', mode === 'shell' && 'opacity-(--dim-opacity)')}>{tools}</div>
         {meta && <div data-slot="prompt-input-meta" className="flex h-(--control-sm) shrink-0 items-center">{meta}</div>}
         {voice && <PromptInputMic size="sm" {...voice} disabled={disabled || voice.disabled}/>}
         {sendEl}
