@@ -1,93 +1,62 @@
 ---
 name: build-design-system
-description: Use when an ask names one phase of design system work, such as "extract tokens from the app" or "add states and specs to our Button", or for an empty repo, such as "start a design system from scratch". A whole-app ask on a shipped app ("we need a design system") goes to design-system-boss when it is installed. Moving an app onto an existing system is migrate-design-system.
+description: Use when someone wants a design system built from the UI an app already ships, or one phase of it, such as "extract tokens from the app", "add states to our Button" or "start a design system". Moving an app onto an existing system is migrate-design-system. A vague whole-app ask goes to design-system-boss.
 ---
 
 # Build a design system
 
-1. Frame the run: mode and foundation, the base reference, the pilot, the Frame questions with defaults applied, the run branch and `.design-system/run.md` (`references/modes.md`, `references/run-record.md`, `references/coordinator-path.md` Start).
-2. Size it: the small-app path, or fan-out inside the machine budget read from memory pressure (`references/coordinator-path.md`, Small app and Machine budget).
-3. Inventory with scripts, and capture every surface before any edit (`references/inventory.md`, `references/browser.md`).
-4. Tokens named by purpose: identical-value swaps, merges inside tolerance as decisions, a gate defaulting to the merge past it (`references/token-architecture.md`).
-5. Components: the most-used family end to end, then the rest fanned out (`references/component-contract.md`, `references/rule-method.md`, `references/worker-brief.md`).
-6. Checks that fail on seeded violations, a ratchet and two CI tiers (`references/checks.md`).
-7. The pilot flow on the system, compared with its baseline and reviewed (`references/browser.md`).
-8. The safe moves outside the pilot, and migration only with clearance (`references/coordinator-path.md`, Clearance).
-9. Docs, generated twins and the AGENTS.md index (`references/system-structure.md`).
-10. The handoff: close numbers, unanswered defaults first, the found-not-fixed list (`references/run-record.md`, Handoff report).
+Vocabulary is in `GLOSSARY.md`, defaults for bans and widths in `taste.md`. The app's own look is the source. Invent no colour, font, shadow, gradient or motion value it does not already have, unless the person chose a design source and confirmed a sample.
 
-Never ship:
+## Steps
 
-- A color, font, shadow, gradient or motion value the app does not have, unless the person chose a design source and confirmed the sample (`references/modes.md`).
-- A commit on the starting branch, a push, a publish or a deploy.
-- An edited baseline, fixture or check. Fix the code instead.
-- A change outside the pilot that is neither a safe move nor a cleared surface.
-- An accessibility or contrast result read from source instead of rendered output.
-- A count no script produced, or a check never seen failing.
-- One of the person's bans anywhere but a `Don't:` line.
+1. **Frame.** Read AGENTS.md or CLAUDE.md, the manifest and the route tree. Write the complaint in the person's words, the first visible change that answers it, and the pilot flow (the one the complaint names, else the flow with the most component families and a form with an error state). Cut the run branch. Offer `taste.md` once with its bans unselected. Ask nothing else. Take the default, record it as `default (unanswered)` and go on.
+   Done when the complaint, pilot, branch and accepted taste file are written down.
 
-It calls `token-mapping`, `component-docs` and `ui-review` instead of restating them. The base reference for the foundation (`references/base-*.md`) wins over the general references.
+2. **Inventory and baselines.** List every surface, its states and its tier. Count raw values in occurrences (`#[0-9a-fA-F]{3,8}`, `text-gray-500`, `p-[13px]`) and group components into families. Capture every surface in every state at the narrowest and widest supported width (390 and 1280 by default), one fresh navigation per width, before any edit. Delete what nothing uses, in its own commit.
+   Done when each surface has a baseline or a stated `not captured` reason.
 
-## When a coordinator calls it
+3. **Tokens.** Cluster raw values by role, name them by purpose and pair each surface with its foreground (`references/tokens.md`). Run `token-mapping` until every raw value maps to a role, a merge or a listed exception. Merges inside tolerance are decisions. Past tolerance, open one gate per cluster whose default is the merge. Make every identical-value swap on every route.
+   Done when `token-mapping` reports zero gaps outside the exception list and each swap has a pixel diff of 0.
 
-A coordinator may hand over the target, pilot, budget, run branch or run record path, and the rest defaults from Inputs. Write gates to the run record instead of asking, and return the handoff report or the stop shape. Start the reply with the status line, then `Commit: <run branch head>`. Under design-system-boss, the boss's rules and caps govern. As a subagent, run workers as foreground calls and never return while one runs.
+4. **Components.** Build the most-used family end to end first (`references/components.md`). The text primitive and the small-text primitive ship in wave 1 beside Button. Document each with `component-docs`. Show the family to the person before fan-out, because a core bug found after screens consume the system costs a sweep (a disabled field still drawn red, a Combobox 2 px taller than Input, panel actions that do not wrap, a file drop that fails in silence).
+   Done when every canonical component has a registry row and a doc, and the person has tried the disabled, required, error and long-text states.
+
+5. **Checks.** Copy `scripts/check-system.mjs` and `scripts/oklch.mjs` into the repo, run `--init`, then `--init-allowlist` once. Every rule is seen failing on a planted violation before it counts, and the allowlist and ratchet only shrink. A ban ships with its check rule in the same change. Copy rules ship with their exemptions, element-scoped, for legal text and for payload strings that a machine or person pastes elsewhere (a prompt, an API example, a clipboard value), because a checker that rewrites those changes what a signature records.
+   Done when the check exits 0 on a clean clone and `--self-test --fixtures fixtures/check-system` ends "all as expected".
+
+6. **Pilot.** Move the pilot flow with a codemod you read hunk by hunk. Capture after with the baseline's widths, themes and data. An unexplained difference is a defect. Walk the flow by keyboard, force its error and loading states, then run `ui-review` on the after captures.
+   Done when every difference in the captures traces to a decision or gate. A rendered change with no capture is reported `checks-only`.
+
+7. **Readiness.** Before a migration fans out, the five audits below hold or carry a recorded exemption.
+
+8. **Handoff.** Rerun the counts. Report what the system covers in numbers, unanswered defaults first, then what was found and not fixed, ranked. Offer the migration with its size. Do not start it.
+
+## Readiness audits
+
+A gap found after screens consume the system costs a sweep. A gap found before costs a row. Run these at the end of step 5 and again before the first wave. Write each result to `.design-system/readiness.md` with a verdict word.
+
+1. **Slot and prop parity.** Every prop of each legacy primitive that has call sites has a twin prop or a gap row.
+2. **Behaviour contracts.** A "what fires when" table per interactive primitive, each row a test (`references/components.md`).
+3. **Tone parity.** Every pressable and row primitive crossed with every status tone plus muted. Each empty cell is a gap row or stated unsupported.
+4. **Pinned strings.** Every legacy test query by role name or text has a default name on the twin and a label override.
+5. **Hardest screens.** One hardest call site per family renders in the showcase, with a screenshot.
+
+A family that is not ready is not migrated. Its screens stay on legacy.
+
+## Rules
+
+- Raw value smells are `#fff`, `rgb(`, `text-gray-500`, `p-[13px]` and `style={{ padding: 12 }}`. Each maps to a semantic token or a listed exception.
+- A missing primitive is a gap row, never a workaround inside a surface.
+- Colour merges inside delta E OK 2 and spacing merges inside 2 px are decisions. Border width, weight and easing have no tolerance.
+- A change that only adds semantics (a name, a role, `aria-current`) is a decision. One that removes or restructures semantics is a gate.
+- Wrong: `{saving ? "Saving..." : "Save"}`. Right: the idle label stays, a spinner sits inside the same box, `aria-busy` is set.
+- Wrong: "never use sed -i" in a brief. Right: the ban, its substitute, and a hook or check that enforces it.
+- A fix that recurs twice becomes a check rule or a script, not another sentence.
+- A baseline, fixture or check is never edited to make a diff pass. Fix the code.
+- A count no script produced, or a check never seen failing, is not reported.
 
 ## Done
 
-The run ends check-first (`references/modes.md`). The phase 1 predicate holds, with every number measured in phase 8: "N canonical components cover M inventoried families, every token has a role, the checks fail on seeded violations and exit 0 on a clean clone, and the pilot matches its baseline except for the listed intended changes." Report a failing part as failing. Never loosen it.
+The check exits 0 on a clean clone with every rule seen failing, every route answers 200 on the production build, the pilot matches its baseline except for the listed intended changes, and every handoff count comes from a script.
 
-- Every token states its role, and every safe move is made and proven (`references/run-record.md`, Terms).
-- Every canonical component the pilot uses has a registry entry and a spec that passes `node scripts/check-spec.mjs docs/system`, with 0 plain entries skipped among registry components.
-- The full check exits 0 on a clean clone, every rule was seen failing its bad fixture this session, and every route answers 200 on the production build.
-- Every difference in the pilot's captures, and every commit outside the pilot, traces to a decision or gate.
-- The handoff report follows `references/run-record.md`, with every count from `.design-system/close.md`.
-
-The rest of Done, per mode and footprint, is in `references/coordinator-path.md` (Close). If it stops, return the condition, finished artifacts, the run record path and the smallest reply that unblocks it.
-
-## Inputs
-
-Fill each row from the repo or its default, and never ask for paths.
-
-| Input | If missing |
-|---|---|
-| The repo, with write access | Stop. A system built from screenshots has no code to enforce it |
-| A way to run the app | Try the `dev` or `start` script. If nothing starts, run phases 3, 4, 5 and 7 from code, skip the pilot and report "code-complete, not runtime-verified" |
-| Target app, in a monorepo | The Frame's one target question (`references/run-record.md`, Questions). Meanwhile run phase 2's read-only scripts on every candidate |
-| Pilot flow | The screen the complaint names, else the flow that uses the most families and has a form with an error state, ties going to a `high` tier flow, else a pattern page (`references/modes.md`) |
-| Budget | The Frame's "Go, <budget>" reply, else the host's session, else `references/coordinator-path.md` (Phase caps) |
-| Themes | The ones the app ships, and no new ones |
-| Mode and foundation | From the router's triage, else `references/modes.md` |
-| Existing tokens, library, design spec or brand | Start from it per the base reference and `references/modes.md` (What decides a question) |
-| The person's words and saved memory, AGENTS.md, CLAUDE.md | They win over this file, branch and push policy included |
-
-It needs a shell, git and Node.
-
-## Procedure
-
-Other files cite these phase numbers, not the list at the top. Each phase ends with its artifact path and a decision row, and stops at its cap (`references/coordinator-path.md`, Phase caps). After any shared UI or token edit, `capture.mjs --status` must show every route loading (`references/browser.md`).
-
-1. **Frame.** Read the agent instructions, manifest, style entry points, theme providers and route tree. Write the complaint in the person's words and the first visible change that answers it, the predicate with blanks for counts, and the standing orders. Viewports are the narrowest and widest widths the app supports, default 390 and 1280 px. Set up the footprint and run `node scripts/check-system.mjs --init`, then settle Lock before fan-out. Start phase 2 without waiting.
-2. **Inventory.** Run the scripts, then list every surface with its states and tier and capture them with one `capture.mjs --kind before` command. Record the animation lists and measure the pilot's traps. Group families, mark duplicates, run the rendered-style pass in `references/traps.md`, and delete what nothing uses in its own commit (`references/inventory.md`, Delete plan). Unless a coordinator did, start `migrate-design-system` in audit mode, read-only, right after the token commit.
-3. **Foundations.** Cluster raw values by category and role into semantic tokens with surface and foreground pairs. Merges inside `token-mapping`'s tolerances are decisions. Past tolerance, open one gate per cluster whose default is the merge, naming the largest shift and the screens it touches, and apply every default in the token files now. Write the generator if the setup has one. Run `token-mapping` on the full inventory until every raw value maps to a role, a merge or a listed exception. Make every identical-value swap on every route, and give a route that changed to the migration map. Write the AGENTS.md block, name the motion presets and icon sizes, and start the live showcase when the person reviews in a browser (`references/system-structure.md`).
-4. **Components.** Pick each canonical implementation by the contract. When the ask names states, every component gets its missing states. Build the most-used family first, end to end in one commit: component, tests, showcase page and spec with its rules. Show its page before fan-out. Write its old-to-new map and a codemod that matches a hand-moved pilot screen, or record why there is none. Fan out the families the pilot and the strays touch, and reject any diff outside a brief's scope. Deprecate replaced wrappers, never a stock foundation component. Close per `references/coordinator-path.md` (Components close).
-5. **Checks.** Follow `references/checks.md`. The check exits 0 before phase 6. Prove the shipped rules with `node scripts/check-system.mjs --self-test --fixtures <skills>/build-design-system/fixtures/check-system`.
-6. **Pilot, then safe moves.** Move the pilot with the codemod, reading every hunk. Capture after with the baseline's viewports, themes and data. An untraced difference is a defect, and a rendered change with no capture reports `checks-only`. Walk the flow by keyboard, trigger its error and loading states, and measure every trap before and after. Run `ui-review` on the after captures. Fix as decisions what existing tokens and components can fix, and broken behavior. The rest are gates. Then land the safe moves one surface per commit (`references/coordinator-path.md`, Surfaces on the run branch).
-7. **Docs.** Run `component-docs` for any canonical component still without a spec. Write the foundation pages, the shared state patterns (`references/system-structure.md`) and the writing page (`references/writing-method.md`). Run `node scripts/gen-docs.mjs`, with `--name` on the first run, and add `copy-check.mjs` to the check once `docs/system/writing.md` exists. Then Review, decide, fix (`references/coordinator-path.md`), and regenerate.
-8. **Handoff.** Rerun the inventory scripts, grade each component and fill the predicate. On a full footprint, write the project skills. Run the fresh-agent trial and close per `references/coordinator-path.md` (Close).
-
-## Boundaries
-
-Stop and ask only for these:
-
-- No repo access.
-- A deletion that touches something another package or a public API exports.
-- A step git cannot undo, such as publishing a package or changing a shared remote.
-
-Gate with a default and keep working, even when nobody answers:
-
-- A brand color, typeface or logo value the code states two ways.
-- A name that carries a product word, such as "Plan" or "Workspace".
-- A merge past tolerance, or a removed variant that changes a shipped screen.
-- A conflict between code and a spec or old docs that no project rule settles.
-- A change to a link's color or underline, listing every surface it touches. Links in main content keep a resting cue.
-- The footprint, when the repo looks like someone else's or the ask mentions a PR or upstream. Default minimal (`references/coordinator-path.md`).
+`references/traps.md` lists behaviour traps by ID. `references/tokens.md` holds layers, names, tolerances and motion presets.
