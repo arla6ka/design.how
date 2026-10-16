@@ -1,0 +1,11 @@
+{
+	"id": "curly-quote-in-prompt",
+	"skill": "migrate-design-system",
+	"prompt": "Run the copy check over the settings screen. It has a Copy prompt button.",
+	"expected": "Exempts the copied prompt by element and byte-compares it with the base commit.",
+	"fails_if": "curls the apostrophe in the copied prompt",
+	"rule": {
+		"file": "skills/migrate-design-system/references/lessons.md",
+		"phrase": "Payload strings"
+	}
+}

@@ -1,0 +1,11 @@
+{
+	"id": "date-west-of-utc",
+	"skill": "migrate-design-system",
+	"prompt": "Move the formation date picker to the system DatePicker.",
+	"expected": "Compares payloads under two zones and reports a pre-existing bug without fixing it.",
+	"fails_if": "fixes a legal-date bug inside the migration commit",
+	"rule": {
+		"file": "skills/migrate-design-system/references/lessons.md",
+		"phrase": "Dates run in two zones"
+	}
+}
