@@ -1,5 +1,0 @@
-{
-  "name": "fixture",
-  "private": true,
-  "scripts": { "tokens": "node scripts/tokens.mjs" }
-}

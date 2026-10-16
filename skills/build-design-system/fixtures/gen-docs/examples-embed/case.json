@@ -1,1 +1,0 @@
-{"rule":"docs/examples-embed","match":"examples: ","count":1,"failExit":0,"contains":{"public/system/badge.md":["Example: A neutral Draft badge (`docs/system/examples/badge/default.tsx`)\n\n```tsx\nimport { Badge }","- `danger`: needs action.\n\nExample: An Overdue badge (`docs/system/examples/badge/tone-danger.tsx`)"]}}

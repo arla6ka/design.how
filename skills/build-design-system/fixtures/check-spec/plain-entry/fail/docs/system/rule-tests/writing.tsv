@@ -1,3 +1,0 @@
-rule_id	falsify	negation	two_agent	sweep	verdict	notes
-rule/writing-status-case	pass	pass	pass	pass	rewritten	first draft said clear labels
-rule/writing-error-apology	pass	fail	n/a: gated	n/a: gated	gate	G-05

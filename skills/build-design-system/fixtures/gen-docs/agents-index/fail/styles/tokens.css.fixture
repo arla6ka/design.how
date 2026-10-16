@@ -1,9 +1,0 @@
-:root {
-  --background: #ffffff;
-  --foreground: #111111;
-  --radius-md: 8px;
-  --space-3: 12px;
-  --font-sans: system-ui, sans-serif;
-  --duration-fast: 120ms;
-}
-.dark { --background: #000000; --only-dark: #111111; }

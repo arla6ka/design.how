@@ -1,3 +1,0 @@
-export function Badge({ tone = "neutral", children }: { tone?: "neutral" | "danger"; children: string }) {
-  return <span data-tone={tone}>{children}</span>;
-}

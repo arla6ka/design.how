@@ -1,6 +1,0 @@
-// Caption: A status cell in the invoices table
-import { Badge } from "@/components/ui/badge";
-
-export default function Example() {
-  return <table><tbody><tr><td><Badge tone="neutral">Draft</Badge></td></tr></tbody></table>;
-}

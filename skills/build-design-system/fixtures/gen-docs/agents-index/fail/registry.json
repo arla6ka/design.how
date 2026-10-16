@@ -1,1 +1,0 @@
-{ "components": [{ "id": "badge", "name": "Badge", "import": "@/components/ui/badge", "source": "components/ui/badge.tsx" }] }

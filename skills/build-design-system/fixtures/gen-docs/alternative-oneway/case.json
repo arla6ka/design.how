@@ -1,1 +1,0 @@
-{"rule":"docs/alternative-oneway","match":" docs/alternative-oneway ","count":1,"contains":{"public/system/rules.md":["| ID | Rule | Answered on | Ground | Enforced by |","| measured | probe on `default.tsx` |"]}}

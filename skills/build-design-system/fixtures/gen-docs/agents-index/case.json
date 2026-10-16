@@ -1,4 +1,0 @@
-{"rule":"docs/agents-index","match":"AGENTS.md","count":0,"failExit":0,
- "twice":["AGENTS.md"],
- "once":{"AGENTS.md":["<!-- ds-index:start -->","User text above.","- color: --background, --foreground"]},
- "contains":{"AGENTS.md":["User text below.","- Badge `@/components/ui/badge`: Badge labels a record with its status in one or two words.","- radius: --radius-md","- space: --space-3","- type: --font-sans","- motion: --duration-fast","Rule ids: rule/","rule/badge-one-per-row","Trap ids: trap/","`npm run check`"]}}

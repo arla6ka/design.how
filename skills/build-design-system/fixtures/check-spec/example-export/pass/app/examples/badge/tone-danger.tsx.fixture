@@ -1,7 +1,0 @@
-// Caption: An Overdue badge
-import { Badge } from "@/components/ui/badge";
-import { BadgeGroup } from "@/components/ui/badge"; // planned: G-03 adds BadgeGroup
-
-export default function Example() {
-  return <BadgeGroup><Badge tone="danger">Overdue</Badge></BadgeGroup>;
-}
