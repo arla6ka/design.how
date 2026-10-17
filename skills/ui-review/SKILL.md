@@ -13,9 +13,9 @@ The render is the evidence. A description, DOM text or source code only supports
 2. **Lint.** Run the project's own lint on the scoped files. Record the command and exit code.
 3. **Capture** each screen at each width (the app's narrowest and widest, 390 and 1280 by default) in the states that matter, one fresh navigation per width. Run an accessibility scan at each width.
 4. **Fix the purpose** of each screen in one line. Mark it assumed when the caller did not give it.
-5. **Probe the traps** each screen has, on a local build only (`build-design-system` lists them by ID): keyboard path, focus after close, loading and error states, a throttled tab, reduced motion, and a touch width. Each probe gets a measured result or a reason it did not run. Do not click anything that writes to shared data.
+5. **Probe the traps** each screen has, on a local build only: keyboard path, focus after close, loading and error states, a throttled tab, reduced motion, and a touch width. Each probe gets a measured result or a reason it did not run. Do not click anything that writes to shared data.
 6. **Walk the criteria** at each width. Cite each finding by number and name, or by the installed rule's ID.
-7. **Sort.** With a panel in `.design-system/roles.md`, give each reviewer the same prompt and no persona, read only. The lead then sorts every finding into `blocking`, `should-fix`, `note` or `dismissed`, naming who raised it and giving one line of reason. A finding raised by two reviewers on their own is the strongest signal. Dismiss nitpicks, hypotheticals nobody traced to a real call site, and "I would have done it differently". Within a bucket, order by the surface's tier, then by places hit. Without a panel, do the same alone.
+7. **Sort.** With more than one reviewer available (a panel), give each the same prompt and no persona, read only. The lead then sorts every finding into `blocking`, `should-fix`, `note` or `dismissed`, naming who raised it and giving one line of reason. A finding raised by two reviewers on their own is the strongest signal. Dismiss nitpicks, hypotheticals nobody traced to a real call site, and "I would have done it differently". Within a bucket, put surfaces that write data first, then order by places hit. Without a panel, do the same alone.
 8. **Walk the edge cases** and mark each shown or not shown.
 9. **Write the verdict last.**
 
@@ -26,7 +26,7 @@ The render is the evidence. A description, DOM text or source code only supports
 - An inferred finding enters Next only as the check that settles it.
 - A claim that something works or is fixed names a command or capture from this session.
 - Contrast, target size and keyboard problems are ranked. A change to the accessibility tree that only adds semantics is ranked. One that removes or restructures semantics goes to a person.
-- A criterion 13 finding or pass from a screenshot is invalid. It needs a measured probe. A focus ring is the reverse. Reach the control with real Tab presses and judge the ring from the capture, because a container that draws it through `:has(:focus-visible)` leaves the focused element reporting no outline.
+- A finding or pass on responsiveness to input (criterion 13) from a screenshot is invalid. It needs a measured probe. A focus ring is the reverse. Reach the control with real Tab presses and judge the ring from the capture, because a container that draws it through `:has(:focus-visible)` leaves the focused element reporting no outline.
 - Product decisions behind a fix go to For a person to decide. Keeping the user's input is never one.
 
 ## Output
@@ -41,7 +41,7 @@ Then, in order:
 4. **For a person to decide.**
 5. **Dismissed and left out.** Each with who raised it and the reason.
 
-Run directly, save the report to `.ui-review/<date>-<flow>.md` with captures beside it. The chat reply gives the answer and ship lines, each command with its exit code, and one prompt to paste.
+Run on its own, save the report to `.ui-review/<date>-<flow>.md` with captures beside it. The chat reply gives the answer and ship lines, each command with its exit code, and one prompt the person can paste to take the next step.
 
 ## Done
 

@@ -18,11 +18,11 @@ A read-only report that lands raw values (hex, px, shadows) on a token list some
    - Semantic: the job covers it and the value is inside tolerance. State the difference in numbers.
    - Ambiguous: two or more tokens fit and nothing picks one. Name every candidate.
    - Gap: no token's job covers it, or the only fitting token is out of tolerance. A gap never gets a new name.
-6. **Count and close.** Gaps over 30% of rows (12 rows or more) usually mean the wrong list. Say so, still deliver the table, and lead with `Status: not actionable (gap threshold)`.
+6. **Count and close.** When gaps are over 30% of rows and number 12 or more, the list is usually the wrong one. Say so, still deliver the table, and lead with `Status: not actionable (gap threshold)`.
 
 ## Report
 
-Summary, Mapping, Do not use (a token whose value matches but whose job differs), Ambiguous, Gaps, For a person to decide, Source. Last line `Coverage:` with what was scanned and what was not. Run directly, the chat reply gives the answer with its numbers and one prompt to paste.
+Summary, Mapping, Do not use (a token whose value matches but whose job differs), Ambiguous, Gaps, For a person to decide, Source. Last line `Coverage:` with what was scanned and what was not. Run on its own, the chat reply gives the answer with its numbers and one prompt the person can paste to take the next step.
 
 ## Rules
 

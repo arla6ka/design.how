@@ -19,7 +19,7 @@ A draft entry for one component, built only from what its sources say. Gaps are 
 
 ## Output
 
-The entry, then Sources, Conflicts, Guessed at, and Gates (a question with its default) only where a rule adds one. Run directly, save to `docs/system/<name>.md` with a draft comment on line 1 and write each missing example file. The reply opens with the path, what the entry covers and its status, then up to three questions with defaults and one prompt to paste.
+The entry, then Sources, Conflicts, Guessed at, and Gates (a question with its default) only where a rule adds one. Run on its own, it saves to `docs/system/<name>.md` with a draft comment on line 1 and writes each missing example file. The reply opens with the path, what the entry covers and its status, then up to three questions with defaults and one prompt the person can paste to take the next step.
 
 ## Stops
 
