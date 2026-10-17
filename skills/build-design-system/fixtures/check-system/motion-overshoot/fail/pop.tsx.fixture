@@ -1,5 +1,0 @@
-import { motion } from "motion/react";
-
-export function Pop() {
-  return <motion.div className="ease-[cubic-bezier(0.3,1.4,0.5,1)]" transition={{ ease: [0.3, 1.4, 0.5, 1] }} />;
-}

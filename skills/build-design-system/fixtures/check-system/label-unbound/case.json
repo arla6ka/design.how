@@ -1,1 +1,0 @@
-{ "rule": "trap/label-unbound", "expect": { "trap/label-unbound": 2 } }

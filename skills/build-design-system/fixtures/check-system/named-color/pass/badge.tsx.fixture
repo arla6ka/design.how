@@ -1,9 +1,0 @@
-export function Badge({ tone = "red" }) {
-  const label = "red";
-  return (
-    <span data-tone={tone} style={{ color: "currentColor", background: "transparent", borderColor: 'inherit' }}>
-      <svg fill="currentColor" />
-      {label} white paper
-    </span>
-  );
-}

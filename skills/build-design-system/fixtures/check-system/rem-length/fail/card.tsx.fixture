@@ -1,3 +1,0 @@
-export function Card() {
-  return <div className="p-[1.25rem]" style={{ padding: "1.25rem", fontSize: "0.875rem" }} />;
-}

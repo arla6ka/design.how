@@ -1,3 +1,0 @@
-export function Badge(props) {
-  return <span className="rounded-md bg-[#fafafa] px-2" {...props} />;
-}

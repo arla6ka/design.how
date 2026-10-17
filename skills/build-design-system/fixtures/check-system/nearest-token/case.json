@@ -1,3 +1,0 @@
-{ "rule": "mode/nearest-token", "config": { "tokenSources": ["tokens.css"] },
-  "expect": { "rule/raw-value": 3, "rule/css-px": 2 },
-  "nearest": { "#121212": "--foreground", "#fefefe": "--background", "#e4e4e4": "--border", "border-radius: 7px": "--radius-md", "padding: 13px": "--space-3" } }

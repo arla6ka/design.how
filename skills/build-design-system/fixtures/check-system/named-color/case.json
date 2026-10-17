@@ -1,1 +1,0 @@
-{ "rule": "rule/named-color", "config": { "tokenSources": ["tokens.css"] }, "expect": { "rule/named-color": 5 } }

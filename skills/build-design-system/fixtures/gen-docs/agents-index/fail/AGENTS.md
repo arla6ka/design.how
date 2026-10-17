@@ -1,3 +1,0 @@
-# Agents
-
-User text above.

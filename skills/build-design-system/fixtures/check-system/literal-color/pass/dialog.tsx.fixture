@@ -1,8 +1,0 @@
-export function Panel() {
-  return (
-    <div className="bg-background text-foreground border border-border">
-      <div className="fixed inset-0 bg-black/50" />
-      <p className="bg-transparent text-white/80">Saved</p>
-    </div>
-  );
-}

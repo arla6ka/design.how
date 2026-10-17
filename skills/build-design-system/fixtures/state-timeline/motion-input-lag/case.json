@@ -1,1 +1,0 @@
-{ "target": "#h", "drag": "#h", "expect": "trap/motion-input-lag" }

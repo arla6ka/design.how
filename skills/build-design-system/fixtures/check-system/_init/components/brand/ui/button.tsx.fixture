@@ -1,3 +1,0 @@
-export function Button(props: React.ComponentProps<"button">) {
-  return <button className="bg-(--surface) text-(--on-surface) p-(--space-4)" {...props} />;
-}

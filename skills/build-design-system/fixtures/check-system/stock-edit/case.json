@@ -1,1 +1,0 @@
-{ "rule": "rule/stock-edit", "config": { "uiDir": "ui" }, "expect": { "rule/stock-edit": 2 } }

@@ -27,7 +27,6 @@ node scripts/check-system.mjs --init              # writes scripts/check-system.
 node scripts/check-system.mjs --hash-stock        # copy-in or library ui files: hash every row of scripts/ui-drift.tsv
 node scripts/check-system.mjs --save-stock components/ui/button.tsx .design-system/tmp/button.json   # upstream's copy of a customized file
 node scripts/check-system.mjs --rehash components/ui/dialog.tsx --note "G-04: close button kept, reviewed"   # after a reviewed edit
-node scripts/check-system.mjs --self-test --fixtures <skills>/build-design-system/fixtures/check-system   # every rule fails its bad fixture, passes its good one
 node scripts/check-system.mjs --init-allowlist    # once, to record today's violations
 node scripts/check-system.mjs                     # the repo against the allowlist
 node scripts/check-system.mjs --files app/team/invite/page.tsx   # the pilot; the allowlist applies, and --no-allowlist shows everything the file holds
@@ -183,19 +182,17 @@ The handoff sets up two tiers, so a pull request gets fast warnings and the slow
 - run: node scripts/check-spec.mjs docs/system --no-fresh
 ```
 
-Other CI hosts pass the base branch the same way, or pipe their own diff with `--diff -`. A shallow clone has no merge base, so the warn step prints one warning saying so and exits 0. The AGENTS.md block says the warnings exist, and `--explain <rule-id>` gives an agent the rule, why and the fix (`system-structure.md`, Load conditions in AGENTS.md). The fixture `fixtures/check-system/changed-lines/` proves the scoping.
+Other CI hosts pass the base branch the same way, or pipe their own diff with `--diff -`. A shallow clone has no merge base, so the warn step prints one warning saying so and exits 0. The AGENTS.md block says the warnings exist, and `--explain <rule-id>` gives an agent the rule, why and the fix (`system-structure.md`, Load conditions in AGENTS.md).
 
 ## Proving each rule
 
-Every rule gets a failing and a passing fixture under `fixtures/check-system/<rule>/`, in `fail/` and `pass/` folders with a `case.json` naming the rule and the exact count the failing folder must produce. Fixture sources end in `.fixture` (`list.tsx.fixture`), so the typecheck, lint and framework never compile them, and the self-test reads each under its inner name. The standard fixtures stay in the skill folder, and `node scripts/check-system.mjs --self-test --fixtures <skills>/build-design-system/fixtures/check-system` proves the repo's copy against them. A rule the run adds keeps its pair in the repo's `scripts/fixtures/check-system/`, and the default run self-tests whatever sits there.
+Every rule the run adds gets a failing and a passing fixture under `scripts/fixtures/check-system/<rule>/`, in `fail/` and `pass/` folders with a `case.json` naming the rule and the exact count the failing folder must produce. Fixture sources end in `.fixture` (`list.tsx.fixture`), so the typecheck, lint and framework never compile them, and the self-test reads each under its inner name. The default run self-tests whatever sits there.
 
 - The failing fixture holds exactly the patterns the rule catches, such as a three-line `<div onClick>` or `p-[13px]`.
 - The passing fixture holds the nearest correct form, such as `<Button>` or `p-3`, and must produce no finding at all.
 - The `unregistered-ui` failing fixture is a file in the ui folder, not on the drift list, with raw hex in it. It must fail both rules, which catches a glob exemption.
 
 The normal scan skips `scripts/` entirely.
-
-`check-spec.mjs --self-test`, `gen-docs.mjs --self-test`, `copy-check.mjs --self-test`, `check-record.mjs --self-test`, `stress.mjs --self-test`, `probe.mjs --self-test` and `state-timeline.js --self-test --root <playwright root>` prove the other scripts the same way, from `fixtures/check-spec/`, `fixtures/gen-docs/`, `fixtures/copy-check/`, `fixtures/probe/` and `fixtures/state-timeline/` in the skill folder. These fixtures never go into the repo.
 
 ## At handoff
 

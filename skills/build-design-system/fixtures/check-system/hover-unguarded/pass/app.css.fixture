@@ -1,6 +1,0 @@
-.btn:hover { opacity: 0.9; }
-.link:hover { text-decoration: underline; }
-@media (hover: hover) {
-  .card:hover .actions { opacity: 1; }
-  .menu:hover > .submenu { display: block; }
-}

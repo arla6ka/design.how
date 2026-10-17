@@ -1,6 +1,0 @@
-slot	text	component	source	file	line
-button	Delete project	Button	children	app/projects.tsx	12
-dialog-title	Delete {name}?	AlertDialogTitle	children	app/projects.tsx	14
-confirm-action	Delete	AlertDialogAction	children	app/projects.tsx	15
-toast	Sorry, deleted {name}.	toast.success	arg:0	app/projects.tsx	7
-placeholder	Search projects	input	prop:placeholder	app/projects.tsx	11

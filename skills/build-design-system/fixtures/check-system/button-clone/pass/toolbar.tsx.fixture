@@ -1,9 +1,0 @@
-export function Toolbar({ save }) {
-  return (
-    <div className="flex items-center gap-2 rounded-md border px-4">
-      <Button onClick={save}>Save</Button>
-      <span className="text-sm text-muted-foreground">Saved 2 minutes ago</span>
-      <div className="panel">Export history</div>
-    </div>
-  );
-}

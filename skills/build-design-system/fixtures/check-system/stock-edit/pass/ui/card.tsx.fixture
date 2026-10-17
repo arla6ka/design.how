@@ -1,3 +1,0 @@
-export function Card(props) {
-  return <div className="rounded-xl border bg-card p-6" {...props} />;
-}

@@ -1,8 +1,0 @@
-// Order #123 in a comment is not a color: #fff
-export function Card() {
-  return (
-    <div className="bg-muted text-foreground shadow-sm" style={{ color: "var(--foreground)" }}>
-      <a href="#main">Order #123</a>
-    </div>
-  );
-}

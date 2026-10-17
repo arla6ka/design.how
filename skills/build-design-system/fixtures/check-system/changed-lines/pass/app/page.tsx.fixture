@@ -1,9 +1,0 @@
-export function Page() {
-  return (
-    <div>
-      <p style={{ color: "#111111" }}>Allowlisted, edited text</p>
-      <p className="text-muted-foreground">Added with a token</p>
-      <p style={{ color: "#333333" }}>Old, not allowlisted, unchanged</p>
-    </div>
-  );
-}

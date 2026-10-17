@@ -1,1 +1,0 @@
-{ "rule": "trap/touch-autofocus", "expect": { "trap/touch-autofocus": 3 } }

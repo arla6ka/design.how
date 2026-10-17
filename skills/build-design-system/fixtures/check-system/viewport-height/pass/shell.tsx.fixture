@@ -1,8 +1,0 @@
-export function Shell() {
-  return (
-    <div className="flex min-h-screen flex-col">
-      <main className="min-h-dvh" />
-      <aside className="h-screen h-dvh" />
-    </div>
-  );
-}

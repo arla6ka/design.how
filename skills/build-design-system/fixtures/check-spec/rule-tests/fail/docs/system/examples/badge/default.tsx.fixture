@@ -1,6 +1,0 @@
-// Caption: A neutral Draft badge
-import { Badge } from "@/components/ui/badge";
-
-export default function Example() {
-  return <Badge tone="neutral">Draft</Badge>;
-}

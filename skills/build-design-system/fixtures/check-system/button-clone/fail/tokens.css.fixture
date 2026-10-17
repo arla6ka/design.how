@@ -1,4 +1,0 @@
-:root {
-  --space-2: 0.5rem;
-  --primary: oklch(0.5 0.2 250);
-}

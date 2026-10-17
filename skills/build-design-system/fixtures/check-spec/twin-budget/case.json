@@ -1,1 +1,0 @@
-{"rule":"spec/twin-budget","count":1,"args":["--twin","--max-lines","12"],"target":"twin"}

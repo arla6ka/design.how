@@ -1,3 +1,0 @@
-.shell { height: 100vh; height: 100dvh; }
-.page { min-height: 100vh; }
-.sheet { max-height: calc(100dvh - 2rem); }

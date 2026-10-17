@@ -1,2 +1,0 @@
-{ "rule": "rule/outside-name", "config": { "names": ["Acme UI", { "name": "Globex", "why": "another product" }] },
-  "expect": { "rule/outside-name": 2 } }

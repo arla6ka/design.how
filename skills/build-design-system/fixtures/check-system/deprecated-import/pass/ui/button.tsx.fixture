@@ -1,3 +1,0 @@
-export function Button(props) {
-  return <button className="rounded-md bg-primary px-3" {...props} />;
-}

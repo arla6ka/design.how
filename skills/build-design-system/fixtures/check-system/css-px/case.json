@@ -1,1 +1,0 @@
-{ "rule": "rule/css-px", "config": { "tokenSources": ["tokens.css"] }, "expect": { "rule/css-px": 5 } }

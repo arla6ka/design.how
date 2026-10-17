@@ -1,1 +1,0 @@
-{ "rule": "rule/ban-middle-dot", "config": { "bans": [{ "id": "rule/ban-middle-dot", "pattern": "·", "why": "no middle-dot separators" }, { "id": "rule/ban-em-dash", "pattern": "—", "why": "no em dashes" }] }, "expect": { "rule/ban-middle-dot": 2, "rule/ban-em-dash": 1 } }

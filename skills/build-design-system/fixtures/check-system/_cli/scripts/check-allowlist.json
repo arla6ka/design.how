@@ -1,8 +1,0 @@
-{
-  "app/page.tsx": {
-    "rule/raw-value": {
-      "#fafafa": { "count": 1, "removeBy": "2000-01-01" },
-      "#0a0a0a": 1
-    }
-  }
-}

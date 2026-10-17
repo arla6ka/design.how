@@ -1,2 +1,0 @@
-import { Badge } from "@/components/ui/badge";
-export const Row = () => <><Badge tone="neutral">Draft</Badge><Badge tone="danger">Overdue</Badge></>;

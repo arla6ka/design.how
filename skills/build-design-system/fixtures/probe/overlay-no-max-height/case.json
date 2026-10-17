@@ -1,1 +1,0 @@
-{ "trap": "trap/overlay-no-max-height", "width": 390, "height": 320, "click": "#open", "expect": 2 }

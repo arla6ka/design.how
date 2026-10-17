@@ -1,8 +1,0 @@
-diff --git a/app/page.tsx b/app/page.tsx
---- a/app/page.tsx
-+++ b/app/page.tsx
-@@ -4,0 +5,2 @@ export function Page() {
-+      <p style={{ color: "#222222" }}>Added raw value</p>
-+      <p className="text-gray-500">Added palette class</p>
-@@ -5,0 +8 @@ export function Page() {
-+      <p style={{ color: "#111111" }}>Added past the allowlist count</p>

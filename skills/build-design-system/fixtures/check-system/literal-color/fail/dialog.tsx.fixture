@@ -1,7 +1,0 @@
-export function Panel() {
-  return (
-    <div className="bg-white text-black border border-black">
-      <p className="hover:text-white">Saved</p>
-    </div>
-  );
-}

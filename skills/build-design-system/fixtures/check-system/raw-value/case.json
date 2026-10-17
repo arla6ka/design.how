@@ -1,2 +1,0 @@
-{ "rule": "rule/raw-value", "config": { "tokenSources": ["tokens.css"] },
-  "expect": { "rule/raw-value": 5 } }

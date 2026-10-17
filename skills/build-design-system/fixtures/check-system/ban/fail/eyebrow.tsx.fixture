@@ -1,4 +1,0 @@
-// Section eyebrow · shown above each page title
-export function Eyebrow() {
-  return <p>Components · Forms</p>;
-}

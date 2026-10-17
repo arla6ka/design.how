@@ -1,4 +1,0 @@
-import { render } from "./render";
-import { Badge } from "./badge";
-
-export const reads = () => render(<Badge tone="danger">Overdue</Badge>).text === "Overdue";

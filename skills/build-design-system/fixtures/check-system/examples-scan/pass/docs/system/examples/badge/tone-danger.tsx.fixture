@@ -1,4 +1,0 @@
-// Caption: An Overdue badge
-export default function Example() {
-  return <span className="text-destructive">Overdue</span>;
-}

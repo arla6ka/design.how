@@ -1,7 +1,0 @@
-export function Row() {
-  return (
-    <div className="p-[13px] text-gray-500" style={{ color: "#0f766e" }}>
-      Paid
-    </div>
-  );
-}

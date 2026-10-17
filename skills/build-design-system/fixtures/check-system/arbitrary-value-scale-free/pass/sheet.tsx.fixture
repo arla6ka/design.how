@@ -1,8 +1,0 @@
-export function Sheet() {
-  return (
-    <div className="grid [grid-area:stack] gap-[inherit] transition-[background-color,border-color]">
-      <div className="pb-[calc(var(--space-4)+env(safe-area-inset-bottom))] h-[calc(100dvh-var(--header-height))]" />
-      <div className="pt-[env(safe-area-inset-top)] w-[min(100%,var(--header-height)*2)]" />
-    </div>
-  );
-}

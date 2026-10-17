@@ -1,2 +1,0 @@
-{ "rule": "rule/unregistered-ui", "config": { "uiDir": "ui" },
-  "expect": { "rule/unregistered-ui": 1, "rule/raw-value": 1 } }

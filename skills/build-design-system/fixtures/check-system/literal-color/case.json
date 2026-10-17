@@ -1,1 +1,0 @@
-{ "rule": "rule/palette-use", "config": { "tokenSources": ["tokens.css"] }, "expect": { "rule/palette-use": 4 } }

@@ -1,3 +1,0 @@
-export function Button(props) {
-  return <button className="ui-btn" {...props} />;
-}

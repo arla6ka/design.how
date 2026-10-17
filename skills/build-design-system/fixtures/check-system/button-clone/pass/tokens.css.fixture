@@ -1,5 +1,0 @@
-:root {
-  --space-2: 0.5rem;
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.55 0 0);
-}

@@ -8,7 +8,7 @@ It uses three sibling skills: `token-mapping` to fold existing values into the n
 
 ## Use as-is
 
-Run `npx skills add arla6ka/skills` to install it with its sibling skills. To install by hand, copy the folder to `.agents/skills/build-design-system/` in your repo, which most agents read directly, or link it into `.claude/skills/` for Claude Code. Then ask your agent for one phase, such as "extract tokens from the app" or "add states and specs to our components". A whole-app ask like "set up a design system" goes to `design-system-boss` when it is installed, which calls this skill. A loose request is fine. The skill finds the run command, picks a pilot and a budget, states them in one message and starts reading the repo while you check them. An agent may pick it without being named, which is safe because the first two phases only read, and every write lands on a run branch you merge or drop.
+Run `npx skills@latest add arla6ka/design.how` to install it with its sibling skills. To install by hand, copy the folder to `.agents/skills/build-design-system/` in your repo, which most agents read directly, or link it into `.claude/skills/` for Claude Code. Then ask your agent for one phase, such as "extract tokens from the app" or "add states and specs to our components". A whole-app ask like "set up a design system" goes to `design-system-boss` when it is installed, which calls this skill. A loose request is fine. The skill finds the run command, picks a pilot and a budget, states them in one message and starts reading the repo while you check them. An agent may pick it without being named, which is safe because the first two phases only read, and every write lands on a run branch you merge or drop.
 
 It works on any web stack it can read and run, and its specs are framework-agnostic, though some examples and the component scan assume JSX. It assumes file access, a shell, Node 18 or later for the scripts, and a command that starts the app. A browser and subagents are optional. Without a browser, the run stops before the pilot.
 
@@ -52,13 +52,13 @@ Change one only when its stated reason doesn't apply to you.
 
 Read these before you install. No script sends data anywhere except to the app URL you give it.
 
-- `check-system.mjs`, `check-spec.mjs`, `copy-check.mjs`, `gen-docs.mjs`, `props-table.mjs` and `check-record.mjs` read the repo. The check writes only its config, allowlist, ratchet file, drift list and stock copies under `scripts/`, when you pass a flag that says so. `gen-docs.mjs` writes the twins and indexes under `public/`, its own config, the index region in AGENTS.md and `docs/system/changelog.md`, and `copy-check.mjs --extract` writes `docs/system/copy-inventory.tsv`. They run `git` to find the repo root and changed lines, and self-tests run Node on temp copies of fixtures.
+- `check-system.mjs`, `check-spec.mjs`, `copy-check.mjs`, `gen-docs.mjs`, `props-table.mjs` and `check-record.mjs` read the repo. The check writes only its config, allowlist, ratchet file, drift list and stock copies under `scripts/`, when you pass a flag that says so. `gen-docs.mjs` writes the twins and indexes under `public/`, its own config, the index region in AGENTS.md and `docs/system/changelog.md`, and `copy-check.mjs --extract` writes `docs/system/copy-inventory.tsv`. They run `git` to find the repo root and changed lines.
 - `capture.mjs`, `probe.mjs`, `pixdiff.mjs`, `montage.mjs`, `stress.mjs`, `state-timeline.js` and `check-docs-leak.mjs` launch a local Chromium through Playwright (`find-chromium.mjs` finds it, and runs `npm root -g` to look for a global install) and load only the URL or fixtures you pass. They write captures, JSON results and a review page where `--out` or `--json` points, and `capture.mjs --eval` writes one JSON file per capture. `capture.mjs --via` and `check-docs-leak.mjs` shell out to `agent-browser`.
 - `oklch.mjs` and `optical.js` compute only. `optical.js` runs inside a page you open.
 
 ## Check after changing
 
-From the skill folder, run `--self-test` on `check-system.mjs`, `check-spec.mjs`, `check-record.mjs`, `gen-docs.mjs`, `copy-check.mjs` and `oklch.mjs`, and `--self-test --root <playwright root>` on `probe.mjs` and `state-timeline.js`, then the cases in `TESTS.md` per `../TESTING.md`. At minimum, run Missing required input, Enforcement proves itself and Scope creep.
+Run the cases in `TESTS.md` per `../TESTING.md`. At minimum, run Missing required input, Enforcement proves itself and Scope creep.
 
 ## Adapt this skill
 

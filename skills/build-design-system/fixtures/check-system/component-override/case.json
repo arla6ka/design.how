@@ -1,2 +1,0 @@
-{ "rule": "rule/component-override", "config": { "uiDir": "ui", "registry": "registry.json" },
-  "expect": { "rule/component-override": 5 } }

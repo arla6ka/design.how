@@ -1,7 +1,0 @@
-:root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.15 0 0);
-  --border: oklch(0.92 0 0);
-  --muted: #f5f5f5;
-}
-.card { border-color: var(--border); }

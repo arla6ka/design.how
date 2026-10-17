@@ -1,0 +1,27 @@
+{
+  "name": "design-how",
+  "owner": {
+    "name": "Arlan",
+    "url": "https://design.how"
+  },
+  "metadata": {
+    "description": "Design system skills from design.how",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "design-system-skills",
+      "description": "Build a design system from your app, enforce it with checks, migrate every screen onto it, map values to tokens, document components and review UI",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/design-system-boss",
+        "./skills/build-design-system",
+        "./skills/migrate-design-system",
+        "./skills/token-mapping",
+        "./skills/component-docs",
+        "./skills/ui-review"
+      ]
+    }
+  ]
+}

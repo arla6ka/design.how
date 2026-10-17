@@ -1,6 +1,6 @@
 # Tests: build a design system
 
-Run these per `../TESTING.md`. The script self-tests are the proof of every script behavior, so no case here restates them.
+Run these per `../TESTING.md`.
 
 ## Setup under test
 

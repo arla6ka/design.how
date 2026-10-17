@@ -1,1 +1,0 @@
-{ "rule": "rule/raw-value", "expect": { "rule/raw-value": 1, "rule/palette-use": 1, "rule/arbitrary-value": 1 } }

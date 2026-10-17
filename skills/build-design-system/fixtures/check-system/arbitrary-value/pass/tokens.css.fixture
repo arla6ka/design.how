@@ -1,5 +1,0 @@
-:root {
-  --sidebar-width: 16rem;
-  --brand: var(--primary);
-  --primary: oklch(0.5 0.2 250);
-}

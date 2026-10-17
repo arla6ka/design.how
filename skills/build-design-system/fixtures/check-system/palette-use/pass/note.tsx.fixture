@@ -1,3 +1,0 @@
-export function Note() {
-  return <p className="text-muted-foreground bg-primary/80 bg-black/10">Saved</p>;
-}

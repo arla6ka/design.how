@@ -1,6 +1,0 @@
-.page { max-width: 1040px; padding: 24px var(--space-4); }
-.logo {
-  font-size: 18px;
-  border-radius: 6px;
-}
-.row { gap: 12px; }

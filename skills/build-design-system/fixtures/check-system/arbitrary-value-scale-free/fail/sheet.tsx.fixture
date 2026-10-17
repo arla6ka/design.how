@@ -1,7 +1,0 @@
-export function Sheet() {
-  return (
-    <div className="grid [grid-area:2/1] transition-[all]">
-      <div className="pb-[calc(var(--space-4)+12px)] h-[calc(100dvh-56px)]" />
-    </div>
-  );
-}

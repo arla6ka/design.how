@@ -1,3 +1,0 @@
-.card { transition: all 200ms ease-out; }
-.row { transition-property: all; }
-.chip { @apply transition-all; }

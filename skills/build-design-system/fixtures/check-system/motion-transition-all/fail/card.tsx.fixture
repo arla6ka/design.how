@@ -1,3 +1,0 @@
-export function Card() {
-  return <div className="rounded transition-all duration-200" style={{ transition: "all 0.2s" }} />;
-}

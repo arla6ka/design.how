@@ -1,7 +1,0 @@
-export function Row() {
-  return (
-    <div className="p-[13px] hover:text-[13px]">
-      <span className={cn("rounded-[14px]", "[mask-type:luminance]")} />
-    </div>
-  );
-}

@@ -1,3 +1,0 @@
-export function Page() {
-  return <p className="bg-(--surface-raised)" style={{ color: "var(--text-subtle)" }}>Hi</p>;
-}

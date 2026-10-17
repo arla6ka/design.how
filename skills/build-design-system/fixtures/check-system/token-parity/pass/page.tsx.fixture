@@ -1,7 +1,0 @@
-export function Page({ w }) {
-  return (
-    <div style={{ "--panel-w": `${w}px` }}>
-      <p className="w-(--panel-w) origin-(--transform-origin)" style={{ color: "var(--muted-foreground)" }}>Hi</p>
-    </div>
-  );
-}

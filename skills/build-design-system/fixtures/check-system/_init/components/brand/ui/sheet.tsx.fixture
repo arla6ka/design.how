@@ -1,7 +1,0 @@
-export function Sheet({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="translate-y-(--drawer-swipe-movement-y) bottom-(--sheet-offset) w-(--rail-size) bg-(--surface) text-(--color-primary)">
-      {children}
-    </div>
-  );
-}

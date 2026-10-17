@@ -1,7 +1,0 @@
-diff --git a/app/page.tsx b/app/page.tsx
---- a/app/page.tsx
-+++ b/app/page.tsx
-@@ -4 +4,2 @@ export function Page() {
--      <p style={{ color: "#111111" }}>Allowlisted, unchanged</p>
-+      <p style={{ color: "#111111" }}>Allowlisted, edited text</p>
-+      <p className="text-muted-foreground">Added with a token</p>

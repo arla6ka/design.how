@@ -1,3 +1,0 @@
-export function Badge(props: { children?: string }) {
-  return <span {...props} />;
-}

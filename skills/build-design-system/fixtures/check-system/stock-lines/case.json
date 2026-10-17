@@ -1,2 +1,0 @@
-{ "rule": "rule/arbitrary-value", "config": { "uiDir": "ui", "tokenSources": ["tokens.css"] },
-  "expect": { "rule/arbitrary-value": 1, "rule/stock-edit": 0 } }

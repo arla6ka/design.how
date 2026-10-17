@@ -1,7 +1,0 @@
-export function Row() {
-  return (
-    <div className="p-3 text-sm data-[state=open]:bg-muted w-[var(--sidebar-width)] bg-(--brand) [&_svg]:size-4">
-      <a href="/projects/[id]">Open</a>
-    </div>
-  );
-}

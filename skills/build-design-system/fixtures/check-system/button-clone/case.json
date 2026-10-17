@@ -1,2 +1,0 @@
-{ "rule": "trap/button-clone", "config": { "uiDir": "ui", "registry": "registry.json", "tokenSources": ["tokens.css"] },
-  "expect": { "trap/button-clone": 3 } }

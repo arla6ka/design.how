@@ -1,2 +1,0 @@
-{ "rule": "trap/link-as-button", "config": { "uiDir": "ui", "registry": "registry.json", "tokenSources": ["tokens.css"] },
-  "expect": { "trap/link-as-button": 8 } }

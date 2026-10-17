@@ -1,3 +1,0 @@
-export function CommandDialog() {
-  return <input name="command" autoFocus />;
-}

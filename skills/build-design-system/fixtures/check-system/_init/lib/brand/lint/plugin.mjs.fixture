@@ -1,3 +1,0 @@
-export const rules = {
-  "tokens-only": { meta: { docs: { url: "docs/system/colors.md#rule-colors-tokens-only" }, messages: { raw: "Use bg-surface instead of bg-[#ffffff] or color: #fff." } } },
-};

@@ -1,1 +1,0 @@
-{ "name": "init-fixture", "private": true, "dependencies": { "headless-kit": "1.0.0" } }

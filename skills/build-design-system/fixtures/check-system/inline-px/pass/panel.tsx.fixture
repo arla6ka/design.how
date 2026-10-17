@@ -1,3 +1,0 @@
-export function Panel() {
-  return <section className="p-3" style={{ padding: 0, lineHeight: 1.5, width: "100%", gridTemplateColumns: "1fr 2fr", opacity: 0.5, margin: "0 auto" }} />;
-}

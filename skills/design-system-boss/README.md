@@ -17,7 +17,7 @@ The boss itself runs the sibling skills' scripts through its workers, and their 
 
 ## Use as-is
 
-Install it with its siblings: `npx skills add arla6ka/skills`. By hand, copy the folder next to the other five in `.agents/skills/`, or `.claude/skills/` for Claude Code. Then say what you want in your own words. The boss reads the repo before it asks anything. It asks at most one routing question, plus your bans and how closely to follow a design source, each with a default already applied.
+Install it with its siblings: `npx skills@latest add arla6ka/design.how`. By hand, copy the folder next to the other five in `.agents/skills/`, or `.claude/skills/` for Claude Code. Then say what you want in your own words. The boss reads the repo before it asks anything. It asks at most one routing question, plus your bans and how closely to follow a design source, each with a default already applied.
 
 Agents often skip an installed skill when the ask does not name it. If yours do, add load conditions to AGENTS.md that name the work, not the skill's topic:
 

@@ -1,3 +1,0 @@
-export function Card() {
-  return <button type="button" className="active:scale-95" style={{ WebkitTapHighlightColor: "transparent" }} />;
-}

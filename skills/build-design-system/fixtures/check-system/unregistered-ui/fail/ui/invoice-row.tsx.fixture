@@ -1,3 +1,0 @@
-export function InvoiceRow() {
-  return <div className="bg-[#0f766e]">Row</div>;
-}

@@ -1,7 +1,0 @@
-export function Shell() {
-  return (
-    <div className="flex h-screen flex-col">
-      <aside style={{ height: "100vh" }} />
-    </div>
-  );
-}

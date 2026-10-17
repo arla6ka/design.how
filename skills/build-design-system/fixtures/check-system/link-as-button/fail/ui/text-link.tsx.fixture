@@ -1,3 +1,0 @@
-export function TextLink({ className, ...props }) {
-  return <a className={["text-primary underline underline-offset-4", className].filter(Boolean).join(" ")} {...props} />;
-}

@@ -1,4 +1,0 @@
-.card:hover .actions { opacity: 1; }
-.menu:hover > .submenu { display: block; }
-.tip:hover::after { opacity: 1; }
-.row:hover { visibility: visible; }

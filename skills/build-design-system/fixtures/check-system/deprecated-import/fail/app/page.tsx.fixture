@@ -1,3 +1,0 @@
-import { PrimaryButton } from "@/legacy/PrimaryButton";
-const Lazy = import("../legacy/PrimaryButton");
-export default function Page() { return <PrimaryButton>Save</PrimaryButton>; }

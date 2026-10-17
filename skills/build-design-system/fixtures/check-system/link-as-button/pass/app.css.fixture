@@ -1,9 +1,0 @@
-.nav-link {
-  padding: var(--space-1) 0;
-  color: var(--muted-foreground);
-}
-.card-panel {
-  display: block;
-  padding: var(--space-4);
-  background: var(--muted);
-}

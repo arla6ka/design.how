@@ -1,9 +1,0 @@
-export function Save({ saving, open, toggle }) {
-  return (
-    <form>
-      <Button type="submit" loading={saving}>Save</Button>
-      <Button type="button" onClick={toggle} aria-expanded={open}>{open ? "Hide details" : "Show details"}</Button>
-      <Button type="button" aria-busy={saving}>{saving && <Spinner />} Export</Button>
-    </form>
-  );
-}

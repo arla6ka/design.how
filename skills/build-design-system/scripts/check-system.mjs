@@ -26,9 +26,7 @@ Options
                        whose app is not the git root
   --config <file>      config (default: scripts/check-system.config.json)
   --self-test          run only the fixtures, from --fixtures <dir> or from
-                       fixtures/check-system/ beside this script. The standard
-                       fixtures stay in the skill folder: --self-test --fixtures
-                       <skill>/fixtures/check-system proves this copy
+                       fixtures/check-system/ beside this script
   --fixtures <dir>     the fixture folder for the self-test
   --no-self-test       skip the fixtures. With no fixture folder beside the script,
                        the default run skips them anyway
@@ -1650,7 +1648,7 @@ if (flag("--hash-stock") || flag("--rehash")) {
   process.exit(0);
 }
 
-// The repo carries only the fixtures of rules the run added. The standard fixtures stay in the skill folder, so
+// The repo carries only the fixtures of rules the run added, so
 // the default run self-tests only when a fixture folder sits beside this script (or --fixtures names one).
 let testOk = true;
 const fixturesAt = val("--fixtures") || (existsSync(defaultFixtures()) ? null : undefined);

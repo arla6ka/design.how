@@ -1,8 +1,0 @@
-export function Card({ title, children }) {
-  return (
-    <div className="rounded-lg border border-border-strong bg-bg-subtle p-4">
-      <h3 className="text-sm font-medium">{title}</h3>
-      <p className="hover:text-text-muted">{children}</p>
-    </div>
-  );
-}

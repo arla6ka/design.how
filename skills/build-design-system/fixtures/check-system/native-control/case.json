@@ -1,2 +1,0 @@
-{ "rule": "trap/native-control", "config": { "uiDir": "ui", "nativeControls": { "button": "Button", "input": "Input", "select": "Select" } },
-  "expect": { "trap/native-control": 3 } }

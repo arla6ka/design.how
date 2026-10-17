@@ -1,3 +1,0 @@
-file	status	sha256	note
-ui/badge.tsx	stock	c62445eaab478e2106625a5a3eaa77a3aead063a51c47914baf64fa66d090403	shadcn badge, untouched
-ui/card.tsx	customized	9bde1220aa77f6c6b7e070b2cf29b6ab24bd70e328e17d368e9cb16bc789a945	adds p-6, kept on purpose (D-04)

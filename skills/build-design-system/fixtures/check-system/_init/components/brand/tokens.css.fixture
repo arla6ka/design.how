@@ -1,5 +1,0 @@
-[data-system="brand"], .brand {
-  --surface: oklch(0.99 0 0);
-  --on-surface: oklch(0.2 0 0);
-  --space-4: 1rem;
-}

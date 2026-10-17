@@ -1,4 +1,0 @@
-// Caption: An Overdue badge
-export default function Example() {
-  return <span style={{ color: "#b91c1c" }}>Overdue</span>;
-}

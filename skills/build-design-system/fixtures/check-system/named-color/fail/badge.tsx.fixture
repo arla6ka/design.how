@@ -1,8 +1,0 @@
-export function Badge() {
-  return (
-    <span style={{ color: 'teal', background: "red" }}>
-      <svg fill="black" />
-      <i style={{ borderColor: `navy` }} />
-    </span>
-  );
-}
