@@ -41,7 +41,7 @@ A refused call stops that worker's piece. Report the exact command and the refus
 
 ## Shared files
 
-A file every lane writes, such as a ratchet, a baseline, a registry or a docs index, is where landings leak. Recompute a ratchet or baseline for your own files only and pass it with `--also`, which refuses a changed line that names another worker's file. A generated docs index spans every page, so one lane owns docs. Feature lanes queue their docs text and the docs lane lands it in one commit, so no commit in between carries a stale index.
+A file every lane writes, such as a ratchet, a baseline, a registry or a docs index, is where landings leak. Recompute a ratchet or baseline for your own files only and pass it with `--also`, which refuses a changed row that names another worker's file. In a JSON file a row is a key or an array element, so a one-line ratchet works. A generated docs index spans every page, so one lane owns docs. Feature lanes queue their docs text and the docs lane lands it in one commit, so no commit in between carries a stale index.
 
 ## Landing
 

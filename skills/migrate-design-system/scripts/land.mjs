@@ -18,8 +18,9 @@ under it, other workers' dirty files included.
   2. Builds the commit in a private index seeded from HEAD, so a stale shared index cannot reach it.
   3. Refuses when write lines (mutate(, mutateAsync(, onSubmit, execute(, useMutation, non-GET fetch) were added,
      removed or moved and --bodies-check does not exit 0. Decide the tier by this diff, not by a row label.
-  4. Refuses when a changed line in an --also file (a ratchet, baseline or list file every worker shares, one row
-     per line) names a file outside the named paths, so a file recomputed over a folder cannot carry others' rows.
+  4. Refuses when a changed row in an --also file (a ratchet, baseline or list file every worker shares) names a
+     file outside the named paths, so a file recomputed over a folder cannot carry others' rows. In a .json file
+     a row is a key path to a leaf, or one array element. In any other file a row is a line.
   5. Refuses when an added comment reads like a working note (worker, verifier, verdict, gate, run folder),
      or when the message carries a process trailer (Verdict:, Verifier:, Worker:, Fingerprint:, Sha256:).
   6. Commits (git hooks run), asserts the commit's file list lies inside the named paths, resets only those
@@ -125,6 +126,28 @@ async function lock(wait) {
 	for (const s of ["SIGINT", "SIGTERM"]) process.on(s, () => { release(); process.exit(130); });
 }
 
+function jsonRows(text) {
+	const rows = new Set();
+	const walk = (v, keys) => {
+		if (Array.isArray(v)) for (const x of v) rows.add([...keys, JSON.stringify(x)].join("\n"));
+		else if (v && typeof v === "object") for (const [k, x] of Object.entries(v)) walk(x, [...keys, k]);
+		else rows.add([...keys, JSON.stringify(v)].join("\n"));
+	};
+	walk(JSON.parse(text), []);
+	return rows;
+}
+
+function changedRows(shared, env) {
+	if (shared.endsWith(".json")) {
+		const show = (rev) => { const r = spawnSync("git", ["show", `${rev}:${shared}`], { env, encoding: "utf8", maxBuffer: 256 << 20 }); return r.status === 0 ? r.stdout : "{}"; };
+		try {
+			const [a, b] = [jsonRows(show("HEAD")), jsonRows(show(""))];
+			return [...a, ...b].filter((row) => !(a.has(row) && b.has(row)));
+		} catch { /* one side is not valid JSON: compare lines */ }
+	}
+	return git(["diff-index", "--cached", "-p", "--no-color", "-U0", "HEAD", "--", shared], { env }).split("\n").filter((l) => /^[+-](?![+-]{2} )/.test(l));
+}
+
 function scanDiff(diff) {
 	const writes = [];
 	const notes = [];
@@ -161,8 +184,7 @@ export async function land(o) {
 		if (spawnSync("git", ["diff-index", "--cached", "--quiet", "HEAD", "--"], { env }).status === 0) die(9, `nothing to commit for ${set.join(" ")}`);
 		const own = normalize(o.paths, root);
 		for (const shared of normalize(o.also, root)) {
-			const changed = git(["diff-index", "--cached", "-p", "--no-color", "-U0", "HEAD", "--", shared], { env }).split("\n").filter((l) => /^[+-](?![+-]{2} )/.test(l));
-			const foreign = [...new Set(changed.flatMap((l) => l.match(PATH_RE) || []))].filter((f) => f !== shared && !inSet(f, own));
+			const foreign = [...new Set(changedRows(shared, env).flatMap((l) => l.match(PATH_RE) || []))].filter((f) => f !== shared && !inSet(f, own));
 			if (foreign.length) die(8, `${shared} changes rows for files outside this landing: ${foreign.join(" ")}. Recompute it for your own files only`);
 		}
 
@@ -287,9 +309,19 @@ function selfTest() {
 	check("a shared file carrying another file's row: exit 8", run(r, "s10", "A", "--also", "baseline.json", "--", "src/a.tsx").status, 8);
 	w(r, "baseline.json", '{"src/a.tsx": 1}\n');
 	check("a shared file changed only for its own files lands", run(r, "s10", "A", "--also", "baseline.json", "--", "src/a.tsx").status, 0);
+	w(r, "src/b.tsx", "b\n"); w(r, "baseline.json", '{"src/a.tsx": 1, "src/b.tsx": 4}\n');
+	run(r, "s10", "B", "--also", "baseline.json", "--", "src/b.tsx");
+	w(r, "src/a.tsx", "a2\n"); w(r, "baseline.json", '{"src/a.tsx": 0, "src/b.tsx": 4}\n');
+	check("one-line JSON: a change to its own key lands", run(r, "s10", "A", "--also", "baseline.json", "--", "src/a.tsx").status, 0);
+	w(r, "src/a.tsx", "a3\n"); w(r, "baseline.json", '{"src/a.tsx": 0, "src/b.tsx": 5}\n');
+	check("one-line JSON: a change to another file's key: exit 8", run(r, "s10", "A", "--also", "baseline.json", "--", "src/a.tsx").status, 8);
+	w(r, "baseline.json", '{"rules": [{"file": "src/a.tsx", "n": 1}, {"file": "src/b.tsx", "n": 4}]}\n');
+	check("JSON array: another file's element changed: exit 8", run(r, "s10", "A", "--also", "baseline.json", "--", "src/a.tsx").status, 8);
+	w(r, "baseline.json", '{"src/a.tsx": 0, "src/b.tsx": 4}\n');
 	w(r, "other.txt", "other v2\n");
+	const before = count(r);
 	run(r, "s10", "x", "--dry-run", "--", "other.txt");
-	check("--dry-run commits nothing", count(r), 3);
+	check("--dry-run commits nothing", count(r), before);
 
 	r = mk();
 	w(r, "dir/a.txt", "x\n"); w(r, "dir/b.txt", "y\n"); sh(r, "add", "dir"); sh(r, "commit", "-q", "-m", "dir");
