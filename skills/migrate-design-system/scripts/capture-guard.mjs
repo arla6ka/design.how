@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 const HELP = `capture-guard.mjs: deny-by-default network guard for browser capture scripts
 
 Usage
-  node capture-guard.mjs names <procedure>... [--procedure-style rpc-post|rest] [--read-procedures a,b]
+  node capture-guard.mjs names <procedure>... [--procedure-style rpc-post|rest] [--read-procedures a,b] [--read-verbs ...]
       Prints read or deny for each procedure name. Run it on the app's real procedure list before a capture.
   node capture-guard.mjs decide --method POST --url <url> [--body <text>] [--fixtures <json>] [options]
       Prints the decision as JSON: {action: fulfill|continue|abort, reason}.
@@ -25,9 +25,10 @@ Options (CLI and the opts object of decide and installGuard)
                           "abort every non-GET" blocks the app. rest allows GET/HEAD only.
   --app-origin <url>      repeatable. Origins that serve the app and its assets. Default: any local host.
   --allow-host <host>     repeatable. A non-local host that may be reached (almost never right).
-  --read-verbs <a,b>      replaces the default list: ${"get,list,me,find,search,read,check,preview,count"}
-  --read-procedures <a,b> exact procedure names (cases/fileUrl) allowed although their verb is not listed.
-                          With --read-verbs "" only these continue, which is the safe setting for a capture.
+  --read-procedures <a,b> exact procedure names (cases/fileUrl) that continue. By default only these do.
+  --read-verbs <a,b>      opt in to prefix matching: a POST whose name starts with one of these verbs also
+                          continues. "default" means ${"get,list,me,find,search,read,check,preview,count"}. A name like
+                          getOrCreate can write, so prefer exact names for any run that reaches a real backend.
   --fixtures <json>       {"<procedure or last segment>": {"status":200,"body":{...}}}. Matched calls are
                           fulfilled in the browser and never reach the backend, whatever the method.
   --log <file>            JSON lines, one per decision (installGuard writes it as guard.log).
@@ -36,14 +37,14 @@ Rules
   1. A host that is not local is aborted.
   2. A fixture match is fulfilled.
   3. GET and HEAD to the app origin continue (documents, assets, GET reads).
-  4. In rpc-post style a POST continues only when the last path segment, split into tokens on / . - _ and
-     camelCase boundaries, starts with a read verb and holds no write token. fileUrl starts with "file",
-     so it is not a read by prefix; getFile starts with "get" and is. Anything else is aborted, and the
-     reason names the two ways out: add a fixture or list the procedure in --read-procedures.
+  4. In rpc-post style a POST continues only when --read-procedures lists it. With --read-verbs, it also
+     continues when the last path segment, split into tokens on / . - _ and camelCase boundaries, starts
+     with a read verb and holds no write token. Anything else is aborted, and the reason names the two
+     ways out: add a fixture or list the procedure in --read-procedures.
   5. PUT, PATCH, DELETE and every other method are aborted.
   6. A write is never continued. Held routes are aborted by releaseAll() before the page closes.`;
 
-export const DEFAULT_READ_VERBS = ["get", "list", "me", "find", "search", "read", "check", "preview", "count"];
+export const PREFIX_READ_VERBS = ["get", "list", "me", "find", "search", "read", "check", "preview", "count"];
 export const WRITE_TOKENS = ["create", "update", "delete", "remove", "set", "modify", "add", "send", "submit", "upload", "invite", "sign", "approve", "reject", "cancel", "save", "write", "publish", "revoke", "archive", "restore", "exercise", "grant", "pay", "file", "execute", "mutate", "patch", "put", "post", "import", "reset", "confirm", "accept", "decline", "assign", "move", "merge"];
 // "file" is a write token only in a non-leading position (getOrFile). Leading tokens are judged by the verb list.
 const ASSET_EXT = /\.(js|mjs|css|map|png|jpe?g|gif|svg|webp|avif|ico|woff2?|ttf|otf|json|html|txt|wasm)$/i;
@@ -62,11 +63,13 @@ export function lastSegment(procOrPath) {
 	return parts[parts.length - 1] || "";
 }
 
-// Judges one procedure name. First token must be a read verb and no later token may be a write token.
+// Judges one procedure name. Exact names only, unless readVerbs opts in to prefix matching: then the first
+// token must be a read verb and no later token may be a write token.
 export function classifyName(name, opts = {}) {
-	const verbs = opts.readVerbs || DEFAULT_READ_VERBS;
+	const verbs = (opts.readVerbs || []).filter(Boolean);
 	const exact = opts.readProcedures || [];
 	if (exact.includes(name) || exact.includes(lastSegment(name))) return { read: true, why: "listed in readProcedures" };
+	if (!verbs.length) return { read: false, why: "not listed in readProcedures" };
 	const t = tokens(lastSegment(name));
 	if (!t.length) return { read: false, why: "empty name" };
 	if (!verbs.includes(t[0])) return { read: false, why: `first token "${t[0]}" is not a read verb` };
@@ -197,7 +200,7 @@ function parse(argv) {
 		if (a === "--procedure-style") o.procedureStyle = next();
 		else if (a === "--app-origin") o.appOrigins.push(next());
 		else if (a === "--allow-host") o.allowHosts.push(next());
-		else if (a === "--read-verbs") o.readVerbs = next().split(",");
+		else if (a === "--read-verbs") { const v = next(); o.readVerbs = v === "default" ? PREFIX_READ_VERBS : v.split(","); }
 		else if (a === "--read-procedures") o.readProcedures = next().split(",");
 		else if (a === "--fixtures") o.fixtures = JSON.parse(readFileSync(next(), "utf8"));
 		else if (a === "--method") o.method = next();
@@ -240,31 +243,35 @@ async function selfTest() {
 	try {
 		const base = "http://localhost:5173";
 		const rpc = (p) => `${base}/rpc/${p}`;
+		const prefix = { readVerbs: PREFIX_READ_VERBS };
+		t("default: a read-looking name is denied until listed", !classifyName("files/getFile").read && classifyName("files/getFile", { readProcedures: ["files/getFile"] }).read);
+		t("default: users/me aborted until listed", decide({ method: "POST", url: rpc("users/me") }, {}).action === "abort");
+		t("default: a listed last segment continues", decide({ method: "POST", url: rpc("users/me") }, { readProcedures: ["me"] }).action === "continue");
 		// A regex for "file" once matched fileUrl, so a state was never captured.
 		t("tokens split camelCase", JSON.stringify(tokens("fileUrl")) === '["file","url"]' && JSON.stringify(tokens("getFile")) === '["get","file"]');
-		t("getFile is a read", classifyName("files/getFile").read);
-		t("fileUrl is not matched by a file prefix", !classifyName("files/fileUrl").read);
-		const d1 = decide({ method: "POST", url: rpc("files/fileUrl") }, {});
+		t("prefix: getFile is a read", classifyName("files/getFile", prefix).read);
+		t("prefix: fileUrl is not matched by a file prefix", !classifyName("files/fileUrl", prefix).read);
+		const d1 = decide({ method: "POST", url: rpc("files/fileUrl") }, prefix);
 		t("fileUrl aborted with a way out named", d1.action === "abort" && /readProcedures/.test(d1.reason), JSON.stringify(d1));
 		const d2 = decide({ method: "POST", url: rpc("files/fileUrl") }, { readProcedures: ["files/fileUrl"] });
 		t("fileUrl continues once listed", d2.action === "continue", JSON.stringify(d2));
 		const d2b = decide({ method: "POST", url: rpc("files/fileUrl") }, { fixtures: { fileUrl: { body: { url: "x" } } } });
 		t("fileUrl fulfilled from a fixture", d2b.action === "fulfill" && d2b.response.status === 200);
 		// A leaked updateRecord once changed real data.
-		const d3 = decide({ method: "POST", url: rpc("billing/updateRecord"), postData: "{}" }, {});
-		t("updateRecord aborted", d3.action === "abort", JSON.stringify(d3));
-		t("getOrCreate is not a read", !classifyName("orgs/getOrCreate").read);
-		t("listUpdates is a read (plural is not a write token)", classifyName("feed/listUpdates").read);
-		t("cases/listAdmin is a read", decide({ method: "POST", url: rpc("cases/listAdmin") }, {}).action === "continue");
-		t("users/me is a read", decide({ method: "POST", url: rpc("users/me") }, {}).action === "continue");
+		const d3 = decide({ method: "POST", url: rpc("billing/updateRecord"), postData: "{}" }, prefix);
+		t("prefix: updateRecord aborted", d3.action === "abort", JSON.stringify(d3));
+		t("prefix: getOrCreate is not a read", !classifyName("orgs/getOrCreate", prefix).read);
+		t("prefix: listUpdates is a read (plural is not a write token)", classifyName("feed/listUpdates", prefix).read);
+		t("prefix: cases/listAdmin is a read", decide({ method: "POST", url: rpc("cases/listAdmin") }, prefix).action === "continue");
+		t("prefix: users/me is a read", decide({ method: "POST", url: rpc("users/me") }, prefix).action === "continue");
 		t("rest style aborts POST reads", decide({ method: "POST", url: rpc("cases/list") }, { procedureStyle: "rest" }).action === "abort");
 		t("PUT aborted", decide({ method: "PUT", url: `${base}/api/x` }, {}).action === "abort");
 		t("GET to app continues", decide({ method: "GET", url: `${base}/assets/app.js` }, {}).action === "continue");
 		t("non-localhost aborted", decide({ method: "GET", url: "https://api.stripe.com/v1/x" }, {}).action === "abort");
 		t("lookalike host aborted", decide({ method: "GET", url: "http://localhost.evil.com/x" }, {}).action === "abort");
 		const writes = ["POST " + rpc("billing/updateRecord"), "PUT " + base + "/api/x", "POST " + rpc("cases/listAdmin")];
-		t("prove names a write the verbs let through", prove(writes, {}).length === 1);
-		t("prove is clean with exact reads only", prove(writes, { readVerbs: [""], readProcedures: ["users/me"] }).length === 0);
+		t("prove names a write the prefix verbs let through", prove(writes, prefix).length === 1);
+		t("prove is clean by default", prove(writes, { readProcedures: ["users/me"] }).length === 0);
 		t("bad procedureStyle throws", (() => { try { decide({ method: "GET", url: base }, { procedureStyle: "x" }); return false; } catch { return true; } })());
 
 		// installGuard against a fake page. A held write is aborted at close, not released.

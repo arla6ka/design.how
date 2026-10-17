@@ -42,7 +42,7 @@ Eight lessons, each from a failure in a real migration. A lesson counts here onl
 **Apply when** any script drives a live app.
 **Why** a capture leaked a real update call and changed real data. Another script's abort filter matched the wrong URL shape and created two real records. Reads are POST in RPC APIs, so blocking non-GET blocks the app.
 **Stop** before any run that can reach a backend until a dry run sent every known write, in the shape the app sends it, and saw each one blocked. Writes are denied by default and reads pass by exact name only.
-**Enforced by** `capture-guard.mjs prove --writes <file> --read-verbs "" --read-procedures <names>`, the guard installed before the first navigation, and its `guard.log`.
+**Enforced by** `capture-guard.mjs prove --writes <file> --read-procedures <names>` (exact names are its default), the guard installed before the first navigation, and its `guard.log`.
 
 ## 7. No write surface on a code read
 
