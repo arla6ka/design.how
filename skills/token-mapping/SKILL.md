@@ -1,6 +1,6 @@
 ---
 name: token-mapping
-description: Use to report how hardcoded style values on a page, file or diff map onto a project's existing design tokens, such as "are we using our tokens here", "which hardcoded colors map to which tokens", a token audit or planning a token migration. It never edits.
+description: Use to report how hardcoded style values on a page, file or diff map onto a project's existing design tokens, such as "are we using our tokens here", "which hardcoded colors map to which tokens", a token audit or planning a token migration. It never edits. Replacing the values is build-design-system.
 ---
 
 # Token mapping

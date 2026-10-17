@@ -86,7 +86,7 @@ A person describing a symptom rather than a component:
 | `trap/narrow-hidden-nav` | At 390 px nav links or columns sit past a clipped edge with no cue | A menu button, a wrap, or a fade at the edge. A gate lists each hidden item |
 | `trap/link-cue` | A link in body copy with no underline and the text's colour | A resting cue. Changing it is a gate listing every surface |
 | `trap/table-divs` | A table made of divs | A table, or the grid role with its keyboard model |
-| `trap/chosen-text-truncated` | A name, legal suffix or other text the user chose for legal or identity reasons cut with an ellipsis | Wrap it. It never truncates |
+| `trap/chosen-text-truncated` | A name or other text the user chose to identify something, cut with an ellipsis | Wrap it. It never truncates |
 | `trap/empty-value` | A blank cell, a typed dash here, "N/A" there | One primitive for empty values, announced as "None" |
 | `trap/numbers-shift` | Changing numbers in proportional figures | `font-variant-numeric: tabular-nums` |
 | `trap/color-only-status` | Status told by colour alone | Text or an icon carries it |

@@ -18,7 +18,7 @@ List every primitive the app renders, not only controls. Count call sites for te
 - State order, strongest first: disabled, invalid, focus, pressed, hover, selected, rest. Hover never overrides focus or invalid. Hover skips disabled controls.
 - The one pending fix. The idle label stays, a spinner sits inside the same box, `aria-busy` is set, and `aria-disabled` with an early return blocks a repeat while focus stays put. Never `disabled`, never a swapped label, never a changed width.
 - Required is not drawn red on a disabled control.
-- Every primitive has a default accessible name and a `label` override, stated in its doc. A weekday toggle that renders "T" "T" "S" "S" needs the full names underneath.
+- Every primitive has a default accessible name and a `label` override, stated in its doc. A size toggle that renders "S" "M" "L" needs "Small", "Medium" and "Large" underneath.
 - State words are honest in states a fixture never reaches. Use `selected`, `queued`, `uploading`, `done`, and test the picked, pending and error-inside-a-collapsed-section states.
 - Never make `title` or `children` required on a primitive. Legacy screens omit them, and each required prop became a gap row.
 - A default that gates a destructive or typed action (a confirmation phrase match, a focus default) changes only with the owner's ruling and a caller list. Verify the riskiest callers before any sweep.
@@ -40,7 +40,7 @@ Every overlay and form primitive's PR carries its focus-return matrix.
 ## Layout
 
 - Tables have a responsive plan, not only `hideBelow`: a primary flexible column, a minimum width and a stacked tier. Measure that row controls stay reachable inside the scroller at 390, 768, 1280 and 1920. A column newly hidden at 390 is always a gate.
-- Templates expose a named width, a per-route column override (the deepest route wins) and an aside slot. A 64 px change at 1280 came from two systems with different wide tokens and padding. Keep one page width per section and give reading content a measure inside it (`trap/text-measure`), rather than narrowing one page.
+- Templates expose a named width, a per-route column override (the deepest route wins) and an aside slot. A visible shift at 1280 came from two systems with different wide tokens and padding. Keep one page width per section and give reading content a measure inside it (`trap/text-measure`), rather than narrowing one page.
 - A change to the shell or a page template is verified on one downstream route per layout family at three widths. Compare main `scrollHeight` with `clientHeight`, check centring on auth pages, and count `aria-current` per tablist.
 - Removing or renaming a system API sweeps every caller in the same change, dirty files included, or keeps an alias for one wave. Typecheck the whole consumer set afterward.
 - Docs that ship with a component run in this order: description, examples, variants, states, props, usage, accessibility, tokens, related. `component-docs` writes them.

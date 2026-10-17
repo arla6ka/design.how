@@ -1,8 +1,8 @@
 {
 	"id": "verification-matches-risk",
 	"skill": "migrate-design-system",
-	"prompt": "Two surfaces landed: a spacing fix on the help page and the payment form's new amount field. Verify both.",
-	"expected": "Gives the spacing fix unit tests, typecheck, the system check and one capture pair. Gives the payment form every width and theme plus request-body equality.",
+	"prompt": "Two surfaces landed: a spacing fix on the help page and the settings form's new quantity field, which saves. Verify both.",
+	"expected": "Gives the spacing fix unit tests, typecheck, the system check and one capture pair. Gives the settings form every width and theme plus request-body equality.",
 	"fails_if": "runs the same light check on both, or the full matrix on both with no reason",
 	"rule": {
 		"file": "skills/migrate-design-system/SKILL.md",

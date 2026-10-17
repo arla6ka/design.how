@@ -3,9 +3,9 @@
 	"skill": "migrate-design-system",
 	"prompt": "Swap the upload control for the system Dropzone.",
 	"expected": "Tests extension only, MIME only, upper-case and wrong MIME.",
-	"fails_if": "checks only .pdf files named with an extension",
+	"fails_if": "checks only files named with an extension",
 	"rule": {
 		"file": "skills/migrate-design-system/references/parity.md",
-		"phrase": "File inputs"
+		"phrase": "Upload inputs"
 	}
 }

@@ -23,8 +23,8 @@ A row whose job cannot be read is ambiguous when the jobs it might do give two o
 ## Normalising
 
 - Lengths to px. A 16 px root for `rem` unless the project sets another. Line height to a unitless ratio.
-- Colours to OKLCH plus alpha. Accept hex (3, 4, 6, 8 digits), `rgb()`, `hsl()`, `hwb()`, `oklch()`, `oklab()`, named colours. Compare by delta E OK (OKLab distance times 100). Under 0.5 is identical, which absorbs 8-bit rounding. `build-design-system/scripts/oklch.mjs` prints it.
-- Alpha is part of the colour. `#0F172A` at 80% is not `#0F172A`.
+- Colours to OKLCH plus alpha. `build-design-system/scripts/oklch.mjs` reads hex (3, 4, 6, 8 digits), `rgb()`, `hsl()`, `hwb()`, `oklch()`, `oklab()` and the CSS named colours, each with its alpha, and prints the OKLCH. It does not read `color()`, `lab()`, `lch()`, `color-mix()` or a relative colour. Resolve those with a browser's computed style, and say so in Source. Compare by delta E OK (OKLab distance times 100), which `oklch.mjs --delta` prints. Under 0.5 is identical, which absorbs 8-bit rounding.
+- Alpha is part of the colour. `#0F172A` at 80% is not `#0F172A`: `--delta` prints both alphas and says `alpha differs` past the opacity tolerance, and such a pair is never Exact.
 
 ## Tolerances
 
@@ -46,7 +46,7 @@ Applied only after purpose fits, and never turn a wrong-purpose token into a mat
 Written when the list states no purposes or the ask is about consistency. Group every colour row by role. For each role give the distinct values with counts, their spread in delta E OK, and near pairs (under 5) that likely mean one thing.
 
 ```
-Text: 6 values over 212 rows. gray-500 (88), gray-600 (61), #666 (9) sit within delta E OK 4 and likely mean one muted text.
+Text: 6 values over 200 rows. gray-500 (80), gray-600 (60), #666 (10) sit within delta E OK 4 and likely mean one muted text.
 ```
 
 ## Source conflicts

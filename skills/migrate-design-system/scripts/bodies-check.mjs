@@ -20,7 +20,17 @@ Rejects (exit 2) unless all of these hold
   5. every procedure in --expect (comma list) has rows in both files
      The expected list comes from the verifier brief, written from the diff's write lines before the run.
 Exit 0 when valid and every procedure's bodies match between before and after. Exit 1 when valid and some
-procedure's bodies differ (printed as DIFF; a person decides whether the difference is the intended change).
+procedure's bodies differ, printed as "DIFF <proc> <before count> <after count>". land.mjs lands a DIFF only when
+decisions.tsv (or its --intended file) holds an intended change row naming the surface and that procedure.
+
+Making the two files: serve the base commit's build (a separate worktree) and the run branch's build at the same
+time on different ports, then wrap both captures in one logged run:
+  rc=0; node bodies-check.mjs log runs.log start RUN-7
+  node capture.mjs --base http://localhost:5183 --kind before ... --run RUN-7 --bodies <dir>/bodies.before.json || rc=1
+  node capture.mjs --base http://localhost:5173 --kind after ... --run RUN-7 --bodies <dir>/bodies.after.json || rc=1
+  node bodies-check.mjs log runs.log end RUN-7 $rc
+capture.mjs is in build-design-system's scripts. Drive the changed write in both captures with the same --states
+step, so both runs send it.
 
 Run log: tab separated, one line per event: <event>\\t<iso time>\\t<slot>\\t<RUN_ID>\\t<rc>
   where event is start or end and rc is only read on end. Wrap the browser run with the log subcommand: start before it, end with its exit code after it.
@@ -100,6 +110,7 @@ function parse(argv) {
 		else if (a === "--slack") o.slack = Number(next());
 		else if (a === "--help" || a === "-h") o.help = true;
 		else if (a === "--self-test") o.selfTest = true;
+		else if (a.startsWith("--")) { console.error(`bodies-check: unknown flag ${a}. See --help`); process.exit(2); }
 		else o._.push(a);
 	}
 	return o;
@@ -113,7 +124,7 @@ function selfTest() {
 	const row = (port, proc, body, s) => ({ url: `http://localhost:${port}/rpc/${proc}`, proc, body, capturedAt: iso(s) });
 	const log = join(root, "runs.log");
 	writeFileSync(log, [`start\t${iso(0)}\tslot1\tRUN-A\t`, `end\t${iso(60)}\tslot1\tRUN-A\t0`, `start\t${iso(100)}\tslot1\tRUN-B\t`, `end\t${iso(160)}\tslot1\tRUN-B\t0`, `start\t${iso(200)}\tslot1\tRUN-C\t`, `end\t${iso(210)}\tslot1\tRUN-C\t1`, ""].join("\n"));
-	const opts = (extra = {}) => ({ beforePorts: ["5183", "5184"], afterPorts: ["5173", "5174"], log, expect: ["billing/updateRecord"], ...extra });
+	const opts = (extra = {}) => ({ beforePorts: ["5183", "5184"], afterPorts: ["5173", "5174"], log, expect: ["items/update"], ...extra });
 	const mk = (name, before, after) => {
 		const d = join(root, name);
 		mkdirSync(d);
@@ -128,16 +139,16 @@ function selfTest() {
 		}
 	};
 	const good = (run) => ({
-		b: { run, rows: [row(5183, "billing/updateRecord", '{"price":0.25}', 10), row(5184, "tickets/update", '{"a":1}', 12)] },
-		a: { run, rows: [row(5173, "billing/updateRecord", '{"price":0.25}', 11), row(5174, "tickets/update", '{"a":1}', 13)] },
+		b: { run, rows: [row(5183, "items/update", '{"count":2}', 10), row(5184, "items/create", '{"a":1}', 12)] },
+		a: { run, rows: [row(5173, "items/update", '{"count":2}', 11), row(5174, "items/create", '{"a":1}', 13)] },
 	});
 	const g = good("RUN-A");
 	let r = check(mk("good", g.b, g.a), opts());
 	if (!r.differ && r.lines.every((l) => l.startsWith("same"))) console.log("ok   valid pair passes"); else { failed++; console.error("FAIL valid pair"); }
 	const dif = good("RUN-A");
-	dif.a.rows[0].body = '{"price":7.25}';
+	dif.a.rows[0].body = '{"count":3}';
 	r = check(mk("diff", dif.b, dif.a), opts());
-	if (r.differ && r.lines.some((l) => l.startsWith("DIFF billing/updateRecord"))) console.log("ok   differing bodies reported as DIFF"); else { failed++; console.error("FAIL diff"); }
+	if (r.differ && r.lines.some((l) => l.startsWith("DIFF items/update"))) console.log("ok   differing bodies reported as DIFF"); else { failed++; console.error("FAIL diff"); }
 	// Two files merged from two different real runs: each run is valid alone, the pair is not.
 	const m = { b: good("RUN-A").b, a: good("RUN-B").a };
 	m.a.rows.forEach((x) => (x.capturedAt = iso(105)));
@@ -155,15 +166,15 @@ function selfTest() {
 	const gi = good("RUN-A");
 	expectReject("byte-identical files", mk("ident", gi.b, gi.b), opts(), /byte-identical/);
 	const swapped = good("RUN-A");
-	swapped.b.rows[0].url = "http://localhost:5173/rpc/billing/updateRecord";
+	swapped.b.rows[0].url = "http://localhost:5173/rpc/items/update";
 	expectReject("before row on an after port", mk("ports", swapped.b, swapped.a), opts(), /not on port/);
 	const remote = good("RUN-A");
-	remote.a.rows[0].url = "https://app.example.com:5173/rpc/billing/updateRecord";
+	remote.a.rows[0].url = "https://app.example.com:5173/rpc/items/update";
 	expectReject("a row from a non-local host", mk("remote", remote.b, remote.a), opts(), /not on a local host/);
 	const miss = good("RUN-A");
-	miss.a.rows = miss.a.rows.filter((x) => x.proc !== "billing/updateRecord");
-	expectReject("expected procedure missing in after", mk("miss", miss.b, miss.a), opts(), /expected procedure billing\/updateRecord has no rows in bodies.after/);
-	expectReject("expected procedure never run in either file", mk("miss2", g.b, g.a), opts({ expect: ["orgs/delete"] }), /orgs\/delete/);
+	miss.a.rows = miss.a.rows.filter((x) => x.proc !== "items/update");
+	expectReject("expected procedure missing in after", mk("miss", miss.b, miss.a), opts(), /expected procedure items\/update has no rows in bodies.after/);
+	expectReject("expected procedure never run in either file", mk("miss2", g.b, g.a), opts({ expect: ["items/delete"] }), /items\/delete/);
 	expectReject("missing file", mk("nofile", g.b, null), opts(), /missing/);
 	// The log subcommand writes lines this checker accepts.
 	const lg = join(root, "made.log");
@@ -171,7 +182,7 @@ function selfTest() {
 	spawnSync(process.execPath, [me, "log", lg, "start", "RUN-L"]);
 	spawnSync(process.execPath, [me, "log", lg, "end", "RUN-L", "0"]);
 	const now = Date.now();
-	const lrow = (port, at) => ({ url: `http://localhost:${port}/rpc/billing/updateRecord`, proc: "billing/updateRecord", body: "{}", capturedAt: new Date(at).toISOString() });
+	const lrow = (port, at) => ({ url: `http://localhost:${port}/rpc/items/update`, proc: "items/update", body: "{}", capturedAt: new Date(at).toISOString() });
 	const lb = { run: "RUN-L", rows: [lrow(5183, now)] };
 	const la = { run: "RUN-L", rows: [lrow(5173, now + 1)] };
 	r = check(mk("logged", lb, la), opts({ log: lg }));

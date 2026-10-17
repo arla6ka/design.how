@@ -17,18 +17,47 @@ run.mjs --self-test | --help
   every SKILL.md has name and a description that starts with "Use", no more than 400 characters
   every SKILL.md is 40 to 150 lines (warn above 150, fail above 300)
   every relative markdown link resolves, and no skill links into a sibling skill's folder
-  no em dashes and no curly quotes in skills/, evals/ and README.md
-  every trigger skill exists, and every incident's rule phrase is in the file it names
---triggers sends one prompt per case with the six descriptions. The host must print the skill name or "none".`;
+  no em dashes and no curly quotes in any .md, .mjs or .json file in skills/ and evals/, or in README.md
+  no word from a glossary _Avoid_ line in the skills' markdown or README.md. A bare word is banned everywhere
+  (plurals too), a word in backticks only in backticks, and an entry with a parenthetical ("lead (for the
+  coordinator)") is a scoped ban the lint cannot see, so it is left to review. _Avoid_ lines themselves are skipped
+  every trigger skill exists (goes_to may be "none"), and every incident's rule phrase is in the file it names
+--triggers sends one prompt per case with the six descriptions. The host must print the skill name or "none".
+An incident proves that its rule's phrase is written down, not that an agent follows it. Run the case by hand
+(--case) to see the behaviour.`;
 
 const files = (dir, ok, out = []) => {
 	for (const n of readdirSync(dir)) {
-		if (["node_modules", ".git", "fixtures", "systems"].includes(n)) continue;
+		if (["node_modules", ".git", "fixtures", "systems", "open-source"].includes(n)) continue;
 		const p = join(dir, n);
 		if (statSync(p).isDirectory()) files(p, ok, out); else if (ok(p)) out.push(p);
 	}
 	return out;
 };
+
+// The words a glossary's _Avoid_ lines ban, as {word, re}. Commas inside a parenthetical do not split an entry.
+export function avoidWords(root) {
+	const g = join(root, "skills/build-design-system/references/glossary.md");
+	if (!existsSync(g)) return [];
+	const out = [];
+	for (const [, list] of readFileSync(g, "utf8").matchAll(/^_Avoid_:\s*(.+)$/gm)) {
+		const entries = [];
+		let depth = 0, cur = "";
+		for (const ch of list) {
+			if (ch === "(") depth++;
+			if (ch === ")") depth--;
+			if (ch === "," && depth === 0) { entries.push(cur.trim()); cur = ""; } else cur += ch;
+		}
+		entries.push(cur.trim());
+		for (const e of entries.filter(Boolean)) {
+			if (e.includes("(")) continue;
+			const esc = (x) => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+			const tick = /^`(.+)`$/.exec(e);
+			out.push({ word: e, re: tick ? new RegExp(esc(e)) : new RegExp(`(^|[^\\w-])${esc(e).replace(/ /g, "\\s+")}(s|es)?(?![\\w-])`, "i") });
+		}
+	}
+	return out;
+}
 
 export function lint(root) {
 	const bad = [];
@@ -50,13 +79,18 @@ export function lint(root) {
 		if (lines > 300) bad.push(`${n}: SKILL.md is ${lines} lines, over the hard ceiling of 300`);
 		else if (lines > 150) warn.push(`${n}: SKILL.md is ${lines} lines, over 150`);
 	}
-	const prose = files(root, (p) => /\.(md|json|mjs)$/.test(p) && !p.includes("/systems/") && !p.endsWith("run.mjs"));
+	const avoid = avoidWords(root);
+	const prose = files(root, (p) => /\.(md|json|mjs)$/.test(p) && (/^(skills|evals)\//.test(relative(root, p)) || relative(root, p) === "README.md"));
 	for (const p of prose) {
 		const rel = relative(root, p);
 		const text = readFileSync(p, "utf8");
+		if (/\u2014/.test(text)) bad.push(`${rel}: em dash`);
+		if (/[\u201c\u201d\u2018\u2019]/.test(text)) bad.push(`${rel}: curly quote`);
 		if (p.endsWith(".md")) {
-			if (/—/.test(text)) bad.push(`${rel}: em dash`);
-			if (/[“”‘’]/.test(text)) bad.push(`${rel}: curly quote`);
+			text.split("\n").forEach((line, i) => {
+				if (/_Avoid_/.test(line)) return;
+				for (const a of avoid) if (a.re.test(line)) bad.push(`${rel}:${i + 1}: "${a.word}" is on the glossary's Avoid list. Use the glossary term`);
+			});
 			const skillOf = /^skills\/([^/]+)\//.exec(rel)?.[1];
 			for (const m of text.matchAll(/\]\(([^)#\s]+)(?:#[^)]*)?\)/g)) {
 				if (/^(https?:|mailto:)/.test(m[1])) continue;
@@ -81,7 +115,7 @@ export function lint(root) {
 		for (const n of names) if (!t[n]) bad.push(`triggers.json: no entry for ${n}`);
 		for (const [n, v] of Object.entries(t)) {
 			if (!names.includes(n)) bad.push(`triggers.json: unknown skill ${n}`);
-			for (const s of v.should_not_fire) if (!names.includes(s.goes_to)) bad.push(`triggers.json: ${n} sends "${s.prompt}" to unknown ${s.goes_to}`);
+			for (const s of v.should_not_fire) if (s.goes_to !== "none" && !names.includes(s.goes_to)) bad.push(`triggers.json: ${n} sends "${s.prompt}" to unknown ${s.goes_to}`);
 		}
 	}
 	const inc = join(root, "evals/incidents");
@@ -135,8 +169,29 @@ function selfTest() {
 	w("skills/a/references/x.md", "See [z](../../b/references/z.md).\n");
 	w("skills/b/references/z.md", "z\n");
 	t("a link into a sibling skill fails", lint(root).bad.some((m) => /sibling skill b/.test(m)));
-	w("skills/a/references/x.md", "A dash — here.\n");
+	w("skills/a/references/x.md", "A dash \u2014 here.\n");
 	t("an em dash fails", lint(root).bad.some((m) => /em dash/.test(m)));
+	w("skills/a/references/x.md", "fine\n");
+	// The check once read only markdown, though the help said it covered evals/.
+	w("skills/a/scripts/s.mjs", "// a dash \u2014 in a script\n");
+	w("evals/triggers.json", JSON.stringify({ a: { should_fire: [], should_not_fire: [{ prompt: "it\u2019s here", goes_to: "none" }] } }));
+	const dashes = lint(root).bad;
+	t("an em dash in a script and a curly quote in evals JSON fail", dashes.some((m) => /s\.mjs: em dash/.test(m)) && dashes.some((m) => /triggers\.json: curly quote/.test(m)));
+	rmSync(join(root, "skills/a/scripts"), { recursive: true });
+	w("evals/triggers.json", JSON.stringify({ a: { should_fire: [], should_not_fire: [{ prompt: "Fix the login test.", goes_to: "none" }] } }));
+	// goes_to "none" was once refused, so over-triggering on generic asks could not be tested.
+	t("a should_not_fire case may go to none", lint(root).bad.length === 0);
+	rmSync(join(root, "evals/triggers.json"));
+	w("skills/build-design-system/references/glossary.md", "**Wave**: x.\n_Avoid_: batch, lead (for the coordinator, or a lane), `partial`\n");
+	w("skills/a/references/x.md", "Run a batch.\n");
+	t("a bare Avoid word fails, plural or not", lint(root).bad.some((m) => /x\.md:1: "batch"/.test(m)));
+	w("skills/a/references/x.md", "Two batches.\n");
+	t("its plural fails too", lint(root).bad.some((m) => /"batch"/.test(m)));
+	w("skills/a/references/x.md", "Lead with the status. Partial data. A batch-file name.\n");
+	t("a scoped entry, a backticked entry in plain text, and a hyphenated compound pass", lint(root).bad.length === 0);
+	w("skills/a/references/x.md", "Return `partial` with the command.\n");
+	t("a backticked entry fails in backticks", lint(root).bad.some((m) => /"`partial`"/.test(m)));
+	rmSync(join(root, "skills/build-design-system"), { recursive: true });
 	w("skills/a/references/x.md", "Read `references/gone.md` first.\n");
 	t("a backticked path to a missing skill file fails", lint(root).bad.some((m) => /names references\/gone.md/.test(m)));
 	w("skills/b/SKILL.md", `---\nname: b\ndescription: Use when testing.\n---\n${body}`);
@@ -157,8 +212,13 @@ function selfTest() {
 if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
 	const a = process.argv.slice(2);
 	const flag = (f) => (a.includes(f) ? a[a.indexOf(f) + 1] : undefined);
+	const KNOWN = { "--lint": 0, "--triggers": 0, "--self-test": 0, "--help": 0, "-h": 0, "--root": 1, "--host": 1, "--command": 1, "--case": 1 };
+	for (let i = 0; i < a.length; i++) {
+		if (!(a[i] in KNOWN)) { console.error(`run.mjs: unknown argument ${a[i]}. See --help`); process.exit(2); }
+		if (KNOWN[a[i]]) { if (i + 1 >= a.length) { console.error(`run.mjs: ${a[i]} needs a value`); process.exit(2); } i++; }
+	}
 	const root = resolve(flag("--root") || join(HERE, ".."));
-	if (a.includes("--help") || !a.length) console.log(HELP);
+	if (a.includes("--help") || a.includes("-h") || !a.length) console.log(HELP);
 	else if (a.includes("--self-test")) process.exitCode = selfTest();
 	else if (a.includes("--lint")) {
 		const r = lint(root);
@@ -168,7 +228,9 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1
 		process.exitCode = r.bad.length ? 1 : 0;
 	} else if (a.includes("--triggers")) process.exitCode = triggers(root, { host: flag("--host") || "claude", command: flag("--command") });
 	else if (flag("--case")) {
-		const c = JSON.parse(readFileSync(join(root, "evals/incidents", `${flag("--case")}.json`), "utf8"));
+		const f = join(root, "evals/incidents", `${flag("--case")}.json`);
+		if (!existsSync(f)) { console.error(`run.mjs: no incident ${flag("--case")} in evals/incidents`); process.exit(2); }
+		const c = JSON.parse(readFileSync(f, "utf8"));
 		console.log(`Skill: ${c.skill}\nPrompt: ${c.prompt}\nExpect: ${c.expected}\nFails if: ${c.fails_if}`);
 	}
 }

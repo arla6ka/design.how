@@ -8,6 +8,9 @@ import { fileURLToPath } from "node:url";
 
 const SELF = fileURLToPath(import.meta.url);
 const KINDS = ["import", "raw", "palette"];
+const DEFAULT_SCAN = ["src", "app", "pages", "components", "lib"];
+const PLACEHOLDER_LEGACY = "^REPLACE-with-your-legacy-module";
+const PLACEHOLDER_SYSTEM = "^REPLACE-with-your-system-module";
 
 const HELP = `legacy.mjs [--inventory | --record | --zero [<kinds>]] [--root <dir>] [--config <file>] [--baseline <file>] [--paths "<glob> ..."]
 legacy.mjs --init-config | --self-test | --help
@@ -22,12 +25,15 @@ Counts legacy usage per file and kind (${KINDS.join(", ")}), as occurrences, and
   --paths       scoped check: compare only files matching the globs. Cannot be combined with --record
   --init-config write a starter config. Refuses to overwrite
 
-Config, default <root>/.design-system/legacy.json
-  {"scan": ["src"], "ignore": ["**/*.test.*"], "tokenFiles": ["src/tokens.css"],
-   "legacyImports": ["^@old/ui", "/legacy/"], "systemImports": ["^@sys/ui"]}
+Config, default <root>/scripts/legacy.json, committed beside this script so CI reads the same one
+  {"scan": ["src", "app"], "ignore": ["**/*.test.*"], "tokenFiles": ["src/tokens.css"],
+   "legacyImports": ["^@/components/legacy/", "^old-ui$"], "systemImports": ["^@/components/ui/"]}
   legacyImports and systemImports are regexes over import specifiers. tokenFiles may hold raw values.
-Baseline, default <root>/.design-system/legacy-baseline.json: {"path/file.tsx": {"raw": 2, "import": 1}}
-Exit  0 pass  1 violations  2 usage or missing baseline`;
+  scan defaults to whichever of ${DEFAULT_SCAN.join(", ")} exist. --init-config writes those it finds and
+  placeholder regexes, and every mode exits 2 until the placeholders are replaced.
+Baseline, default <root>/scripts/legacy-baseline.json: {"path/file.tsx": {"raw": 2, "import": 1}}
+Audit mode commits nothing, so it passes --config .design-system/legacy.json to keep the config there.
+Exit  0 pass  1 violations  2 usage, missing baseline, placeholder config, or no file scanned`;
 
 const globRe = (g) => {
 	let re = "";
@@ -70,9 +76,12 @@ export function scan(root, cfg) {
 	const system = (cfg.systemImports || []).map((r) => new RegExp(r));
 	const counts = {};
 	const mixed = [];
-	for (const file of walk(root, cfg.scan || ["src"])) {
+	const roots = cfg.scan || DEFAULT_SCAN.filter((d) => existsSync(join(root, d)));
+	let scanned = 0;
+	for (const file of walk(root, roots)) {
 		if (ignore.some((re) => re.test(file))) continue;
 		const text = readFileSync(join(root, file), "utf8");
+		scanned++;
 		const c = {};
 		let usesSystem = false;
 		for (const m of text.matchAll(SPEC_RE)) {
@@ -88,7 +97,17 @@ export function scan(root, cfg) {
 		if (Object.keys(c).length) counts[file] = c;
 		if (usesSystem && c.import) mixed.push(file);
 	}
-	return { counts, mixed };
+	return { counts, mixed, scanned, roots };
+}
+
+// A config that would count nothing: no file scanned, or import regexes still the placeholder. Such a run once passed --zero.
+export function configProblem(cfg, result, kinds) {
+	const re = [...(cfg.legacyImports || []), ...(cfg.systemImports || [])];
+	if (re.some((r) => r === PLACEHOLDER_LEGACY || r === PLACEHOLDER_SYSTEM || r === "^@old/ui" || r === "^@sys/ui")) return "legacyImports or systemImports still holds a placeholder. Point them at the app's real legacy and system modules";
+	if (kinds.some((k) => k === "import" || k === "mixed") && !(cfg.legacyImports || []).length) return "legacyImports is empty, so legacy imports cannot be counted";
+	if (kinds.includes("mixed") && !(cfg.systemImports || []).length) return "systemImports is empty, so files mixing the system with legacy cannot be found";
+	if (!result.scanned) return `scanned 0 files under ${result.roots.length ? result.roots.join(", ") : `(none of ${DEFAULT_SCAN.join(", ")} exists)`}. Set scan to the folders that hold the app`;
+	return null;
 }
 
 export function compare(baseline, current, inScope = () => true) {
@@ -108,7 +127,8 @@ export function compare(baseline, current, inScope = () => true) {
 }
 
 const total = (counts, kind) => Object.values(counts).reduce((s, c) => s + (c[kind] || 0), 0);
-const summary = (counts) => `${Object.keys(counts).length} files with findings; ${KINDS.map((k) => `${k} ${total(counts, k)}`).join(", ")} (occurrences).`;
+let scannedCount = 0;
+const summary = (counts) => `${scannedCount} files scanned, ${Object.keys(counts).length} with findings; ${KINDS.map((k) => `${k} ${total(counts, k)}`).join(", ")} (occurrences).`;
 const sorted = (counts) => Object.fromEntries(Object.keys(counts).sort().map((f) => [f, Object.fromEntries(KINDS.filter((k) => counts[f][k]).map((k) => [k, counts[f][k]]))]));
 const baselineText = (counts) => "{\n" + Object.entries(sorted(counts)).map(([f, c]) => `\t${JSON.stringify(f)}: ${JSON.stringify(c)}`).join(",\n") + "\n}\n";
 
@@ -124,17 +144,24 @@ function main(argv) {
 	if (o.help) { console.log(HELP); return 0; }
 	if (o["self-test"]) return selfTest();
 	const root = resolve(o.root || process.cwd());
-	const cfgFile = resolve(o.config || join(root, ".design-system/legacy.json"));
-	const baseFile = resolve(o.baseline || join(root, ".design-system/legacy-baseline.json"));
+	const cfgFile = resolve(o.config || join(root, "scripts/legacy.json"));
+	const baseFile = resolve(o.baseline || join(root, "scripts/legacy-baseline.json"));
 	if (o["init-config"]) {
 		if (existsSync(cfgFile)) { console.error(`${cfgFile} exists`); return 2; }
 		mkdirSync(dirname(cfgFile), { recursive: true });
-		writeFileSync(cfgFile, JSON.stringify({ scan: ["src"], ignore: ["**/*.test.*", "**/*.stories.*"], tokenFiles: [], legacyImports: ["^@old/ui"], systemImports: ["^@sys/ui"] }, null, "\t") + "\n");
-		console.log(`wrote ${cfgFile}. Set legacyImports and systemImports to your modules`);
+		const found = DEFAULT_SCAN.filter((d) => existsSync(join(root, d)));
+		writeFileSync(cfgFile, JSON.stringify({ scan: found.length ? found : ["src"], ignore: ["**/*.test.*", "**/*.stories.*"], tokenFiles: [], legacyImports: [PLACEHOLDER_LEGACY], systemImports: [PLACEHOLDER_SYSTEM] }, null, "\t") + "\n");
+		console.log(`wrote ${cfgFile}, scanning ${found.length ? found.join(", ") : "src (none of the usual folders exists, so set scan)"}. Set legacyImports and systemImports to your modules; every mode exits 2 until then`);
 		return 0;
 	}
 	if (!existsSync(cfgFile)) { console.error(`no config at ${cfgFile}. Run --init-config`); return 2; }
-	const { counts, mixed } = scan(root, JSON.parse(readFileSync(cfgFile, "utf8")));
+	const cfg = JSON.parse(readFileSync(cfgFile, "utf8"));
+	const result = scan(root, cfg);
+	const { counts, mixed } = result;
+	const kindsAsked = o.zero ? o.zero.split(",").map((k) => k.trim()).filter(Boolean) : [...KINDS, "mixed"];
+	const problem = configProblem(cfg, result, kindsAsked);
+	if (problem) { console.error(`legacy.mjs: ${problem} (${cfgFile})`); return 2; }
+	scannedCount = result.scanned;
 	if (o.inventory) {
 		for (const f of Object.keys(counts).sort()) for (const k of KINDS) if (counts[f][k]) console.log(`${k}\t${f}\t${counts[f][k]}`);
 		for (const f of mixed.sort()) console.log(`mixed\t${f}\t1`);
@@ -177,10 +204,11 @@ function selfTest() {
 	const expect = (name, ok, detail = "") => { console.log(`${ok ? "ok  " : "FAIL"} ${name}${ok ? "" : "\n" + detail}`); if (!ok) fails++; };
 	const dir = mkdtempSync(join(tmpdir(), "legacy-"));
 	const w = (f, t) => { mkdirSync(dirname(join(dir, f)), { recursive: true }); writeFileSync(join(dir, f), t); };
-	w(".design-system/legacy.json", JSON.stringify({ scan: ["src"], ignore: ["**/*.test.*"], tokenFiles: ["src/tokens.css"], legacyImports: ["^@old/ui"], systemImports: ["^@sys/ui"] }));
+	const cfg = { scan: ["src"], ignore: ["**/*.test.*"], tokenFiles: ["src/tokens.css"], legacyImports: ["^@/legacy/"], systemImports: ["^@/ui/"] };
+	w("scripts/legacy.json", JSON.stringify(cfg));
 	w("src/tokens.css", ":root { --a: #0a0a0a; }\n");
-	w("src/a.tsx", 'import { Modal } from "@old/ui"\nexport const A = () => <p style={{ color: "#333" }} className="text-gray-500" />\n');
-	w("src/b.tsx", 'import { Card } from "@sys/ui"\nexport const B = () => <Card />\n');
+	w("src/a.tsx", 'import { Modal } from "@/legacy/modal"\nexport const A = () => <p style={{ color: "#333" }} className="text-gray-500" />\n');
+	w("src/b.tsx", 'import { Card } from "@/ui/card"\nexport const B = () => <Card />\n');
 	w("src/c.test.tsx", 'const x = "#fff"\n');
 	const run = (...a) => spawnSync(process.execPath, [SELF, "--root", dir, ...a], { encoding: "utf8" });
 	let r = run("--inventory");
@@ -200,22 +228,22 @@ function selfTest() {
 	};
 	plant("a raw colour in a listed file", "src/a.tsx", (t) => t + 'const y = "#abcdef"\n', "raw");
 	plant("a palette class", "src/b.tsx", (t) => t + 'const z = "bg-red-500"\n', "palette");
-	plant("a legacy import", "src/b.tsx", (t) => 'import { X } from "@old/ui"\n' + t, "import");
+	plant("a legacy import", "src/b.tsx", (t) => 'import { X } from "@/legacy/modal"\n' + t, "import");
 	plant("a new unlisted file with a finding", "src/new.tsx", () => 'export const N = () => <b style={{ color: "#fff" }} />\n', "not in baseline");
-	plant("a file importing the system and a legacy module", "src/mix.tsx", () => 'import { Card } from "@sys/ui"\nimport { M } from "@old/ui"\n', "together");
-	w("src/a.tsx", 'import { Card } from "@sys/ui"\nexport const A = Card\n');
+	plant("a file importing the system and a legacy module", "src/mix.tsx", () => 'import { Card } from "@/ui/card"\nimport { M } from "@/legacy/modal"\n', "together");
+	w("src/a.tsx", 'import { Card } from "@/ui/card"\nexport const A = Card\n');
 	r = run();
 	expect("a fall the baseline does not record fails", r.status === 1 && /Stale baseline/.test(r.stdout), r.stdout);
 	run("--record");
 	expect("after --record the win is locked in", run().status === 0);
-	w("src/a.tsx", 'import { Card } from "@sys/ui"\nconst c = "#123456"\nexport const A = Card\n');
+	w("src/a.tsx", 'import { Card } from "@/ui/card"\nconst c = "#123456"\nexport const A = Card\n');
 	expect("putting a finding back fails as a rise", run().status === 1);
-	w("src/a.tsx", 'import { Card } from "@sys/ui"\nexport const A = Card\n');
+	w("src/a.tsx", 'import { Card } from "@/ui/card"\nexport const A = Card\n');
 	w("src/other.tsx", 'const o = "#eeeeee"\n');
 	expect("--paths passes when the violation is elsewhere", run("--paths", "src/a.tsx").status === 0);
 	expect("--paths fails on a listed path", run("--paths", "src/other.tsx").status === 1);
 	expect("--paths with --record is refused", run("--paths", "src/a.tsx", "--record").status === 2);
-	w("src/old.tsx", 'import { Modal } from "@old/ui"\n');
+	w("src/old.tsx", 'import { Modal } from "@/legacy/modal"\n');
 	run("--record");
 	expect("a baseline holding legacy usage passes the ratchet", run().status === 0);
 	r = run("--zero");
@@ -224,6 +252,29 @@ function selfTest() {
 	expect("--zero passes once no legacy import is left", run("--zero").status === 0);
 	expect("--zero raw fails on a raw value", run("--zero", "raw").status === 1);
 	expect("--zero with an unknown kind exits 2", run("--zero", "colour").status === 2);
+	// --zero once passed on a config that scanned nothing or still held the placeholder.
+	w("scripts/legacy.json", JSON.stringify({ ...cfg, scan: ["nope"] }));
+	r = run("--zero");
+	expect("--zero exits 2 when no file was scanned", r.status === 2 && /scanned 0 files/.test(r.stderr), r.stdout + r.stderr);
+	w("scripts/legacy.json", JSON.stringify({ ...cfg, legacyImports: ["^REPLACE-with-your-legacy-module"] }));
+	r = run("--zero");
+	expect("--zero exits 2 while legacyImports holds the placeholder", r.status === 2 && /placeholder/.test(r.stderr), r.stdout + r.stderr);
+	w("scripts/legacy.json", JSON.stringify({ ...cfg, legacyImports: [] }));
+	expect("--zero import exits 2 with no legacyImports", run("--zero").status === 2);
+	expect("--zero raw needs no legacyImports", run("--zero", "palette").status === 0);
+	const { scan: _drop, ...noScan } = cfg;
+	w("scripts/legacy.json", JSON.stringify(noScan));
+	w("app/page.tsx", 'import { M } from "@/legacy/modal"\n');
+	r = run("--zero");
+	expect("with no scan set, app/ is scanned as well as src/", r.status === 1 && /app\/page.tsx  import  1/.test(r.stdout), r.stdout + r.stderr);
+	const fresh = mkdtempSync(join(tmpdir(), "legacy-init-"));
+	mkdirSync(join(fresh, "app"));
+	writeFileSync(join(fresh, "app/page.tsx"), "export default () => null\n");
+	spawnSync(process.execPath, [SELF, "--root", fresh, "--init-config"], { encoding: "utf8" });
+	const made = JSON.parse(readFileSync(join(fresh, "scripts/legacy.json"), "utf8"));
+	r = spawnSync(process.execPath, [SELF, "--root", fresh, "--zero"], { encoding: "utf8" });
+	expect("--init-config scans the folders that exist and its placeholder fails until replaced", made.scan.join() === "app" && r.status === 2, JSON.stringify(made) + r.stderr);
+	rmSync(fresh, { recursive: true, force: true });
 	rmSync(dir, { recursive: true, force: true });
 	console.log(fails ? `${fails} failed` : "all as expected");
 	return fails ? 1 : 0;

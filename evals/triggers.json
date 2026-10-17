@@ -18,7 +18,11 @@
 			},
 			{
 				"prompt": "Start a design system in this empty repo.",
-				"goes_to": "build-design-system"
+				"goes_to": "none"
+			},
+			{
+				"prompt": "Fix the TypeScript error in the login form.",
+				"goes_to": "none"
 			}
 		]
 	},
@@ -42,6 +46,10 @@
 			{
 				"prompt": "Which hardcoded colors map to which tokens?",
 				"goes_to": "token-mapping"
+			},
+			{
+				"prompt": "Write a debounce hook for the search box.",
+				"goes_to": "none"
 			}
 		]
 	},
@@ -65,6 +73,10 @@
 			{
 				"prompt": "Write docs for the Dialog.",
 				"goes_to": "component-docs"
+			},
+			{
+				"prompt": "Migrate the database to Postgres 16.",
+				"goes_to": "none"
 			}
 		]
 	},
@@ -73,13 +85,13 @@
 			"Are we using our tokens on the settings page?",
 			"Which hardcoded colors map to which tokens?",
 			"Run a token audit on this diff.",
-			"Plan a token migration for the billing folder.",
+			"Plan a token migration for the settings folder.",
 			"Does #6b7280 here match one of our tokens?"
 		],
 		"should_not_fire": [
 			{
 				"prompt": "Replace the hardcoded colors with tokens.",
-				"goes_to": "migrate-design-system"
+				"goes_to": "build-design-system"
 			},
 			{
 				"prompt": "Create tokens for our spacing.",
@@ -88,6 +100,10 @@
 			{
 				"prompt": "Is this page accessible?",
 				"goes_to": "ui-review"
+			},
+			{
+				"prompt": "Upgrade Tailwind to the latest version.",
+				"goes_to": "none"
 			}
 		]
 	},
@@ -111,6 +127,10 @@
 			{
 				"prompt": "Review the Toast on the board screen.",
 				"goes_to": "ui-review"
+			},
+			{
+				"prompt": "Add a section on running the app locally to the README.",
+				"goes_to": "none"
 			}
 		]
 	},
@@ -134,6 +154,10 @@
 			{
 				"prompt": "Write the Button docs.",
 				"goes_to": "component-docs"
+			},
+			{
+				"prompt": "Add pagination to the users API endpoint.",
+				"goes_to": "none"
 			}
 		]
 	}

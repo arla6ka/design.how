@@ -14,32 +14,45 @@ land.mjs --self-test | --help
 
 Commits the working-tree state of the named paths and nothing else. Name exact files, because a folder takes everything
 under it, other workers' dirty files included.
-  1. Takes a lock (a mkdir lock inside .git; a lock whose process died is taken over).
-  2. Builds the commit in a private index seeded from HEAD, so a stale shared index cannot reach it.
-  3. Refuses when write lines (mutate(, mutateAsync(, onSubmit, execute(, useMutation, non-GET fetch) were added,
-     removed or moved and --bodies-check does not exit 0. Decide the tier by this diff, not by a row label.
-  4. Refuses when a changed row in an --also file (a ratchet, baseline or list file every worker shares) names a
+  1. Refuses a detached HEAD, the default branch (origin's HEAD, else init.defaultBranch, else main and master) and
+     the branch the run started on (--start-branch, else the first line of .design-system/start-branch).
+  2. Takes a lock (a mkdir lock inside .git; a lock whose process died is taken over).
+  3. Builds the commit in a private index seeded from HEAD, so a stale shared index cannot reach it.
+  4. Refuses when write lines (mutate(, mutateAsync(, onSubmit, execute(, useMutation, non-GET fetch) were added,
+     removed or moved and --bodies-check does not pass. Decide the tier by this diff, not by a row label. Exit 0
+     passes. Exit 1 with "DIFF <proc>" lines (bodies-check.mjs) passes only when every DIFF procedure has an
+     intended change row: a line of the --intended file holding "intended change", the surface id and the
+     procedure. Any other exit, or a DIFF no row explains, refuses.
+  5. Refuses when a changed row in an --also file (a ratchet, baseline or list file every worker shares) names a
      file outside the named paths, so a file recomputed over a folder cannot carry others' rows. In a .json file
      a row is a key path to a leaf, or one array element. In any other file a row is a line.
-  5. Refuses when an added comment reads like a working note (worker, verifier, verdict, gate, run folder),
+  6. Refuses when an added comment reads like a working note (worker, verifier, verdict, gate, run folder),
      or when the message carries a process trailer (Verdict:, Verifier:, Worker:, Fingerprint:, Sha256:).
-  6. Commits (git hooks run), asserts the commit's file list lies inside the named paths, resets only those
+  7. Commits (git hooks run), asserts the commit's file list lies inside the named paths, resets only those
      paths in the shared index, prints "committed <sha>" and then the file list as the last output.
+
+Hooks run by default. A pre-commit hook can format or stage files outside the named set (step 7 then exits 3 and
+prints the undo), rewrite files a worker still edits, or run for minutes while the lock is held. Read the repo's
+hooks (.git/hooks, core.hooksPath, a husky or lefthook config) before the first landing. --no-verify skips them
+only when the person allowed it, and prints a WARN line the report repeats.
 
 Flags
   --body <file>           commit body, product text only
-  --also <path>           a shared file to include, repeatable. Recompute it for your own files only (step 4)
+  --also <path>           a shared file to include, repeatable. Recompute it for your own files only (step 5)
   --bodies-check "<cmd>"  exits 0 when valid request-body evidence is on file (env LAND_BODIES_CHECK). SURFACE is set
+  --intended <file>       the file of intended change rows. Default .design-system/decisions.tsv
+  --start-branch <name>   the branch the run started on, refused as a target (step 1)
   --trailer "<line>"      attribution line from your session, repeatable. Nothing is added on its own
   --run-log <file>        append "time, surface, sha" as TSV here, never to the message
   --allow-notes           skip the working-note scan (report that you did)
-  --no-verify             skip git hooks (report that you did)
+  --no-verify             skip git hooks, only with the person's go-ahead. Prints a WARN line
   --lock-wait <seconds>   default 600
   --dry-run               stage in the private index, print the file list and any write lines, commit nothing
 
 Exit  0 landed  1 failure  2 bad arguments or unsafe path  3 commit touches files outside the set
       4 write lines changed, no valid bodies  5 working note in added code  6 process trailer in message
       7 lock wait timed out  8 a shared file names paths outside the set  9 nothing to commit
+      10 the branch is detached, the default branch or the branch the run started on
 Never kill a git child of this script mid-write. If git hangs, report it and wait.`;
 
 class Exit extends Error {
@@ -70,6 +83,8 @@ function parse(argv) {
 		else if (a === "--bodies-check") o.bodiesCheck = next();
 		else if (a === "--trailer") o.trailers.push(next());
 		else if (a === "--run-log") o.runLog = next();
+		else if (a === "--intended") o.intended = next();
+		else if (a === "--start-branch") o.startBranch = next();
 		else if (a === "--lock-wait") o.lockWait = Number(next());
 		else if (a === "--check-commit") o.checkCommit = next();
 		else if (a === "--allow-notes") o.allowNotes = true;
@@ -162,9 +177,38 @@ function scanDiff(diff) {
 	return { writes, notes };
 }
 
+// The default branch: origin's HEAD, else init.defaultBranch, else main and master.
+function defaultBranches() {
+	const r = spawnSync("git", ["symbolic-ref", "--short", "-q", "refs/remotes/origin/HEAD"], { encoding: "utf8" });
+	if (r.status === 0 && r.stdout.trim()) return [r.stdout.trim().replace(/^origin\//, "")];
+	const c = spawnSync("git", ["config", "--get", "init.defaultBranch"], { encoding: "utf8" });
+	return c.status === 0 && c.stdout.trim() ? [c.stdout.trim()] : ["main", "master"];
+}
+
+function guardBranch(o, root) {
+	const r = spawnSync("git", ["symbolic-ref", "--short", "-q", "HEAD"], { encoding: "utf8" });
+	const branch = r.status === 0 ? r.stdout.trim() : "";
+	if (!branch) die(10, "HEAD is detached. Check out the run branch first");
+	if (defaultBranches().includes(branch)) die(10, `refusing to land on ${branch}, the default branch. Cut the run branch and land there`);
+	const file = join(root, ".design-system/start-branch");
+	const start = o.startBranch || (existsSync(file) ? readFileSync(file, "utf8").split("\n")[0].trim() : "");
+	if (start && start === branch) die(10, `refusing to land on ${branch}, the branch the run started on. Cut the run branch and land there`);
+	return branch;
+}
+
+// Every DIFF procedure needs a row holding "intended change", the surface id and the procedure name.
+export function explainDiffs(output, surface, rowsText) {
+	const diffs = [...String(output).matchAll(/^DIFF\s+(\S+)/gm)].map((m) => m[1]);
+	const rows = String(rowsText || "").split("\n").filter((l) => /intended change/i.test(l));
+	const has = (row, word) => new RegExp(`(^|[^\\w/.-])${word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}($|[^\\w/.-])`).test(row);
+	const explained = diffs.map((p) => ({ proc: p, row: rows.find((row) => has(row, surface) && has(row, p)) }));
+	return { diffs, explained: explained.filter((e) => e.row), unexplained: explained.filter((e) => !e.row).map((e) => e.proc) };
+}
+
 export async function land(o) {
 	const root = git(["rev-parse", "--show-toplevel"]).trim();
 	if (o.checkCommit) { assertFiles(o.checkCommit, normalize(o.paths, root)); return; }
+	guardBranch(o, root);
 	if (o.pos.length !== 2) die(2, "expected <surface> <subject> -- <paths...> (see --help)");
 	const [surface, subject] = o.pos;
 	if (!o.paths.length) die(2, "no paths after --");
@@ -193,12 +237,21 @@ export async function land(o) {
 			console.error(`write lines changed in this surface:\n${writes.join("\n")}`);
 			const cmd = o.bodiesCheck || process.env.LAND_BODIES_CHECK;
 			if (!cmd) die(4, "write lines changed and no --bodies-check is set. Nothing was committed");
-			if (spawnSync("sh", ["-c", cmd], { stdio: "inherit", env: { ...process.env, SURFACE: surface } }).status !== 0) die(4, "the bodies check failed, so the body evidence is not valid. Nothing was committed");
+			const b = spawnSync("sh", ["-c", cmd], { encoding: "utf8", stdio: ["ignore", "pipe", "inherit"], env: { ...process.env, SURFACE: surface } });
+			if (b.stdout) process.stderr.write(b.stdout);
+			if (b.status === 1) {
+				const file = resolve(root, o.intended || ".design-system/decisions.tsv");
+				const { diffs, explained, unexplained } = explainDiffs(b.stdout, surface, existsSync(file) ? readFileSync(file, "utf8") : "");
+				if (!diffs.length) die(4, "the bodies check exited 1 with no DIFF line, so the body evidence is not valid. Nothing was committed");
+				if (unexplained.length) die(4, `request bodies differ for ${unexplained.join(", ")} and no intended change row in ${relative(root, file)} names surface ${surface} and that procedure. Nothing was committed`);
+				for (const e of explained) console.error(`land.mjs: DIFF ${e.proc} lands as an intended change: ${e.row.trim().slice(0, 160)}`);
+			} else if (b.status !== 0) die(4, "the bodies check failed, so the body evidence is not valid. Nothing was committed");
 		}
 		if (notes.length && !o.allowNotes) die(5, `added comments read like working notes. Describe the product, not the process:\n${notes.join("\n")}`);
 
 		if (o.dry) { console.log("dry run, would commit:\n" + git(["diff-index", "--cached", "--name-only", "--no-renames", "HEAD", "--"], { env }).trim()); return; }
 
+		if (o.noVerify) console.error("land.mjs: WARN --no-verify: the repo's git hooks did not run on this commit. Say so in the report");
 		const msg = join(tmp, "message");
 		writeFileSync(msg, message);
 		const before = git(["rev-parse", "HEAD"]).trim();
@@ -237,6 +290,7 @@ function selfTest() {
 		writeFileSync(join(d, "other.txt"), "other v1\n");
 		sh(d, "add", "-A");
 		sh(d, "commit", "-q", "-m", "init");
+		sh(d, "switch", "-q", "-c", "run");
 		return d;
 	};
 	const w = (d, f, t) => { mkdirSync(dirname(join(d, f)), { recursive: true }); writeFileSync(join(d, f), t); };
@@ -258,11 +312,39 @@ function selfTest() {
 	check("stale shared index: commit lists only other.txt", sh(r, "show", "--name-only", "--format=", "HEAD"), "other.txt");
 	check("stale shared index: landed route is still v2", sh(r, "show", "HEAD:route.txt"), "route v2");
 
+	// land.mjs once committed on whatever branch was checked out, the default branch included.
+	r = mk();
+	w(r, "route.txt", "route v2\n");
+	sh(r, "switch", "-q", "main");
+	check("the default branch is refused: exit 10", run(r, "s0", "Route", "--", "route.txt").status, 10);
+	sh(r, "switch", "-q", "-c", "dev");
+	w(r, ".design-system/start-branch", "dev\n");
+	check("the recorded start branch is refused: exit 10", run(r, "s0", "Route", "--", "route.txt").status, 10);
+	check("--start-branch names it too: exit 10", run(r, "s0", "Route", "--start-branch", "dev", "--", "route.txt").status, 10);
+	sh(r, "switch", "-q", "run");
+	check("the run branch lands", run(r, "s0", "Route", "--", "route.txt").status, 0);
+	check("nothing landed on main", sh(r, "rev-list", "--count", "main"), "1");
+	sh(r, "checkout", "-q", "--detach");
+	w(r, "route.txt", "route v3\n");
+	check("a detached HEAD is refused: exit 10", run(r, "s0", "Route", "--", "route.txt").status, 10);
+
 	r = mk();
 	w(r, "new.tsx", "export const A = () => { mutate({ id: 1 }) }\n");
 	check("write lines, no bodies: exit 4", run(r, "s3", "New", "--", "new.tsx").status, 4);
 	check("write lines: nothing committed", count(r), 1);
 	check("failing bodies check: exit 4", run(r, "s3", "New", "--bodies-check", "false", "--", "new.tsx").status, 4);
+	// A bodies DIFF once refused every landing, so an announced data fix could never land.
+	const diffCheck = "echo 'same items/list 1 1'; echo 'DIFF items/update 1 1'; exit 1";
+	check("a DIFF with no intended change row: exit 4", run(r, "s3", "New", "--bodies-check", diffCheck, "--", "new.tsx").status, 4);
+	w(r, ".design-system/decisions.tsv", "2026-01-01T00:00:00Z\tland\tintended change\ts9 items/update sends a whole number\tsha\tok\n");
+	check("a row for another surface does not explain it: exit 4", run(r, "s3", "New", "--bodies-check", diffCheck, "--", "new.tsx").status, 4);
+	w(r, ".design-system/decisions.tsv", "2026-01-01T00:00:00Z\tland\tintended change\ts3 items/updateAll sends a whole number\tsha\tok\n");
+	check("a row for another procedure does not explain it: exit 4", run(r, "s3", "New", "--bodies-check", diffCheck, "--", "new.tsx").status, 4);
+	check("exit 1 with no DIFF line: exit 4", run(r, "s3", "New", "--bodies-check", "exit 1", "--", "new.tsx").status, 4);
+	check("a rejected pair (exit 2): exit 4", run(r, "s3", "New", "--bodies-check", "echo 'DIFF items/update 1 1'; exit 2", "--", "new.tsx").status, 4);
+	w(r, "intended.tsv", "x\tintended change\ts3\titems/update\n");
+	p = run(r, "s3", "New", "--bodies-check", diffCheck, "--intended", "intended.tsv", "--dry-run", "--", "new.tsx");
+	check("a DIFF the --intended file explains passes", p.status === 0 && /DIFF items\/update lands as an intended change/.test(p.stderr), true);
 	check("valid bodies check lands", run(r, "s3", "New", "--bodies-check", "true", "--", "new.tsx").status, 0);
 
 	r = mk();
@@ -288,6 +370,11 @@ function selfTest() {
 	check("process trailer: nothing committed", count(r), 1);
 	check("attribution trailer is allowed", run(r, "s7", "Route", "--trailer", "Signed-off-by: A <a@x>", "--", "route.txt").status, 0);
 	check("attribution reaches the message", sh(r, "log", "-1", "--format=%B").includes("Signed-off-by: A"), true);
+
+	r = mk();
+	w(r, "route.txt", "route v2\n");
+	p = run(r, "s12", "Route", "--no-verify", "--", "route.txt");
+	check("--no-verify lands and says so in a WARN line", p.status === 0 && /WARN --no-verify/.test(p.stderr), true);
 
 	r = mk();
 	w(r, "x.ts", "// the verifier checked this gate\nexport const x = 1\n");

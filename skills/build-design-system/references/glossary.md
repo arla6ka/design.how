@@ -4,14 +4,16 @@ One meaning per word, for every skill in this set. A skill uses these words and 
 
 ## Work
 
-**Surface**: One route, the shared layout every route renders, or a smaller unit such as a modal. It is the unit of capture, commit and verdict.
-_Avoid_: page, screen, view, unit
+**Run folder**: `.design-system/` at the repo root holds the run's own notes, captures and scratch. The first step adds it to `.git/info/exclude`, so nothing in it is ever committed, and audit mode writes nowhere else.
 
-**Run branch**: The branch a writing run commits to, cut from HEAD at the start. When the person names a branch, that branch is the run branch and no other is cut. Merging is the person's call.
+**Surface**: One route, the shared layout every route renders, or a smaller part such as a modal. A brief, a capture, a commit and a verdict each name one. People say page or screen, and prose may too, but an id says surface.
+_Avoid_: page or screen (as the id in a brief, a verdict or a file name)
+
+**Run branch**: The branch a writing run commits to, cut from HEAD at the start. When the person names a branch, that branch is the run branch and no other is cut. Otherwise the branch the run started on is written to `.design-system/start-branch`, and `land.mjs` refuses it and the default branch. Audit mode cuts none. Merging is the person's call.
 _Avoid_: feature branch, working branch
 
 **Coordinator**: The agent that splits the work and starts workers. A **worker** does one brief and starts nobody.
-_Avoid_: orchestrator, lead, sub-agent
+_Avoid_: orchestrator, sub-agent, subagent, lead (for the coordinator)
 
 **Wave**: The set of workers running at once. A wave never overlaps another wave's files.
 _Avoid_: batch, round
@@ -40,11 +42,13 @@ _Avoid_: regression test, visual match
 **Write surface**: A surface whose code sends a request that changes data (`mutate(`, `mutateAsync(`, `onSubmit`, `execute(`, a non-GET `fetch`). Its tier is set by the diff, never by the row label.
 _Avoid_: tier A (as a label on a row)
 
-**Verifier**: An agent that did not write the code. It runs the app at a named commit and writes its verdict to a file before its final message. A type check, a green CI run and a worker saying "done" are inputs to a verdict, never the verdict.
-_Avoid_: reviewer, QA agent
+**Verifier**: An agent that did not write the code. It runs the app at a named commit and writes its verdict to a file before its final message. A type check, a passing CI run and a worker saying "done" are inputs to a verdict, never the verdict.
+_Avoid_: QA agent, reviewer (for the agent whose verdict lands a surface)
 
-**Verdict**: `verified`, `issues` or `blocked`, followed by what was not exercised. A claim names the command that proved it in this session. Evidence older than the last edit is stale. Evidence that was not collected is `blocked`, never `verified`. On a host without subagents the writer's own check is `self-verified`, which never lands a write surface.
-_Avoid_: pass, green, looks good, verified-pending-browser
+**Reviewer**: A read-only agent that reads a diff, its comments or a render and reports findings. It changes nothing and its findings never land a surface. Only a verifier's verdict does.
+
+**Verdict**: `verified`, `issues` or `blocked`, followed by what was not exercised. A claim names the command that proved it in this session. Evidence older than the last edit is stale. Evidence that was not collected is `blocked`, never `verified`. A wait that ran out is `blocked (timed out)` with the command to rerun. On a host that cannot start other agents the writer's own check is `self-verified`, which never lands a write surface.
+_Avoid_: `pass`, `partial`, green, looks good, verified-pending-browser
 
 **Fingerprint**: A hash of the surface's files at the commit a verdict covers. A verdict for another fingerprint is stale.
 

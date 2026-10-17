@@ -30,7 +30,7 @@ When a finding could go either way, choose the milder level and say why in one s
 8. **Mistakes are hard to make and easy to fix.** Irreversible actions ask for confirmation. Reversible ones offer undo, and a confirm on a reversible action is a note. Errors say what went wrong and how to fix it, next to the cause, and keep what was entered. A field shows the value that will be sent.
 9. **The task asks for no more than it needs.** A value the app already knows is prefilled.
 10. **It matches the rest of the product.** Patterns that look the same behave the same. A departure has a reason in code, a spec or a comment, or it is a finding. Optical misalignment and oversized icons are findings here.
-11. **Content holds up at the extremes.** The longest realistic names, large numbers, translated text, missing values, very short content. Text the user chose for legal or identity reasons wraps and never truncates (`trap/chosen-text-truncated`).
+11. **Content holds up at the extremes.** The longest realistic names, large numbers, translated text, missing values, very short content. Text the user chose to identify something, such as a name, wraps and never truncates (`trap/chosen-text-truncated`).
 12. **It works at every reviewed width.** Nothing essential is cut off or hidden without a way to reach it. Controls stay reachable at 390 and at the widths where the layout switches.
 13. **It answers the hand.** Every press shows feedback within 100 ms. Input motion tracks the pointer. Nothing waits on an animation before taking the next input. Focus and selection land where the hand expects. Evidence is measured, never a screenshot. Cite the trap, such as `trap/press-delayed` or `trap/motion-blocks-input`.
 
