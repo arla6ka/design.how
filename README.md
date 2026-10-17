@@ -50,12 +50,16 @@ npx shadcn@latest add https://design.how/r/quartz/theme.json
 
 These turn the UI your app already ships into a design system your agent can use, add a check that catches new drift, and move every screen onto it when you ask.
 
-- [design-system-boss](skills/design-system-boss/README.md). Start here. Say what's wrong in plain words, and it reads the repo, picks a route and runs the other skills in order. It ends with the system, one flow moved onto it and a CI check, then offers the full migration with its size.
-- [build-design-system](skills/build-design-system/README.md). Builds tokens, one canonical component per family, docs and checks from the app you have, and proves them on one real flow.
-- [migrate-design-system](skills/migrate-design-system/README.md). Moves every screen onto the system with parallel workers, each checked against its before screenshot. Start with audit mode, which changes nothing.
-- [token-mapping](skills/token-mapping/README.md). Maps hex codes and pixel values to your tokens by purpose, so an 8px radius never stands in for an 8px gap. It never edits.
-- [component-docs](skills/component-docs/README.md). Writes a component's docs from its code and two real uses in your product, with the rules right next to the examples.
-- [ui-review](skills/ui-review/README.md). Reviews a screen or flow, including the states a screenshot misses, and ranks what's actually broken.
+- [design-system-boss](skills/design-system-boss/SKILL.md). Start here. Say what's wrong in plain words, and it reads the repo, picks a playbook and runs the other skills in order. It ends with the system, one flow moved onto it and a CI check, then offers the full migration with its size.
+- [build-design-system](skills/build-design-system/SKILL.md). Builds tokens, one canonical component per family, docs and checks from the app you have, and proves them on one real flow.
+- [migrate-design-system](skills/migrate-design-system/SKILL.md). Moves every screen onto the system with parallel workers, each checked against its before screenshot. Start with audit mode, which changes nothing.
+- [token-mapping](skills/token-mapping/SKILL.md). Maps hex codes and pixel values to your tokens by purpose, so an 8px radius never stands in for an 8px gap. It never edits.
+- [component-docs](skills/component-docs/SKILL.md). Writes a component's docs from its code and two real uses in your product, with the rules right next to the examples.
+- [ui-review](skills/ui-review/SKILL.md). Reviews a screen or flow, including the states a screenshot misses, and ranks what's actually broken.
+
+Shared words are in [glossary.md](skills/build-design-system/references/glossary.md), and the default bans, widths and voice in [taste.md](skills/build-design-system/references/taste.md). Both ship inside `build-design-system`, which the other skills build on, so install it next to any skill you add on its own. Replace the taste file with your own.
+
+Ten scripts do what prose can't. `build-design-system` has `check-system.mjs`, `oklch.mjs`, `capture.mjs`, `capture-guard.mjs`, `pixdiff.mjs` and `find-chromium.mjs`. `migrate-design-system` has `land.mjs`, `legacy.mjs`, `bodies-check.mjs` and `parity.mjs`. Each has `--help` and `--self-test`, and the three that drive a browser need Playwright and a Chromium. `node evals/run.mjs --lint` checks the skills themselves, and `--triggers` asks a host which skill each prompt starts.
 
 ## Why
 

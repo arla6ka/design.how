@@ -1,0 +1,140 @@
+{
+	"design-system-boss": {
+		"should_fire": [
+			"Our UI is a mess, fix it.",
+			"We need a design system for this app.",
+			"We hardcode colors everywhere, sort it out.",
+			"Make the buttons consistent across the app.",
+			"Check the whole app before I ship."
+		],
+		"should_not_fire": [
+			{
+				"prompt": "Review the settings page before I ship.",
+				"goes_to": "ui-review"
+			},
+			{
+				"prompt": "Document the Select component.",
+				"goes_to": "component-docs"
+			},
+			{
+				"prompt": "Start a design system in this empty repo.",
+				"goes_to": "build-design-system"
+			}
+		]
+	},
+	"build-design-system": {
+		"should_fire": [
+			"Extract tokens from the app.",
+			"Add states to our Button.",
+			"Start a design system from what we already ship.",
+			"Build the component families and a check that catches drift.",
+			"Name our colors by role and pair surfaces with foregrounds."
+		],
+		"should_not_fire": [
+			{
+				"prompt": "Move every screen onto our design system.",
+				"goes_to": "migrate-design-system"
+			},
+			{
+				"prompt": "Our UI is a mess.",
+				"goes_to": "design-system-boss"
+			},
+			{
+				"prompt": "Which hardcoded colors map to which tokens?",
+				"goes_to": "token-mapping"
+			}
+		]
+	},
+	"migrate-design-system": {
+		"should_fire": [
+			"Migrate the app to our design system.",
+			"Move every screen onto the new components.",
+			"Roll out the new Button across all routes.",
+			"Give me an adoption audit: how many screens still use legacy components?",
+			"Swap the legacy Modal for the system Dialog everywhere."
+		],
+		"should_not_fire": [
+			{
+				"prompt": "Build a design system for this app.",
+				"goes_to": "build-design-system"
+			},
+			{
+				"prompt": "Review this one screen.",
+				"goes_to": "ui-review"
+			},
+			{
+				"prompt": "Write docs for the Dialog.",
+				"goes_to": "component-docs"
+			}
+		]
+	},
+	"token-mapping": {
+		"should_fire": [
+			"Are we using our tokens on the settings page?",
+			"Which hardcoded colors map to which tokens?",
+			"Run a token audit on this diff.",
+			"Plan a token migration for the billing folder.",
+			"Does #6b7280 here match one of our tokens?"
+		],
+		"should_not_fire": [
+			{
+				"prompt": "Replace the hardcoded colors with tokens.",
+				"goes_to": "migrate-design-system"
+			},
+			{
+				"prompt": "Create tokens for our spacing.",
+				"goes_to": "build-design-system"
+			},
+			{
+				"prompt": "Is this page accessible?",
+				"goes_to": "ui-review"
+			}
+		]
+	},
+	"component-docs": {
+		"should_fire": [
+			"Document the Button.",
+			"Write docs for Select.",
+			"What states does Toast have?",
+			"Write usage rules for the Tooltip.",
+			"We changed the Dialog, update its entry."
+		],
+		"should_not_fire": [
+			{
+				"prompt": "Our components are all slightly different, sort it out.",
+				"goes_to": "design-system-boss"
+			},
+			{
+				"prompt": "Add a loading state to the Button.",
+				"goes_to": "build-design-system"
+			},
+			{
+				"prompt": "Review the Toast on the board screen.",
+				"goes_to": "ui-review"
+			}
+		]
+	},
+	"ui-review": {
+		"should_fire": [
+			"Check this page before I ship.",
+			"Is this flow ready?",
+			"Is the checkout accessible by keyboard?",
+			"It feels off on my phone.",
+			"The modal feels janky, what is wrong?"
+		],
+		"should_not_fire": [
+			{
+				"prompt": "Which tokens does this page use?",
+				"goes_to": "token-mapping"
+			},
+			{
+				"prompt": "Check the whole app before I ship.",
+				"goes_to": "design-system-boss"
+			},
+			{
+				"prompt": "Write the Button docs.",
+				"goes_to": "component-docs"
+			}
+		]
+	}
+}

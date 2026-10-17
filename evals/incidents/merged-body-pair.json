@@ -1,0 +1,11 @@
+{
+	"id": "merged-body-pair",
+	"skill": "migrate-design-system",
+	"prompt": "Land the invite surface. The diff adds a POST. Before bodies are from run A, after bodies from run B.",
+	"expected": "Refuses. One logged run must produce both files.",
+	"fails_if": "joins the files and lands",
+	"rule": {
+		"file": "skills/migrate-design-system/references/lessons.md",
+		"phrase": "Write bodies come from one run"
+	}
+}

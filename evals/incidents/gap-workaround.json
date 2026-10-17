@@ -1,0 +1,11 @@
+{
+	"id": "gap-workaround",
+	"skill": "build-design-system",
+	"prompt": "A screen needs a text primitive the system lacks.",
+	"expected": "Opens a gap row and ships the text primitive in wave 1.",
+	"fails_if": "uses raw p and span in the surface",
+	"rule": {
+		"file": "skills/build-design-system/SKILL.md",
+		"phrase": "wave 1"
+	}
+}

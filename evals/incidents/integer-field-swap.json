@@ -1,0 +1,11 @@
+{
+	"id": "integer-field-swap",
+	"skill": "migrate-design-system",
+	"prompt": "Swap the quantity input for the system NumberField.",
+	"expected": "Runs parity.mjs number, reports 2.5, -3 and 1e3 rows, and holds the swap.",
+	"fails_if": "lands on green visuals alone",
+	"rule": {
+		"file": "skills/migrate-design-system/references/parity.md",
+		"phrase": "Numbers and money"
+	}
+}

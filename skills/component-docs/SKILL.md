@@ -1,61 +1,45 @@
 ---
 name: component-docs
-description: Writes one component's documentation entry from its code, stories and real call sites, in a Geist-style page order. Use for "document the button", "write docs for Select", "what states does Toast have", usage rules for a component, or a new or changed component. Skip foundations, overview pages and multi-component patterns. Docs for a whole design system go to design-system-boss.
+description: Use to write one component's documentation entry from its code, stories and real call sites, such as "document the button", "write docs for Select", "what states does Toast have", or usage rules for a new or changed component. Not for foundations or pages that span components, which no skill here writes, nor for changing the component, which is build-design-system.
 ---
 
-# Component documentation
+# Component docs
 
-1. Paste the heading list from `references/doc-format.md` into the draft, empty.
-2. Find the component and read its code, props type, styles and stories, each recorded as a Sources line (`references/sources.md`).
-3. Find two real uses, pasted or found by call-site search, or apply `sources.md` (Fewer than two uses).
-4. Check the stops below. If one applies, return the stop shape and end the run.
-5. Trace which source supplied each example, variant, prop, state and token. Every disagreement is a line under Conflicts.
-6. Fill each section from sourced facts, in order, per `doc-format.md`. Copy token names and example code character for character.
-7. Write Usage rules last, by the rule method in `doc-format.md` (Usage): a shape, a ground, a check and a Don't and Do pair each, tested or cut.
-8. Fill Guessed at, and pass the review checklist.
-9. When the entry is a spec, run the check `doc-format.md` (When the entry is a spec) names, and put its last line in the status block.
+A draft entry for one component, built only from what its sources say. Gaps are marked, not filled. It does not judge the design and it publishes nothing. The heading order and a worked example are in `references/doc-format.md`.
 
-Never ship:
+## Steps
 
-- A variant, prop, token name, example or real use with no listed source. A planned use says planned.
-- An invented state or precedence written to pass the spec check.
-- A conflict settled without a quoted rule. Otherwise both sides stay shown.
-- An edit to the code, stories or spec being documented.
-- An entry published by the skill. It is a draft, a coordinator decides where it goes, and publishing belongs to the person.
-
-A draft entry for one component, built only from what its sources say. Gaps are marked, not filled, and every judgement call is listed for a person to check. It does not judge the design. Sibling links are relative to this skill's folder.
-
-## Start from whatever the ask gives
-
-A component name is enough. Find the code, stories and call sites yourself, and ask only for what no tool can reach. Of several named components, document the first and list the rest. A compound component (`Tabs` with `Tab`) is one entry. A part also used on its own gets a `### Parts` subsection under Description.
-
-## When a coordinator calls it
-
-A coordinator passes the code, the variant list and real or planned uses. Take them as given and run to the end without asking. Conflicts and Guessed at carry every open question, and the caller turns them and the Gates block into gates, each with a default.
-
-Start the output with a status line, `Status: complete`, `Status: complete with NEEDS REVIEW (n)`, `Status: ready-with-gaps (<n> real uses)` or `Status: stopped: <condition>`, then `Commit: none`. A direct run uses the same status line. Return the entry with its blocks, or the stop shape, as text, and write no other file. The coordinator saves the entry, unless the brief's SCOPE names its path.
+1. Paste the nine headings from `references/doc-format.md` into the draft, empty.
+2. Find the component. Read its code, props type, styles and stories, and record each as a Sources line.
+3. Find two real uses, by call-site search or from the ask. One real use or none changes the stop table below.
+4. Trace which source gave each example, variant, prop, state and token. Every disagreement between sources is a line under Conflicts, with the quoted rule that settles it, or "no rule, not chosen".
+5. Fill each section from sourced facts, copying token names and example code character for character.
+6. Write Usage rules last. Each rule is `rule/<component>-<slug>`, a condition, an action, a reason, its evidence (two call sites, a measurement with its path, a named principle, or the person's words), and a `Don't:` line with real code that breaks it. A rule you cannot break with a snippet is cut.
+7. Fill Guessed at, one line per judgement call. Reread the draft against the Done list below.
 
 ## Output
 
-One Markdown entry, ready to paste, then these blocks outside it:
-
-- Sources, one line per source, as `sources.md` records it.
-- Conflicts, one line per disagreement: the fact, each source's version, and the quoted rule applied or "no rule, not chosen".
-- Guessed at, one line per judgement call with what it rests on, or "Nothing guessed".
-- Gates, only when a rule adds one: the question and its default.
-
-On a direct run, save the entry with its blocks to `docs/system/<name>.md` with a draft comment on line 1, and write each missing example file (`doc-format.md`, Examples). The reply opens with that path, what the entry covers and its status. Then each command run with its exit code, any Defect lines, up to three open questions with defaults, and `Next:` with one prompt to paste. Every count in the reply comes from `grep -o` on the saved file below the draft comment.
-
-The entry is ready when it passes the review checklist, and for a spec when `check-spec.mjs` exits 0 or every remaining failure is under Guessed at with why no source settles it.
+The entry, then Sources, Conflicts, Guessed at, and Gates (a question with its default) only where a rule adds one. Run on its own, it saves to `docs/system/<name>.md` with a draft comment on line 1 and writes each missing example file. The reply opens with the path, what the entry covers and its status, then up to three questions with defaults and one prompt the person can paste to take the next step.
 
 ## Stops
 
-| Missing after searching | Why it stops | The coordinator does next |
-|---|---|---|
-| Code | Nothing else sources the variants, props or behavior | Pass the code path and rerun, or drop the component and log it as a gap |
-| Variant list, from code or stories | A guessed variant list documents a different component | Pass the props type or stories and rerun, or park it as a gate for the owner |
-| Any use, real or planned | Invented uses read like real ones, and readers copy them first | Build the pilot screen, or pass one screen from the brief as a planned use, then rerun. Never write the entry itself |
+| Missing after searching | Why it stops |
+|---|---|
+| The code | Nothing else sources the variants, props or behaviour |
+| The variant list (props type or stories) | A guessed list documents a different component |
+| Any use, real or planned | Invented uses read like real ones and readers copy them first |
 
-A props type with no variant prop is an empty list, so Variants reads "None" and the run continues. A stopped run returns the stop, the facts sourced so far by section, the next step, and the smallest reply that unblocks it. For missing uses, that is "one screen name, what put the component there, and which variant showed".
+A props type with no variant prop is an empty list. Variants reads "None" and the run goes on. One real use, planned uses and a deprecated predecessor are marked as such, not stopped on. A stopped run returns the stop, the facts sourced so far by section, and the smallest reply that unblocks it ("one screen name, what put the component there, and which variant showed").
 
-Everything else continues. One real use, planned uses and a deprecated predecessor follow `sources.md` (Fewer than two uses). Conflicts follow `sources.md` (Conflicts between sources), and a behavior that looks like a bug gets a `Defect:` line (`doc-format.md`, States). A missing props type, token list, spec, notes or accessibility guidance becomes `NOT SUPPLIED`, `NEEDS REVIEW` or a Guessed at line.
+## Rules
+
+- Never write a variant, prop, token name, example or use that has no listed source. A planned use says planned.
+- Never invent a state or a precedence order to make a section look complete.
+- A behaviour that looks like a bug is written as it is, followed by a `Defect:` line to the owner with what goes wrong for the user and the smallest fix.
+- A part also used on its own gets a `### Parts` subsection under Description. A compound component (`Tabs` with `Tab`) is one entry.
+- Do not edit the code, stories or spec being documented.
+- Counts in the reply come from `grep -o` on the saved file, below the draft comment.
+
+## Done
+
+Every variant, prop, token and example has a Sources line. Every Usage rule has evidence and a `Don't:` line. Every conflict is shown. The nine headings are present in order, and a section with nothing sourced reads `Not applicable: <reason>`.

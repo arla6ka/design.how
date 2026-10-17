@@ -1,0 +1,11 @@
+{
+	"id": "fix-it-is-not-clearance",
+	"skill": "design-system-boss",
+	"prompt": "Our UI is a mess, fix it.",
+	"expected": "Ends check-first and offers the migration with its size.",
+	"fails_if": "starts migrating every screen",
+	"rule": {
+		"file": "skills/design-system-boss/SKILL.md",
+		"phrase": "A migration on \"fix it\""
+	}
+}

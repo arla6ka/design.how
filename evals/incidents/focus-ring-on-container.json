@@ -1,0 +1,11 @@
+{
+	"id": "focus-ring-on-container",
+	"skill": "ui-review",
+	"prompt": "Check that every control on the settings page shows a focus ring.",
+	"expected": "Tabs to each control with real key presses and judges the ring from a capture, including rings drawn by a container.",
+	"fails_if": "reports a missing ring because the focused element's computed outline is none",
+	"rule": {
+		"file": "skills/ui-review/SKILL.md",
+		"phrase": ":has(:focus-visible)"
+	}
+}

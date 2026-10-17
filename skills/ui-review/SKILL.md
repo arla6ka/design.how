@@ -1,53 +1,48 @@
 ---
 name: ui-review
-description: Critiques a screen, flow, prototype or running build against agreed criteria, accessibility included, and ranks findings by severity. Use for "check this page before I ship", "is this flow ready", "is it accessible", keyboard or screen-reader checks, "it feels off on my phone", "it feels janky", or a second read on UI. A whole-app ship check goes to design-system-boss, token compliance to token-mapping.
+description: Use to critique a screen, flow, prototype or running build, accessibility included, and rank what is broken, such as "check this page before I ship", "is this flow ready", "is it accessible", keyboard or screen-reader checks, "it feels off on my phone" or "it feels janky". Not for token compliance, which is token-mapping.
 ---
 
 # UI review
 
-1. **Scope.** A scope the caller names, else the branch's changed screens, else 5 top routes (`references/sources.md`, Finding the design).
-2. **Criteria.** An installed design system's `SKILL.md` first, then `references/review-criteria.md` (`references/sources.md`, The installed system).
-3. **Lint.** Run the project's own lint on the scoped files and record the command and exit code (`references/sources.md`, The project's lint).
-4. **Capture** each screen at each viewport and run the accessibility scan there (`references/sources.md`, What counts as evidence).
-5. **Fix the purpose**, inferred and marked assumed when not given, or stop on the conditions in `references/sources.md` (Inferring the purpose).
-6. **Probe** every trap family the screen has, on a local build only (`references/sources.md`, Trap probes). Each probe gets a measured result or a reason it did not run.
-7. **Walk the installed system's rules, then criteria 1 to 13,** at each viewport (`references/review-criteria.md`).
-8. **Sort** repeats, chained findings, `system-caused` findings, accessibility, taste and departures per `references/review-criteria.md` (Sorting).
-9. **Rank** `blocking`, `should-fix`, `note`, and within each by surface tier, then places hit (`references/review-criteria.md`, Severity).
-10. **Walk the edge cases**, marking each shown or not shown, plus the States rows of each spec for a component on the screen (`references/sources.md`, Component specs).
-11. **Write the verdict and summary last** (Output).
+The render is the evidence. A description, DOM text or source code only supports it. Severity, the 13 criteria and the edge cases are in `references/criteria.md`. An installed design system's own rules come first and count as agreed criteria.
 
-Never ship:
+## Steps
 
-- A finding with no criterion from the file in use, or one that rests on taste.
-- A finding from a description, DOM text or source code alone. The render is the evidence, and those only support it.
-- An inferred finding written as a fix. It enters `Next:` only as the check that settles it.
-- A claim that something works or is fixed without a command or capture from this session.
-- A ranked semantics-changing accessibility fix or product decision. A person rules, and the finding stays.
-- A criterion 13 finding or pass from screenshots. It needs `state-timeline.js` or a probe.
-- A first line, ship line and summary that disagree.
+1. **Scope.** What the caller names, else the branch's changed screens, else the five top routes.
+2. **Lint.** Run the project's own lint on the scoped files. Record the command and exit code.
+3. **Capture** each screen at each width (the app's narrowest and widest, 390 and 1280 by default) in the states that matter, one fresh navigation per width. With `build-design-system` installed, `build-design-system/scripts/capture.mjs` does this behind a guard that blocks every write and saves each capture's accessibility tree. Otherwise use the host's browser tool and save the tree yourself. Run the project's accessibility scanner too when it has one.
+4. **Fix the purpose** of each screen in one line. Mark it assumed when the caller did not give it.
+5. **Probe the traps** each screen has, on a local build only: keyboard path, focus after close, loading and error states, a throttled tab, reduced motion, and a touch width. Each probe gets a measured result or a reason it did not run. Measure press feedback with the Event Timing API (a `PerformanceObserver` on `event` entries, each `duration` under 100 ms). Do not click anything that writes to shared data.
+6. **Walk the criteria** at each width. Cite each finding by number and name, or by the installed rule's ID.
+7. **Sort.** With more than one reviewer available (a panel), give each the same prompt and no persona, read only. The coordinator then sorts every finding into `blocking`, `should-fix`, `note` or `dismissed`, naming who raised it and giving one line of reason. A finding raised by two reviewers on their own is the strongest signal. Dismiss nitpicks, hypotheticals nobody traced to a real call site, and "I would have done it differently". Within a bucket, put surfaces that write data first, then order by places hit. Without a panel, do the same alone.
+8. **Walk the edge cases** and mark each shown or not shown.
+9. **Write the verdict last.**
 
-## When a coordinator calls it
+## Rules
 
-Take the captures, criteria and purpose as given and run to the end, recording any gap the solo path would ask about. With captures only, the scan and probes read `not run: captures only`, which counts as a reason. Start the report with a status line, `Status: complete (blocking n, should-fix n, note n)`, `Status: complete (partial: <what was not reviewed>)` or `Status: stopped: <condition>`, then `Commit: none`, then the answer and ship lines. Return the report, or the stop shape, as text and write no file.
+- A finding has a criterion, a findable location (the element by role and name, with its capture, as in `button 'Save changes' (settings-1280.png)`), the width, and the evidence. A finding that rests on taste is dropped to Left out.
+- Wrong: "The spacing feels tight." Right: "Label sits 24 px from its own field and 8 px from the next one (criterion 4, settings-390.png)."
+- An inferred finding is written as the check that settles it. An inferred `blocking` finding makes the verdict `no, pending <the check>`.
+- A claim that something works or is fixed names a command or capture from this session.
+- Contrast, target size and keyboard problems are ranked. A change to the accessibility tree that only adds semantics is ranked. One that removes or restructures semantics goes to a person.
+- A finding or pass on responsiveness to input (criterion 13) from a screenshot is invalid. It needs a measured probe. A focus ring is the reverse. Reach the control with real Tab presses and judge the ring from the capture, because a container that draws it through `:has(:focus-visible)` leaves the focused element reporting no outline.
+- Product decisions behind a fix go to For a person to decide. Keeping the user's input is never one.
 
 ## Output
 
-Any `blocking` finding makes the verdict `no`, and an inferred one `no, pending <the one check that settles it>`. `should-fix` alone makes it `yes, with fixes`, and only notes `yes`. The first line answers the ask in plain words, with no criterion numbers or skill names, and "Not yet" pairs only with `no`. The ship line follows with the same verdict, why in one clause, and the count of unranked accessibility questions for a person. A partial run's verdict covers only what was reviewed. Example: `Ready to ship: no. Enter in Email cancels the invite (blocking 1, should-fix 2, 3 accessibility questions for a person).`
+The first line answers the ask in plain words. The ship line follows: `Ready to ship: no. Enter in Email cancels the invite (blocking 1, should-fix 2, 3 questions for a person).` Any `blocking` finding makes the verdict `no`, an inferred one `no, pending <the check>`, `should-fix` alone `yes, with fixes`, only notes `yes`.
 
-Then six parts.
+Then, in order:
 
-1. **Review record.** Source, tool, viewports, date, criteria file, first pass or follow-up, the purpose marked given or assumed, every assumption, and every gap. Each n/a criterion gives its reason ("8. No destructive action on this screen").
-2. **Summary.** What the screen asks, what works, and what most needs attention.
-3. **Findings** by severity. Each gives what was seen, where (screen and region, or the element by role and name with its ref or selector and capture, as in `button 'Save changes' @e34 (settings-1280.png)`), the viewport, the surface's tier, the criterion by number and name or the installed system's rule ID, why it matters for this task, the evidence type and dedupe key (`references/sources.md`, What counts as evidence), and any matching `trap/` or `rule/` ID. A `system-caused` finding names the token, preset or component.
-4. **Edge cases not shown.** One line each.
-5. **For a person to decide.** Semantics-changing accessibility fixes, product decisions a fix needs, and problems no criterion covers, each tied to a finding or location.
-6. **Left out.** Preferences dropped, each with the reason.
+1. **Review record.** Source, tool, widths, date, criteria file, the purpose marked given or assumed, every assumption and gap.
+2. **Findings** by bucket, each with who raised it, what was seen, where, criterion, why it matters here, evidence, and the fix as a check that fails on the current build (`Fix Enter in Email so that it sends 1 POST`).
+3. **Edge cases not shown.** One line each.
+4. **For a person to decide.**
+5. **Dismissed and left out.** Each with who raised it and the reason.
 
-An empty group says "None", and a clean screen's notes stay notes.
+Run on its own, save the report to `.ui-review/<date>-<flow>.md` with captures beside it. When a coordinator asks for captures only, return the capture paths, widths and `Coverage:` line, and no findings. The chat reply gives the answer and ship lines, each command with its exit code, and one prompt the person can paste to take the next step.
 
-The report is ready when every finding has a criterion, a findable location, evidence, and only the viewports where it shows. Every probe has a result or a reason, and the scan ran at each viewport or reads `not run: captures only`. The last line reads `Coverage:` with the routes, viewports, themes and probes measured, then what was not.
+## Done
 
-Run directly, save the report to `.ui-review/<date>-<flow>.md` with captures beside it. The chat reply opens with the answer and ship lines, gives each command run with its exit code, lists up to three items for a person with defaults, and ends with `Next:` and one prompt to paste. That prompt covers every `blocking` and shown-versus-sent finding as "Fix X so that <check>", such as "Fix Enter in Email so that it sends 1 POST". A `system-caused` fix names the system file. Each Next check must fail on the current build.
-
-A stopped run returns only what stopped it, a one-line guess at what each screen does, and the shortest reply that unblocks it.
+Every finding has a criterion, a location, evidence and only the widths where it shows. Every probe has a result or a reason. The first line, the ship line and the summary agree. The last line reads `Coverage:` with the routes, widths, themes and probes measured, then what was not.

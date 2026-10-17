@@ -1,7 +1,7 @@
-// find-chromium.mjs: find Playwright and a Chromium it can launch. Used by pixdiff.mjs, capture.mjs and probe.mjs.
+// find-chromium.mjs: find Playwright and a Chromium it can launch. Used by capture.mjs and pixdiff.mjs.
 // Node 18+, no dependencies of its own.
 //
-//   node find-chromium.mjs [--root <dir>]    prints where Playwright and the browser come from. Exit 0, or 2 on none
+//   node find-chromium.mjs [--root <dir>] [--self-test]   prints where Playwright and the browser come from. Exit 0, or 2 on none
 //
 // The root is --root, else the git root of the script's first path argument, else of the current folder, else the
 // current folder (repoRoot below). Playwright (`playwright` or `playwright-core`) is looked for in that root and its
@@ -124,8 +124,8 @@ export async function launchChromium(options = {}, { root } = {}) {
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const argv = process.argv.slice(2);
-  if (argv.includes("--help") || argv.includes("-h") || argv.some((a) => a.startsWith("--") && a !== "--root")) {
-    console.log("usage: node find-chromium.mjs [--root <dir>]\nPrints where Playwright and a launchable Chromium come from. Exit 0 when one launches, 2 when none does.");
+  if (argv.includes("--help") || argv.includes("-h") || argv.some((a) => a.startsWith("--") && a !== "--root" && a !== "--self-test")) {
+    console.log("usage: node find-chromium.mjs [--root <dir>] [--self-test]\nPrints where Playwright and a launchable Chromium come from, after launching and closing it. Exit 0 when one launches, 2 when none does.\n--self-test is the same run: it passes only when a browser really launched.");
     process.exit(argv.includes("--help") || argv.includes("-h") ? 0 : 2);
   }
   const i = argv.indexOf("--root");

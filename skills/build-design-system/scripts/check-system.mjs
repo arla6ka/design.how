@@ -3,7 +3,7 @@
 // Reads whole JSX tags, not lines, so a multi-line <div onClick> is still one tag.
 // Run `node scripts/check-system.mjs --help` for usage.
 import { createHash } from "node:crypto";
-import { appendFileSync, cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, renameSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { appendFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, relative, resolve, sep } from "node:path";
 import { execFileSync, execSync, spawnSync } from "node:child_process";
@@ -16,8 +16,9 @@ const HELP = `check-system.mjs: design system check (starter)
 
 Usage: node scripts/check-system.mjs [options] [--files <file>...]
 
-With no options it runs the fixture self-test, then checks the repo against the
-allowlist. Exit 0 clean, 1 on findings or a failed self-test, 2 on bad setup.
+With no options it checks the repo against the allowlist, after the self-test when
+the repo keeps planted cases (below). Exit 0 clean, 1 on findings or a failed
+self-test, 2 on bad setup.
 
 Options
   --root <dir>         repo root. Default: the git root of the first file given to
@@ -25,11 +26,11 @@ Options
                        folder, else the current folder. Pass it in a monorepo
                        whose app is not the git root
   --config <file>      config (default: scripts/check-system.config.json)
-  --self-test          run only the fixtures, from --fixtures <dir> or from
-                       fixtures/check-system/ beside this script
-  --fixtures <dir>     the fixture folder for the self-test
-  --no-self-test       skip the fixtures. With no fixture folder beside the script,
-                       the default run skips them anyway
+  --self-test          run only the self-test: the built-in planted cases (a failing
+                       and a passing case per core rule), the CLI checks, and the
+                       repo's own planted cases when it keeps any
+  --fixtures <dir>     the folder of the repo's own planted cases
+  --no-self-test       skip the self-test in the default run
   --files <f>...       check only these files. The allowlist still applies
   --no-allowlist       ignore the allowlist, so every finding fails. Shows all a file holds
   --init               write a starter config guessed from the repo. Refuses to overwrite
@@ -85,7 +86,7 @@ Config keys (all optional, JSON)
   tokenSources   files where raw values may sit on custom property lines (--x: #fff)
   uiDir          the component folder           "components/ui", else an installed
                                                 system's components/<name>/ui
-  examplesDir    the docs' example files, always scanned  gen-docs.config.json's, else
+  examplesDir    the docs' example files, always scanned  a gen-docs.config.json's, else
                                                 "docs/system/examples"
   registry       registry file                  "registry.json"
   driftList      TSV: file, status, sha256, note "scripts/ui-drift.tsv"
@@ -127,9 +128,14 @@ Raw-value, arbitrary-value and px findings name the nearest token: color tokens 
 the property's job (text, background, border) by deltaE OK, lengths by kind
 (space, radius, type, size) by distance in px.
 
-Fixture files end in .fixture (button.tsx.fixture), so tsc, lint and the
-framework never compile them. The self-test reads them under their inner name.
-A repo keeps only fixtures for rules the run added, in scripts/fixtures/check-system/.`;
+Planted cases. A rule the repo adds proves itself the way the built-in ones do: a
+folder per rule holding case.json ({"rule": "<id>", "expect": {"<id>": <count>}}),
+fail/ with exactly the violations, and pass/ with the nearest correct code. Source
+files end in .fixture (list.tsx.fixture), so tsc, lint and the framework never
+compile them, and the self-test reads each under its inner name. Keep them in
+scripts/fixtures/check-system/ beside the copied script, or pass --fixtures <dir>.
+For a one-off proof, plant a violation in a scanned file and run
+--files <file> --no-allowlist instead.`;
 
 const RULES = {
   "rule/raw-value": ["Hex, rgb(), hsl() or oklch() outside a token source line, including inside Tailwind arbitrary values", "use a semantic token"],
@@ -198,7 +204,7 @@ const WHY = {
 };
 const whyFor = (rule) => WHY[rule] || "";
 // The fix a finding prints. A ban's id is the person's, so it has no RULES row.
-const fixFor = (rule) => RULES[rule]?.[1] || (rule.startsWith("rule/ban-") ? "remove it, since the person banned it" : "see the rules page");
+const fixFor = (rule) => RULES[rule]?.[1] || (rule.startsWith("rule/ban-") ? "remove it, since the person banned it" : "see the rule's own docs");
 
 const BLIND = [
   "Rendered contrast, including non-text contrast of borders, focus rings and checkbox edges. Measure it in a browser",
@@ -210,7 +216,7 @@ const BLIND = [
   "bg-white and text-black when the theme defines no role for their job, their opacity forms such as bg-black/50, and CSS keywords such as white in var() fallbacks",
   "Files outside the include folders, and ui files missing from the drift list (they are scanned, but no hash guards them)",
   "Whether a token's role comment still matches how the token is used",
-  "Rules the generated rules page marks review, or enforces only through their own Check: clause",
+  "Rules whose Check: clause is review, a test or a probe, which only those enforce",
   "Motion that is only measured: exit slower than enter, frequent-surface motion, linear easing, press delay, input lag and jank. Easing set in script or through a variable, and hover reveals written as Tailwind classes (v4 guards hover: itself, v3 does not)",
   "Whether a pressed style covers the control whose tap highlight was removed: any pressed style in the repo passes trap/touch-tap-highlight",
 ];
@@ -398,7 +404,7 @@ function loadConfig(root, file, override) {
   const cfg = { ...DEFAULTS, ...user, ...(override || {}) };
   cfg.root = root;
   cfg.varIgnore = [...DEFAULTS.varIgnore, ...(user.varIgnore || []), ...((override || {}).varIgnore || [])];
-  // A namespaced registry install (base-shadcn.md, Distribution) puts a system's primitives in components/<name>/ui
+  // A namespaced registry install (shadcn, from a system registry) puts a system's primitives in components/<name>/ui
   // and its lint plugin in lib/<name>/lint. The plugin's messages quote the values it forbids, so it is not scanned.
   const systems = [...installedSystems(cfg)].sort();
   if (!cfg.uiDir) cfg.uiDir = [...UI_DIRS, ...systems.flatMap((n) => [`components/${n}/ui`, `src/components/${n}/ui`])].find((d) => existsSync(join(root, d))) || null;
@@ -1385,48 +1391,99 @@ function libraryVars(cfg, tokenFiles) {
 }
 
 // ---------- self-test ----------
-const defaultFixtures = () => ((p) => existsSync(p) ? p : join(dirname(fileURLToPath(import.meta.url)), "..", "fixtures", "check-system"))(join(dirname(fileURLToPath(import.meta.url)), "fixtures", "check-system"));
+// Built-in planted cases: one failing and one passing folder per rule, with the exact count the failing folder
+// must produce. A repo adds its own for the rules it adds, in the same shape (see --help, Planted cases).
+const BUILTIN = [
+  {"rule": "rule/raw-value", "config": {"tokenSources": ["tokens.css"]}, "expect": {"rule/raw-value": 5}, "fail": {"card.tsx": "export function Card() {\n  return (\n    <div\n      style={{ background: \"#f5f5f5\" }}\n      data-accent=\"oklch(0.62 0.19 256)\"\n    >\n      <p style={{ color: 'rgb(17, 17, 17)' }}>Total</p>\n    </div>\n  );\n}\n", "styles.css": ".card { border-color: hsl(0 0% 90%); }\n", "tw.ts": "export const raised = \"shadow-[0_1px_2px_rgba(0,0,0,0.08)]\";\n"}, "pass": {"card.tsx": "// Order #123 in a comment is not a color: #fff\nexport function Card() {\n  return (\n    <div className=\"bg-muted text-foreground shadow-sm\" style={{ color: \"var(--foreground)\" }}>\n      <a href=\"#main\">Order #123</a>\n    </div>\n  );\n}\n", "tokens.css": ":root {\n  --background: oklch(1 0 0);\n  --foreground: oklch(0.15 0 0);\n  --border: oklch(0.92 0 0);\n  --muted: #f5f5f5;\n}\n.card { border-color: var(--border); }\n"}},
+  {"rule": "rule/palette-use", "expect": {"rule/palette-use": 3}, "fail": {"note.tsx": "export function Note() {\n  return <p className=\"text-gray-500 dark:bg-blue-600/50\" style={{ color: \"var(--color-teal-700)\" }}>Saved</p>;\n}\n"}, "pass": {"note.tsx": "export function Note() {\n  return <p className=\"text-muted-foreground bg-primary/80 bg-black/10\">Saved</p>;\n}\n"}},
+  {"rule": "rule/arbitrary-value", "config": {"tokenSources": ["tokens.css"]}, "expect": {"rule/arbitrary-value": 4}, "fail": {"row.tsx": "export function Row() {\n  return (\n    <div className=\"p-[13px] hover:text-[13px]\">\n      <span className={cn(\"rounded-[14px]\", \"[mask-type:luminance]\")} />\n    </div>\n  );\n}\n"}, "pass": {"row.tsx": "export function Row() {\n  return (\n    <div className=\"p-3 text-sm data-[state=open]:bg-muted w-[var(--sidebar-width)] bg-(--brand) [&_svg]:size-4\">\n      <a href=\"/projects/[id]\">Open</a>\n    </div>\n  );\n}\n", "tokens.css": ":root {\n  --sidebar-width: 16rem;\n  --brand: var(--primary);\n  --primary: oklch(0.5 0.2 250);\n}\n"}},
+  {"rule": "rule/named-color", "config": {"tokenSources": ["tokens.css"]}, "expect": {"rule/named-color": 5}, "fail": {"badge.css": ".badge { color: tomato; }\n", "badge.tsx": "export function Badge() {\n  return (\n    <span style={{ color: 'teal', background: \"red\" }}>\n      <svg fill=\"black\" />\n      <i style={{ borderColor: `navy` }} />\n    </span>\n  );\n}\n"}, "pass": {"badge.css": ".badge { color: var(--foreground); background: transparent; }\n", "badge.tsx": "export function Badge({ tone = \"red\" }) {\n  const label = \"red\";\n  return (\n    <span data-tone={tone} style={{ color: \"currentColor\", background: \"transparent\", borderColor: 'inherit' }}>\n      <svg fill=\"currentColor\" />\n      {label} white paper\n    </span>\n  );\n}\n", "tokens.css": ":root {\n  --foreground: oklch(0.15 0 0);\n}\n"}},
+  {"rule": "rule/inline-px", "expect": {"rule/inline-px": 4}, "fail": {"panel.tsx": "export function Panel() {\n  return (\n    <section\n      style={{\n        padding: 12,\n        borderRadius: \"8px\",\n        maxWidth: 720,\n        margin: \"4px 0\",\n      }}\n    />\n  );\n}\n"}, "pass": {"panel.tsx": "export function Panel() {\n  return <section className=\"p-3\" style={{ padding: 0, lineHeight: 1.5, width: \"100%\", gridTemplateColumns: \"1fr 2fr\", opacity: 0.5, margin: \"0 auto\" }} />;\n}\n"}},
+  {"rule": "rule/css-px", "config": {"tokenSources": ["tokens.css"]}, "expect": {"rule/css-px": 5}, "fail": {"app.css": ".page { max-width: 1040px; padding: 24px var(--space-4); }\n.logo {\n  font-size: 18px;\n  border-radius: 6px;\n}\n.row { gap: 12px; }\n"}, "pass": {"app.css": ":root { --space-4: 1rem; --radius-sm: 6px; }\n@media (min-width: 768px) { .page { padding: var(--space-4); } }\n.divider { height: 1px; margin: 0 0 -1px; border: 1px solid var(--border); }\n.logo { font-size: var(--text-lg); border-radius: var(--radius-sm); }\n", "tokens.css": ":root {\n  --border: oklch(0.92 0 0);\n  --text-lg: 1.125rem;\n}\n"}},
+  {"rule": "rule/token-parity", "config": {"tokenSources": ["globals.css"]}, "expect": {"rule/token-parity": 5}, "fail": {"globals.css": "@theme inline {\n  --color-background: var(--background);\n  --color-muted-foreground: var(--muted-foreground);\n}\n:root {\n  --background: oklch(1 0 0);\n  --muted-fg: oklch(0.55 0 0);\n}\n.dark {\n  --background: oklch(0.15 0 0);\n  --muted-foreground: oklch(0.7 0 0);\n}\n.card { border-color: var(--border); }\n", "page.tsx": "export function Page() {\n  return <p className=\"bg-(--surface-raised)\" style={{ color: \"var(--text-subtle)\" }}>Hi</p>;\n}\n"}, "pass": {"globals.css": "@theme inline {\n  --color-background: var(--background);\n  --color-muted-foreground: var(--muted-foreground);\n}\n:root {\n  --background: oklch(1 0 0);\n  --muted-foreground: oklch(0.55 0 0);\n  --radius: 0.625rem;\n  --border: oklch(0.92 0 0);\n}\n.dark {\n  --background: oklch(0.15 0 0);\n  --muted-foreground: oklch(0.7 0 0);\n  --border: oklch(1 0 0 / 10%);\n}\n.card { border-color: var(--border); border-radius: var(--radius); outline-color: var(--ring, currentColor); }\n", "page.tsx": "export function Page({ w }) {\n  return (\n    <div style={{ \"--panel-w\": `${w}px` }}>\n      <p className=\"w-(--panel-w) origin-(--transform-origin)\" style={{ color: \"var(--muted-foreground)\" }}>Hi</p>\n    </div>\n  );\n}\n"}},
+  {"rule": "rule/doubled-utility", "expect": {"rule/doubled-utility": 3}, "fail": {"card.tsx": "export function Card({ title, children }) {\n  return (\n    <div className=\"rounded-lg border border-border-strong bg-bg-subtle p-4\">\n      <h3 className=\"text-sm font-medium\">{title}</h3>\n      <p className=\"hover:text-text-muted\">{children}</p>\n    </div>\n  );\n}\n"}, "pass": {"card.tsx": "export function Card({ title, children }) {\n  return (\n    <div className=\"rounded-lg border border-border bg-muted p-4\">\n      <h3 className=\"text-sm text-foreground font-medium\">{title}</h3>\n      <p className=\"text-muted-foreground hover:text-fg-muted border-edge\">{children}</p>\n    </div>\n  );\n}\n"}},
+  {"rule": "trap/button-div", "expect": {"trap/button-div": 8}, "fail": {"list.tsx": "export function List({ open, items }) {\n  return (\n    <ul>\n      <div\n        className=\"row\"\n        onClick={() => open()}\n      >\n        Row\n      </div>\n      <span onClick={open}>More</span>\n      <a onClick={open}>Details</a>\n      {items.map((i) => <li key={i} onClick={() => open(i)}>{i}</li>)}\n      <li onPointerDown={open}>Pressed row</li>\n      <span onMouseDown={open}>Mouse only</span>\n      <div\n        tabIndex={0}\n        onKeyDown={(e) => e.key === \"Enter\" && open()}\n      >\n        Keyboard row\n      </div>\n      <dialog open onClick={open}>No keyboard path</dialog>\n    </ul>\n  );\n}\n"}, "pass": {"list.tsx": "export function List({ open, track, onKey, close, dialogRef }) {\n  return (\n    <div onKeyDown={onKey}>\n      <Button type=\"button\" onClick={open}>Row</Button>\n      <a href=\"/projects\" onClick={track}>Projects</a>\n      <div role=\"tab\" tabIndex={0} aria-selected=\"true\" onClick={open}>Tab</div>\n      <li role=\"option\" aria-selected=\"false\" onMouseDown={open}>Option</li>\n      <div tabIndex={-1} onKeyDown={onKey}>Scroll region</div>\n      <Card onClick={open} />\n      <dialog\n        ref={dialogRef}\n        onClick={(e) => e.target === dialogRef.current && close()}\n        onCancel={close}\n      >\n        Backdrop click closes, Escape fires cancel\n      </dialog>\n    </div>\n  );\n}\n"}},
+  {"rule": "trap/role-button", "expect": {"trap/role-button": 3}, "fail": {"actions.tsx": "export function Actions() {\n  return (\n    <>\n      <div role=\"button\" tabIndex={0}>Save</div>\n      <a role='button' href=\"#\">Cancel</a>\n      <Link\n        href=\"/billing\"\n        role={\"button\"}\n      >\n        Billing\n      </Link>\n    </>\n  );\n}\n"}, "pass": {"actions.tsx": "export function Actions() {\n  return (\n    <>\n      <Button type=\"button\">Save</Button>\n      <div role=\"tab\" aria-selected=\"false\">Cancel</div>\n      <Link href=\"/billing\">Billing</Link>\n    </>\n  );\n}\n"}},
+  {"rule": "trap/label-unbound", "expect": {"trap/label-unbound": 2}, "fail": {"settings.tsx": "import { Label } from \"@/components/ui/label\";\nimport { Input } from \"@/components/ui/input\";\n\nexport function Settings() {\n  return (\n    <form>\n      <Label>Name</Label>\n      <Input id=\"name\" />\n      <label className=\"text-sm\">Time zone</label>\n      <select id=\"tz\"><option>UTC</option></select>\n    </form>\n  );\n}\n"}, "pass": {"settings.tsx": "import { Label } from \"@/components/ui/label\";\nimport { Input } from \"@/components/ui/input\";\nimport { Checkbox } from \"@/components/ui/checkbox\";\n\nexport function Settings(props: { className?: string }) {\n  return (\n    <form>\n      <Label htmlFor=\"name\">Name</Label>\n      <Input id=\"name\" />\n      <Label>\n        <Checkbox /> Email me\n      </Label>\n      <label>\n        Time zone <select><option>UTC</option></select>\n      </label>\n      <Label {...props}>Role</Label>\n    </form>\n  );\n}\n"}},
+  {"rule": "trap/loading-label-swap", "expect": {"trap/loading-label-swap": 3}, "fail": {"save.tsx": "export function Save({ saving, isPending, loading, save }) {\n  return (\n    <form>\n      <button type=\"submit\" disabled={saving}>{saving ? \"Saving…\" : \"Save\"}</button>\n      <Button disabled={isPending}>\n        {isPending ? <Spinner /> : \"Send invite\"}\n      </Button>\n      <Button onClick={save}>{loading ? \"Please wait\" : \"Continue\"}</Button>\n    </form>\n  );\n}\n"}, "pass": {"save.tsx": "export function Save({ saving, open, toggle }) {\n  return (\n    <form>\n      <Button type=\"submit\" loading={saving}>Save</Button>\n      <Button type=\"button\" onClick={toggle} aria-expanded={open}>{open ? \"Hide details\" : \"Show details\"}</Button>\n      <Button type=\"button\" aria-busy={saving}>{saving && <Spinner />} Export</Button>\n    </form>\n  );\n}\n", "stacked.tsx": "export function Publish({ publishing }) {\n  return (\n    <Button type=\"submit\" aria-busy={publishing} aria-disabled={publishing}>\n      <span className=\"grid\">\n        <span className={publishing ? \"invisible col-start-1 row-start-1\" : \"col-start-1 row-start-1\"}>Publish</span>\n        <span aria-hidden={!publishing} className={publishing ? \"col-start-1 row-start-1\" : \"invisible col-start-1 row-start-1\"}>Publishing</span>\n      </span>\n    </Button>\n  );\n}\n"}},
+  {"rule": "trap/overlay-conditional-render", "expect": {"trap/overlay-conditional-render": 3}, "fail": {"team.tsx": "export function Team({ inviteOpen, setInviteOpen, confirm, menu }) {\n  return (\n    <section>\n      {inviteOpen && (\n        <Dialog open onOpenChange={(open) => !open && setInviteOpen(false)}>\n          <DialogContent>Invite</DialogContent>\n        </Dialog>\n      )}\n      {confirm && <AlertDialog open>Delete?</AlertDialog>}\n      {menu ? <Popover open>Menu</Popover> : null}\n    </section>\n  );\n}\n"}, "pass": {"team.tsx": "export function Team({ inviteOpen, setInviteOpen, error }) {\n  return (\n    <section>\n      <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>\n        <DialogContent>\n          {error && <DialogDescription>{error}</DialogDescription>}\n        </DialogContent>\n      </Dialog>\n      {/* {open && <Dialog>} in a comment is not code */}\n      <p>{\"a && <Dialog> inside a string\"}</p>\n    </section>\n  );\n}\n"}},
+  {"rule": "trap/motion-transition-all", "expect": {"trap/motion-transition-all": 5}, "fail": {"app.css": ".card { transition: all 200ms ease-out; }\n.row { transition-property: all; }\n.chip { @apply transition-all; }\n", "card.tsx": "export function Card() {\n  return <div className=\"rounded transition-all duration-200\" style={{ transition: \"all 0.2s\" }} />;\n}\n"}, "pass": {"app.css": ".card { transition: transform 200ms ease-out, opacity 200ms ease-out; }\n.row { transition-property: opacity; }\n", "card.tsx": "export function Card() {\n  return <div className=\"all-caps transition-transform duration-200\" style={{ transition: \"opacity 0.2s\" }} />;\n}\n"}},
+  {"rule": "trap/motion-overshoot", "expect": {"trap/motion-overshoot": 4}, "fail": {"app.css": ".pop { transition: transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1); }\n.dip { animation-timing-function: cubic-bezier(.5, -0.4, .5, 1); }\n", "pop.tsx": "import { motion } from \"motion/react\";\n\nexport function Pop() {\n  return <motion.div className=\"ease-[cubic-bezier(0.3,1.4,0.5,1)]\" transition={{ ease: [0.3, 1.4, 0.5, 1] }} />;\n}\n"}, "pass": {"app.css": ".pop { transition: transform 300ms cubic-bezier(0.2, 0, 0, 1); }\n", "pop.tsx": "import { motion } from \"motion/react\";\n\nexport function Pop() {\n  return <motion.div style={{ transitionTimingFunction: \"cubic-bezier(0.2, 0, 0, 1)\" }} transition={{ ease: [0.2, 0, 0, 1] }} />;\n}\n"}},
+  {"rule": "trap/hover-unguarded", "expect": {"trap/hover-unguarded": 4}, "fail": {"app.css": ".card:hover .actions { opacity: 1; }\n.menu:hover > .submenu { display: block; }\n.tip:hover::after { opacity: 1; }\n.row:hover { visibility: visible; }\n"}, "pass": {"app.css": ".btn:hover { opacity: 0.9; }\n.link:hover { text-decoration: underline; }\n@media (hover: hover) {\n  .card:hover .actions { opacity: 1; }\n  .menu:hover > .submenu { display: block; }\n}\n"}},
+  {"rule": "trap/viewport-height", "expect": {"trap/viewport-height": 4}, "fail": {"app.css": ".shell { height: 100vh; }\n.sheet { max-height: calc(100vh - 2rem); }\n", "shell.tsx": "export function Shell() {\n  return (\n    <div className=\"flex h-screen flex-col\">\n      <aside style={{ height: \"100vh\" }} />\n    </div>\n  );\n}\n"}, "pass": {"app.css": ".shell { height: 100vh; height: 100dvh; }\n.page { min-height: 100vh; }\n.sheet { max-height: calc(100dvh - 2rem); }\n", "shell.tsx": "export function Shell() {\n  return (\n    <div className=\"flex min-h-screen flex-col\">\n      <main className=\"min-h-dvh\" />\n      <aside className=\"h-screen h-dvh\" />\n    </div>\n  );\n}\n"}},
+  {"rule": "trap/zoom-disabled", "expect": {"trap/zoom-disabled": 4}, "fail": {"app/layout.tsx": "export const viewport = { width: \"device-width\", initialScale: 1, maximumScale: 1, userScalable: false };\n", "index.html": "<!doctype html>\n<html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no\"></head><body></body></html>\n"}, "pass": {"app/layout.tsx": "export const viewport = { width: \"device-width\", initialScale: 1, maximumScale: 5 };\n", "index.html": "<!doctype html>\n<html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body></body></html>\n"}},
+  {"rule": "trap/native-control", "config": {"uiDir": "ui", "nativeControls": {"button": "Button", "input": "Input", "select": "Select"}}, "expect": {"trap/native-control": 3}, "fail": {"invite.tsx": "export function Invite() {\n  return (\n    <form>\n      <input type=\"email\" name=\"email\" />\n      <select name=\"role\"><option>Admin</option></select>\n      <button\n        type=\"submit\"\n      >\n        Send\n      </button>\n    </form>\n  );\n}\n"}, "pass": {"invite.tsx": "import { Button } from \"./ui/button\";\nexport function Invite() {\n  return (\n    <form>\n      <input type=\"hidden\" name=\"token\" value=\"x\" />\n      <Input type=\"email\" name=\"email\" />\n      <Button type=\"submit\">Send</Button>\n    </form>\n  );\n}\n", "registry.json": "{ \"components\": [ { \"id\": \"button\", \"source\": \"ui/button.tsx\" } ] }\n", "ui/button.tsx": "export function Button(props) {\n  return <button className=\"rounded-md bg-primary px-3\" {...props} />;\n}\n"}},
+];
+
+const writeTree = (root, files) => { for (const [f, text] of Object.entries(files)) { mkdirSync(dirname(join(root, f)), { recursive: true }); writeFileSync(join(root, f), text); } };
+const defaultFixtures = () => join(dirname(fileURLToPath(import.meta.url)), "fixtures", "check-system");
+function judge(spec, kind, root, fixtures) {
+  const cfg = loadConfig(root, null, { include: ["."], exclude: DEFAULTS.exclude, fixtures, ...(spec.config || {}), ...(spec[`${kind}Config`] || {}) });
+  let found = scan(cfg);
+  // A changed-lines case: the folder's diff and allowlist decide what a pull request would be warned about.
+  if (spec.changed) found = newFindings(found, parseDiff(readFileSync(join(root, spec.changed), "utf8")), existsSync(join(root, cfg.allowlist)) ? readJSON(join(root, cfg.allowlist)) : {});
+  const count = (r) => found.filter((f) => f.rule === r).length;
+  if (kind === "pass") return { good: found.length === 0, msg: found.length ? found.map((f) => `${f.file}:${f.line} ${f.rule} ${f.detail}`).join("; ") : "0 findings" };
+  const exp = spec.expect || { [spec.rule]: 1 };
+  const bad = Object.entries(exp).filter(([r, k]) => count(r) !== k);
+  // nearest: { "<detail or part of it>": "<token the finding must name>" }
+  const near = Object.entries(spec.nearest || {}).filter(([d, tok]) => !found.some((f) => f.detail.includes(d) && (f.nearest || "").split(" ")[0] === tok));
+  const msg = Object.entries(exp).map(([r, k]) => `${r} ${count(r)}/${k}`).join(", ") + (spec.nearest ? `, nearest ${Object.keys(spec.nearest).length - near.length}/${Object.keys(spec.nearest).length}${near.length ? ` (missed ${near.map(([d, t]) => `${d} -> ${t}: got ${found.filter((f) => f.detail.includes(d)).map((f) => f.nearest || "none").join(", ") || "no finding"}`).join("; ")})` : ""}` : "");
+  return { good: !bad.length && !near.length, msg };
+}
 function selfTest(dirArg) {
-  const dir = dirArg ? resolve(dirArg) : defaultFixtures();
-  if (!existsSync(dir)) { console.log(`self-test: FAIL, no fixtures at ${dir}`); return false; }
   let ok = true, n = 0;
-  for (const c of readdirSync(dir).sort()) {
-    const caseFile = join(dir, c, "case.json");
-    if (!existsSync(caseFile)) continue;
-    const spec = readJSON(caseFile);
-    for (const kind of ["fail", "pass"]) {
-      const root = join(dir, c, kind);
-      if (!existsSync(root)) { console.log(`self-test: ${c}/${kind} missing`); ok = false; continue; }
-      const cfg = loadConfig(root, null, { include: ["."], exclude: DEFAULTS.exclude, fixtures: true, ...(spec.config || {}), ...(spec[`${kind}Config`] || {}) });
-      let found = scan(cfg);
-      // A changed-lines case: the folder's diff and allowlist decide what a pull request would be warned about.
-      if (spec.changed) found = newFindings(found, parseDiff(readFileSync(join(root, spec.changed), "utf8")), existsSync(join(root, cfg.allowlist)) ? readJSON(join(root, cfg.allowlist)) : {});
-      const count = (r) => found.filter((f) => f.rule === r).length;
-      let good, msg;
-      if (kind === "fail") {
-        const exp = spec.expect || { [spec.rule]: 1 };
-        const bad = Object.entries(exp).filter(([r, k]) => count(r) !== k);
-        // nearest: { "<detail or part of it>": "<token the finding must name>" }
-        const near = Object.entries(spec.nearest || {}).filter(([d, tok]) => !found.some((f) => f.detail.includes(d) && (f.nearest || "").split(" ")[0] === tok));
-        good = !bad.length && !near.length;
-        msg = Object.entries(exp).map(([r, k]) => `${r} ${count(r)}/${k}`).join(", ") + (spec.nearest ? `, nearest ${Object.keys(spec.nearest).length - near.length}/${Object.keys(spec.nearest).length}${near.length ? ` (missed ${near.map(([d, t]) => `${d} -> ${t}: got ${found.filter((f) => f.detail.includes(d)).map((f) => f.nearest || "none").join(", ") || "no finding"}`).join("; ")})` : ""}` : "");
-      } else {
-        good = found.length === 0;
-        msg = good ? "0 findings" : found.map((f) => `${f.file}:${f.line} ${f.rule} ${f.detail}`).join("; ");
+  const report = (label, kind, r) => { n++; if (!r.good) ok = false; console.log(`self-test ${r.good ? "ok  " : "FAIL"} ${label} ${kind}: ${r.msg}`); };
+  const tmp = realpathSync(mkdtempSync(join(tmpdir(), "check-system-cases-")));
+  try {
+    BUILTIN.forEach((spec, i) => {
+      for (const kind of ["fail", "pass"]) {
+        const root = join(tmp, String(i), kind);
+        mkdirSync(root, { recursive: true });
+        writeTree(root, spec[kind]);
+        report(spec.rule, kind, judge(spec, kind, root, false));
       }
-      n++;
-      if (!good) ok = false;
-      console.log(`self-test ${good ? "ok  " : "FAIL"} ${spec.rule} ${kind}: ${msg}`);
+    });
+  } finally { rmSync(tmp, { recursive: true, force: true }); }
+  // The repo's own planted cases, from --fixtures <dir> or a fixtures/check-system/ folder beside this script.
+  const dir = dirArg ? resolve(dirArg) : defaultFixtures();
+  if (dirArg && !existsSync(dir)) { console.log(`self-test: FAIL, no planted cases at ${dir}`); ok = false; }
+  else if (existsSync(dir)) {
+    for (const c of readdirSync(dir).sort()) {
+      const caseFile = join(dir, c, "case.json");
+      if (!existsSync(caseFile)) continue;
+      const spec = readJSON(caseFile);
+      for (const kind of ["fail", "pass"]) {
+        const root = join(dir, c, kind);
+        if (!existsSync(root)) { console.log(`self-test: ${c}/${kind} missing`); ok = false; continue; }
+        report(`${spec.rule} (${c})`, kind, judge(spec, kind, root, true));
+      }
     }
   }
-  const u = unitTests(dir);
-  console.log(`self-test: ${n} fixtures and ${u.n} checks, ${ok && u.ok ? "all as expected" : "FAILED"}`);
+  const u = unitTests();
+  console.log(`self-test: ${n} planted cases and ${u.n} checks, ${ok && u.ok ? "all as expected" : "FAILED"}`);
   return ok && u.ok;
 }
 
-// Checks that are not one rule on one fixture: the traps list, the allowlist, ratchet and summary helpers, and the
-// CLI modes on fixtures/check-system/_cli (copied to a temp folder, since the CLI reads real file names).
-function unitTests(dir) {
+// Checks that are not one rule on one case: the traps list, the allowlist, ratchet and summary helpers, the CLI
+// modes on a small app written to a temp folder, and --init on a namespaced system install.
+const CLI_APP = {
+  "app/globals.css": ":root {\n  --background: #0a0a0a;\n  --foreground: #fafafa;\n}\n",
+  "app/page.tsx": 'export default function Page() {\n  return <div style={{ color: "#fafafa", background: "#0a0a0a" }} />;\n}\n',
+  "scripts/check-allowlist.json": '{\n  "app/page.tsx": {\n    "rule/raw-value": {\n      "#fafafa": { "count": 1, "removeBy": "2000-01-01" },\n      "#0a0a0a": 1\n    }\n  }\n}\n',
+  "scripts/check-ratchet.json": '{ "rule/raw-value": 1 }\n',
+  "scripts/check-system.config.json": '{ "include": ["app"], "tokenSources": ["app/globals.css"] }\n',
+};
+const INIT_APP = {
+  ".agents/skills/brand/SKILL.md": "---\nname: brand\ndescription: Build UI with the installed system.\n---\n",
+  "app/page.tsx": 'import { Button } from "@/components/brand/ui/button";\nimport { Sheet } from "@/components/brand/ui/sheet";\nexport default function Page() {\n  return <Sheet><Button>Save</Button></Sheet>;\n}\n',
+  "components/brand/tokens.css": '[data-system="brand"], .brand {\n  --surface: oklch(0.99 0 0);\n  --on-surface: oklch(0.2 0 0);\n  --space-4: 1rem;\n}\n',
+  "components/brand/ui/button.tsx": 'export function Button(props: React.ComponentProps<"button">) {\n  return <button className="bg-(--surface) text-(--on-surface) p-(--space-4)" {...props} />;\n}\n',
+  "components/brand/ui/sheet.tsx": 'export function Sheet({ children }: { children: React.ReactNode }) {\n  return (\n    <div className="translate-y-(--drawer-swipe-movement-y) bottom-(--sheet-offset) w-(--rail-size) bg-(--surface) text-(--color-primary)">\n      {children}\n    </div>\n  );\n}\n',
+  "lib/brand/lint/plugin.mjs": 'export const rules = {\n  "tokens-only": { meta: { docs: { url: "docs/system/colors.md#rule-colors-tokens-only" }, messages: { raw: "Use bg-surface instead of bg-[#ffffff] or color: #fff." } } },\n};\n',
+  "package.json": '{ "name": "init-app", "private": true, "dependencies": { "headless-kit": "1.0.0" } }\n',
+};
+function unitTests() {
   let ok = true, n = 0;
   const t = (name, good, got) => { n++; if (!good) ok = false; console.log(`self-test ${good ? "ok  " : "FAIL"} ${name}: ${got}`); };
   const traps = join(dirname(fileURLToPath(import.meta.url)), "..", "references", "traps.md");
@@ -1455,13 +1512,9 @@ function unitTests(dir) {
     const skips = (c) => PROJECT_LINT_RULES.every((r) => c.off.has(r));
     t("a design lint skips its rules", !skips(none) && skips(merged) && skips(lc) && !PROJECT_LINT_RULES.some((r) => lo.off.has(r)) && merged.notes.some((x) => /^xlint\.config\.mjs runs a design lint/.test(x)) && lc.notes.some((x) => /^brand\.xlint\.config\.mjs \(brand's lint\) runs a design lint/.test(x)), lc.notes.find((x) => /design lint/.test(x)) || "no note");
   } finally { rmSync(lintDir, { recursive: true, force: true }); }
-  const src = join(dir, "_cli");
-  if (!existsSync(src)) { t("cli fixtures", false, `missing ${src}`); return { ok, n }; }
   const tmp = realpathSync(mkdtempSync(join(tmpdir(), "check-system-")));
   try {
-    cpSync(src, tmp, { recursive: true });
-    const unfixAll = (d) => { for (const e of readdirSync(d)) { const p = join(d, e); if (statSync(p).isDirectory()) unfixAll(p); else if (e.endsWith(".fixture")) renameSync(p, p.slice(0, -8)); } };
-    unfixAll(tmp);
+    writeTree(tmp, CLI_APP);
     const run = (...a) => { const r = spawnSync(process.execPath, [fileURLToPath(import.meta.url), "--root", tmp, "--no-self-test", ...a], { cwd: tmp, encoding: "utf8", env: { ...process.env, GITHUB_ACTIONS: "" } }); return { code: r.status, out: (r.stdout || "") + (r.stderr || "") }; };
     let r = run("--files", "app/page.tsx");
     t("--files honours the allowlist", r.code === 0 && /2 allowlisted/.test(r.out), `exit ${r.code}, ${r.out.split("\n").find((l) => l.startsWith("check-system:")) || r.out.slice(0, 200)}`);
@@ -1486,13 +1539,9 @@ function unitTests(dir) {
   } finally { rmSync(tmp, { recursive: true, force: true }); }
   // --init on a namespaced registry install: components/<name>/ui, a scoped tokens.css, the system's lint plugin
   // in lib/<name>/lint, no registry.json, and a dependency that sets a custom property at runtime.
-  const initSrc = join(dir, "_init");
-  if (!existsSync(initSrc)) { t("--init fixtures", false, `missing ${initSrc}`); return { ok, n }; }
   const it = realpathSync(mkdtempSync(join(tmpdir(), "check-system-init-")));
   try {
-    cpSync(initSrc, it, { recursive: true });
-    const unfixAll = (d) => { for (const e of readdirSync(d)) { const p = join(d, e); if (statSync(p).isDirectory()) unfixAll(p); else if (e.endsWith(".fixture")) renameSync(p, p.slice(0, -8)); } };
-    unfixAll(it);
+    writeTree(it, INIT_APP);
     mkdirSync(join(it, "node_modules", "headless-kit"), { recursive: true });
     writeFileSync(join(it, "node_modules", "headless-kit", "package.json"), '{ "name": "headless-kit", "main": "index.js" }\n');
     // It sets --sheet-offset by name and the --rail- family from a prefix, and only reads --color-primary, which
@@ -1648,8 +1697,8 @@ if (flag("--hash-stock") || flag("--rehash")) {
   process.exit(0);
 }
 
-// The repo carries only the fixtures of rules the run added, so
-// the default run self-tests only when a fixture folder sits beside this script (or --fixtures names one).
+// The default run self-tests only when the repo keeps planted cases beside this script (or --fixtures names a
+// folder), so a repo with none pays nothing for it. --self-test always runs the built-in cases.
 let testOk = true;
 const fixturesAt = val("--fixtures") || (existsSync(defaultFixtures()) ? null : undefined);
 if (!flag("--no-self-test") && !flag("--files") && !flag("--warn") && !flag("--ratchet") && !flag("--changed") && !flag("--diff") && !flag("--init-allowlist") && !flag("--shrink-allowlist") && !flag("--prune-allowlist") && fixturesAt !== undefined) testOk = selfTest(fixturesAt);

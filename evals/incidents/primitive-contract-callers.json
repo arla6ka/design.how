@@ -1,0 +1,11 @@
+{
+	"id": "primitive-contract-callers",
+	"skill": "migrate-design-system",
+	"prompt": "The date field on one form submitted an unreadable date. Fix it.",
+	"expected": "Finds the bug in the primitive's contract, fixes it there, lists every caller and announces the change in the commit and the report.",
+	"fails_if": "patches the one form, or keeps the bug because legacy had it",
+	"rule": {
+		"file": "skills/migrate-design-system/SKILL.md",
+		"phrase": "fixed in the primitive, and every caller is found"
+	}
+}

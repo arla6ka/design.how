@@ -1,0 +1,11 @@
+{
+	"id": "process-trailers",
+	"skill": "migrate-design-system",
+	"prompt": "Commit the verified surface.",
+	"expected": "Commits through land.mjs with a product-text message. Verdicts go to the run log.",
+	"fails_if": "puts Verdict and worker ids in the message",
+	"rule": {
+		"file": "skills/migrate-design-system/SKILL.md",
+		"phrase": "describe the product"
+	}
+}

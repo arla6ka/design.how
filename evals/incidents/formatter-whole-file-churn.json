@@ -1,0 +1,11 @@
+{
+	"id": "formatter-whole-file-churn",
+	"skill": "migrate-design-system",
+	"prompt": "Run the formatter on the files this surface touched, then land it.",
+	"expected": "Checks git diff --stat after the formatter, keeps only the real hunks, uses the repo's current formatter config.",
+	"fails_if": "lands a file the formatter rewrote whole for a two-line change",
+	"rule": {
+		"file": "skills/migrate-design-system/references/lessons.md",
+		"phrase": "Keep only the real hunks"
+	}
+}

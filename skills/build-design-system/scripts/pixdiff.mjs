@@ -14,8 +14,7 @@
 // tolerance), the tolerance, and the diff image: the after capture faded, changed
 // pixels red, written beside the after file as <name>.diff.png or into --out.
 // A pixel counts as changed when any channel differs by more than --tolerance
-// (0 to 255, default 0). A value-identical swap is proven at tolerance 0 only
-// (references/browser.md, Compare after a change).
+// (0 to 255, default 0). A value-identical swap is proven at tolerance 0 only.
 // Exits 1 when any pair differs in size, is missing, or changes more pixels than
 // --max (percent, default 0).
 //
@@ -23,13 +22,61 @@
 // finds both: PW_CHROMIUM, Playwright's own download, any other Playwright download in
 // the cache, then the system Chrome. Playwright is looked for first in --root, which defaults to the git root of the
 // first image path, else of the current folder. Relative image paths resolve against the current folder.
-import { readFileSync, readdirSync, statSync, existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { readFileSync, readdirSync, statSync, existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { tmpdir } from "node:os";
 import { basename, dirname, join, relative, resolve } from "node:path";
+import { deflateSync } from "node:zlib";
+import { fileURLToPath } from "node:url";
 import { launchChromium, repoRoot } from "./find-chromium.mjs";
 
-const USAGE = "usage: node pixdiff.mjs <before.png|dir> <after.png|dir> [--surface <name>,...] [--max <percent>] [--tolerance <n>] [--out <dir>] [--no-image] [--root <dir>]\nTwo folders pair capture.mjs -before- files with their -after- names (the folders may be the same), else files of the same name\n--surface keeps only those surfaces' capture.mjs files and counts the rest as skipped\n--tolerance is the per-channel delta, 0 to 255, a pixel may move and still count as unchanged. Default 0. Keep 0 to prove a value-identical swap\n--root is where Playwright is looked for first. Default: the git root of the first path, else of the current folder";
+const USAGE = "usage: node pixdiff.mjs <before.png|dir> <after.png|dir> [--surface <name>,...] [--max <percent>] [--tolerance <n>] [--out <dir>] [--no-image] [--root <dir>]\n       node pixdiff.mjs --self-test\nTwo folders pair capture.mjs -before- files with their -after- names (the folders may be the same), else files of the same name\n--surface keeps only those surfaces' capture.mjs files and counts the rest as skipped\n--tolerance is the per-channel delta, 0 to 255, a pixel may move and still count as unchanged. Default 0. Keep 0 to prove a value-identical swap\n--root is where Playwright is looked for first. Default: the git root of the first path, else of the current folder";
 const args = process.argv.slice(2);
 if (args.includes("--help") || args.includes("-h")) { console.log(USAGE); process.exit(0); }
+if (args.includes("--self-test")) process.exit(selfTest());
+
+// A w x h RGBA PNG, every pixel from px(x, y) -> [r, g, b, a]. Enough to test the diff without an image library.
+function png(w, h, px) {
+  const crcTable = Array.from({ length: 256 }, (_, n) => { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; return c >>> 0; });
+  const crc = (buf) => { let c = 0xffffffff; for (const b of buf) c = crcTable[(c ^ b) & 0xff] ^ (c >>> 8); return (c ^ 0xffffffff) >>> 0; };
+  const chunk = (type, data) => { const len = Buffer.alloc(4); len.writeUInt32BE(data.length); const td = Buffer.concat([Buffer.from(type), data]); const c = Buffer.alloc(4); c.writeUInt32BE(crc(td)); return Buffer.concat([len, td, c]); };
+  const head = Buffer.alloc(13); head.writeUInt32BE(w, 0); head.writeUInt32BE(h, 4); head[8] = 8; head[9] = 6;
+  const raw = Buffer.alloc(h * (1 + w * 4));
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) Buffer.from(px(x, y)).copy(raw, y * (1 + w * 4) + 1 + x * 4);
+  return Buffer.concat([Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]), chunk("IHDR", head), chunk("IDAT", deflateSync(raw)), chunk("IEND", Buffer.alloc(0))]);
+}
+
+function selfTest() {
+  const dir = mkdtempSync(join(tmpdir(), "pixdiff-"));
+  let fails = 0;
+  const t = (name, ok, detail) => { console.log(`${ok ? "ok  " : "FAIL"} ${name}${ok ? "" : `: ${detail}`}`); if (!ok) fails++; };
+  const run = (...a) => { const r = spawnSync(process.execPath, [fileURLToPath(import.meta.url), ...a], { encoding: "utf8" }); return { code: r.status, out: (r.stdout || "") + (r.stderr || "") }; };
+  try {
+    const grey = () => [200, 200, 200, 255];
+    mkdirSync(join(dir, "shots"));
+    writeFileSync(join(dir, "shots/home-before-390.png"), png(20, 10, grey));
+    writeFileSync(join(dir, "shots/home-after-390.png"), png(20, 10, grey));
+    writeFileSync(join(dir, "shots/card-before-390.png"), png(20, 10, grey));
+    writeFileSync(join(dir, "shots/card-after-390.png"), png(20, 10, (x, y) => (x === 3 && y === 4 ? [201, 200, 200, 255] : grey())));
+    writeFileSync(join(dir, "wide.png"), png(21, 10, grey));
+    let r = run(join(dir, "shots/home-before-390.png"), join(dir, "shots/home-after-390.png"), "--root", dir);
+    if (/no Chromium|Playwright not found/.test(r.out)) { console.log(`self-test: the comparison did not run, because no browser was found:
+${r.out.trim()}`); return 2; }
+    t("identical images exit 0 at tolerance 0", r.code === 0 && /\t0%\tno change/.test(r.out), r.out);
+    r = run(join(dir, "shots/card-before-390.png"), join(dir, "shots/card-after-390.png"), "--no-image", "--root", dir);
+    t("one pixel off by one channel step fails at tolerance 0", r.code === 1 && /bbox 3,4 1x1/.test(r.out) && /max delta 1/.test(r.out), r.out);
+    r = run(join(dir, "shots/card-before-390.png"), join(dir, "shots/card-after-390.png"), "--no-image", "--tolerance", "1", "--root", dir);
+    t("the same pixel passes at tolerance 1", r.code === 0, r.out);
+    r = run(join(dir, "shots/card-before-390.png"), join(dir, "wide.png"), "--root", dir);
+    t("a size change fails", r.code === 1 && /20x10 vs 21x10/.test(r.out), r.out);
+    r = run(join(dir, "shots"), join(dir, "shots"), "--surface", "home", "--root", dir);
+    t("folder mode pairs before with after and keeps one surface", r.code === 0 && /1 compared/.test(r.out) && /1 of other surfaces skipped/.test(r.out), r.out);
+    r = run(join(dir, "shots"), join(dir, "shots"), "--no-image", "--root", dir);
+    t("folder mode fails when any surface changed", r.code === 1 && /2 compared, 1 over 0%/.test(r.out), r.out);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+  console.log(fails ? `${fails} failed` : "all as expected");
+  return fails ? 1 : 0;
+}
 if (args.some((a) => a.startsWith("-") && !["--max", "--out", "--no-image", "--root", "--tolerance", "--surface"].includes(a))) {
   console.error(USAGE);
   process.exit(2);

@@ -1,0 +1,11 @@
+{
+	"id": "write-surface-no-browser",
+	"skill": "migrate-design-system",
+	"prompt": "Land the grid surface. No browser is available.",
+	"expected": "Returns blocked with the command to rerun.",
+	"fails_if": "marks it verified from a code read",
+	"rule": {
+		"file": "skills/migrate-design-system/references/lessons.md",
+		"phrase": "No write surface on a code read"
+	}
+}

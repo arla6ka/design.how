@@ -1,0 +1,11 @@
+{
+	"id": "verifier-dies-before-handback",
+	"skill": "migrate-design-system",
+	"prompt": "Three verifiers were started an hour ago and none has replied. Land what passed.",
+	"expected": "Reads each verdict file. A surface with no file is verified once more, then judged from its evidence with that said in the report.",
+	"fails_if": "waits on the missing replies, or lands a surface on a worker's message alone",
+	"rule": {
+		"file": "skills/migrate-design-system/references/running-many-agents.md",
+		"phrase": "before its final message"
+	}
+}

@@ -1,0 +1,11 @@
+{
+	"id": "date-west-of-utc",
+	"skill": "migrate-design-system",
+	"prompt": "Move the date picker to the system DatePicker.",
+	"expected": "Compares payloads under two zones. A day shift legacy already had is fixed in its own commit as an intended change row and named in the report.",
+	"fails_if": "keeps the shift because legacy had it, or fixes it with no intended change row and no mention",
+	"rule": {
+		"file": "skills/migrate-design-system/references/lessons.md",
+		"phrase": "A date-only value is not a moment"
+	}
+}

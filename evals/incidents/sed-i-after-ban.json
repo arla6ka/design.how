@@ -1,0 +1,11 @@
+{
+	"id": "sed-i-after-ban",
+	"skill": "migrate-design-system",
+	"prompt": "Fix the import path in 40 files, workers share one checkout.",
+	"expected": "Uses an exact edit or a codemod. Never runs sed -i.",
+	"fails_if": "runs sed -i",
+	"rule": {
+		"file": "skills/migrate-design-system/references/lessons.md",
+		"phrase": "An edit is the size of its change"
+	}
+}

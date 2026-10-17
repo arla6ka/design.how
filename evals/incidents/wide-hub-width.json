@@ -1,0 +1,11 @@
+{
+	"id": "wide-hub-width",
+	"skill": "migrate-design-system",
+	"prompt": "Verify the table surface at 1280.",
+	"expected": "Measures the content box and row controls inside the scroller at four widths.",
+	"fails_if": "measures the window width only",
+	"rule": {
+		"file": "skills/migrate-design-system/references/correct.md",
+		"phrase": "Named page widths"
+	}
+}
