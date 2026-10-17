@@ -12,7 +12,7 @@ Vocabulary is in `references/glossary.md`, defaults for bans and widths in `refe
 1. **Frame.** Read AGENTS.md or CLAUDE.md, the manifest and the route tree. Write the complaint in the person's words, the first visible change that answers it, and the pilot flow (the one the complaint names, else the flow with the most component families and a form with an error state). Cut the run branch. Offer `references/taste.md` once with its bans unselected and save the accepted copy to `.design-system/taste.md`. Ask nothing else. Take the default, record it as `default (unanswered)` and go on.
    Done when the complaint, pilot, branch and accepted taste file are written down.
 
-2. **Inventory and baselines.** List every surface, its states and its tier. Count raw values in occurrences (`#[0-9a-fA-F]{3,8}`, `text-gray-500`, `p-[13px]`) and group components into families. Capture every surface in every state at the narrowest and widest supported width (390 and 1280 by default), one fresh navigation per width, before any edit. Delete what nothing uses, in its own commit.
+2. **Inventory and baselines.** List every surface, its states and whether it writes data. Count raw values in occurrences (`#[0-9a-fA-F]{3,8}`, `text-gray-500`, `p-[13px]`) and group components into families. Capture every surface in every state at the narrowest and widest supported width (390 and 1280 by default), one fresh navigation per width, before any edit. Delete what nothing uses, in its own commit.
    Done when each surface has a baseline or a stated `not captured` reason.
 
 3. **Tokens.** Cluster raw values by role, name them by purpose and pair each surface with its foreground (`references/tokens.md`). Run `token-mapping` until every raw value maps to a role, a merge or a listed exception. Merges inside tolerance are decisions. Past tolerance, open one gate per cluster whose default is the merge. Make every identical-value swap on every route.
@@ -21,7 +21,7 @@ Vocabulary is in `references/glossary.md`, defaults for bans and widths in `refe
 4. **Components.** Build the most-used family end to end first (`references/components.md`). The text primitive and the small-text primitive ship in wave 1 beside Button. Document each with `component-docs`. Show the family to the person before fan-out, because a core bug found after screens consume the system costs a sweep (a disabled field still drawn red, a Combobox 2 px taller than Input, panel actions that do not wrap, a file drop that fails in silence).
    Done when every canonical component has a registry row and a doc, and the person has tried the disabled, required, error and long-text states.
 
-5. **Checks.** Copy `scripts/check-system.mjs` and `scripts/oklch.mjs` into the repo, run `--init`, then `--init-allowlist` once. Every rule is seen failing on a planted violation before it counts, and the allowlist and ratchet only shrink. A ban ships with its check rule in the same change. Copy rules ship with their exemptions, element-scoped, for legal text and for payload strings that a machine or person pastes elsewhere (a prompt, an API example, a clipboard value), because a checker that rewrites those changes what a signature records.
+5. **Checks.** Copy `scripts/check-system.mjs` and `scripts/oklch.mjs` into the repo, run `--init`, then `--init-allowlist` once. Every rule is seen failing on a planted violation before it counts, and the allowlist and ratchet only shrink. A ban ships with its check rule in the same change. Copy rules ship with their exemptions, element-scoped, for legal text and for payload strings that a machine or person pastes elsewhere (a prompt, an API example, a clipboard value), because rewriting them changes what someone else receives.
    Done when the check exits 0 on a clean clone and `--self-test --fixtures fixtures/check-system` ends "all as expected".
 
 6. **Pilot.** Move the pilot flow with a codemod you read hunk by hunk. Capture after with the baseline's widths, themes and data. An unexplained difference is a defect. Walk the flow by keyboard, force its error and loading states, then run `ui-review` on the after captures.
@@ -35,10 +35,10 @@ Vocabulary is in `references/glossary.md`, defaults for bans and widths in `refe
 
 A gap found after screens consume the system costs a sweep. A gap found before costs a row. Run these at the end of step 5 and again before the first wave. Write each result to `.design-system/readiness.md` with a verdict word.
 
-1. **Slot and prop parity.** Every prop of each legacy primitive that has call sites has a twin prop or a gap row.
+1. **Slot and prop parity.** Every prop of each legacy primitive that has call sites has a matching prop on the new primitive or a gap row.
 2. **Behaviour contracts.** A "what fires when" table per interactive primitive, each row a test (`references/components.md`).
 3. **Tone parity.** Every pressable and row primitive crossed with every status tone plus muted. Each empty cell is a gap row or stated unsupported.
-4. **Pinned strings.** Every legacy test query by role name or text has a default name on the twin and a label override.
+4. **Pinned strings.** Every legacy test query by role name or text has a default name on the new primitive and a label override.
 5. **Hardest screens.** One hardest call site per family renders in the showcase, with a screenshot.
 
 A family that is not ready is not migrated. Its screens stay on legacy.
@@ -50,7 +50,6 @@ A family that is not ready is not migrated. Its screens stay on legacy.
 - Colour merges inside delta E OK 2 and spacing merges inside 2 px are decisions. Border width, weight and easing have no tolerance.
 - A change that only adds semantics (a name, a role, `aria-current`) is a decision. One that removes or restructures semantics is a gate.
 - Wrong: `{saving ? "Saving..." : "Save"}`. Right: the idle label stays, a spinner sits inside the same box, `aria-busy` is set.
-- Wrong: "never use sed -i" in a brief. Right: the ban, its substitute, and a hook or check that enforces it.
 - A fix that recurs twice becomes a check rule or a script, not another sentence.
 - A baseline or fixture is never edited to make a diff pass. A check that flags correct code is fixed in the check, with a fixture for the case, never by bending the code.
 - A count no script produced, or a check never seen failing, is not reported.

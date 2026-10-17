@@ -27,7 +27,7 @@ Cut the run branch or use the one the person named. Ask every question once with
 ## Never ship
 
 - Product code written by the boss on a host that can spawn subagents.
-- A migration on "fix it" or on a fallback route.
+- A migration on "fix it", or when no trigger row matched the ask.
 - A loosened stop condition, or an edit to a sibling's checks.
 - A visual direction nobody chose. "Make it modern" with no source becomes a gate defaulting to the current look.
 - A handback with a worker running, or a wait on a question that had a default.
@@ -39,7 +39,7 @@ Cut the run branch or use the one the person named. Ask every question once with
 | Skill | Owns |
 |---|---|
 | `build-design-system` | tokens, components, checks, readiness |
-| `migrate-design-system` | moving the app, the lessons leaves, the correct step |
+| `migrate-design-system` | moving the app, its incident lessons, the correction pass at close |
 | `token-mapping` | raw values to tokens, read-only |
 | `component-docs` | one component's entry |
 | `ui-review` | rendered critique, ranked |
