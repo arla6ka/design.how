@@ -13,6 +13,10 @@ Usage
       Prints read or deny for each procedure name. Run it on the app's real procedure list before a capture.
   node capture-guard.mjs decide --method POST --url <url> [--body <text>] [--fixtures <json>] [options]
       Prints the decision as JSON: {action: fulfill|continue|abort, reason}.
+  node capture-guard.mjs prove --writes <file> [options]
+      The dry run before any run that can reach a backend. Each line of the file is "METHOD URL" for a write the
+      app really sends, copied from its network log in the shape it has there. Exits 1 if any one would continue.
+      Pass the same options the capture uses. Then fire the same writes from the page and read guard.log.
   node capture-guard.mjs --self-test
   node capture-guard.mjs --help
 
@@ -23,6 +27,7 @@ Options (CLI and the opts object of decide and installGuard)
   --allow-host <host>     repeatable. A non-local host that may be reached (almost never right).
   --read-verbs <a,b>      replaces the default list: ${"get,list,me,find,search,read,check,preview,count"}
   --read-procedures <a,b> exact procedure names (cases/fileUrl) allowed although their verb is not listed.
+                          With --read-verbs "" only these continue, which is the safe setting for a capture.
   --fixtures <json>       {"<procedure or last segment>": {"status":200,"body":{...}}}. Matched calls are
                           fulfilled in the browser and never reach the backend, whatever the method.
   --log <file>            JSON lines, one per decision (installGuard writes it as guard.log).
@@ -126,6 +131,12 @@ export function decide(req, opts = {}) {
 
 // target: a Playwright Page or BrowserContext, or anything with route(pattern, handler).
 // The handler's route object needs request() with method(), url(), postData(), and fulfill, continue, abort.
+// Pure. Lines of "METHOD URL" in, the ones a guard with these options would let through out.
+export function prove(lines, opts = {}) {
+	return lines.map((l) => l.trim().split(/\s+/)).filter((p) => p.length >= 2)
+		.map(([method, url]) => ({ method, url, ...decide({ method, url }, opts) })).filter((d) => d.action === "continue");
+}
+
 export function installGuard(target, opts = {}) {
 	const log = [];
 	const held = new Set();
@@ -193,6 +204,7 @@ function parse(argv) {
 		else if (a === "--url") o.url = next();
 		else if (a === "--body") o.body = next();
 		else if (a === "--log") o.logFile = next();
+		else if (a === "--writes") o.writes = next();
 		else if (a === "--help" || a === "-h") o.help = true;
 		else if (a === "--self-test") o.selfTest = true;
 		else o._.push(a);
@@ -250,6 +262,9 @@ async function selfTest() {
 		t("GET to app continues", decide({ method: "GET", url: `${base}/assets/app.js` }, {}).action === "continue");
 		t("non-localhost aborted", decide({ method: "GET", url: "https://api.stripe.com/v1/x" }, {}).action === "abort");
 		t("lookalike host aborted", decide({ method: "GET", url: "http://localhost.evil.com/x" }, {}).action === "abort");
+		const writes = ["POST " + rpc("billing/updateRecord"), "PUT " + base + "/api/x", "POST " + rpc("cases/listAdmin")];
+		t("prove names a write the verbs let through", prove(writes, {}).length === 1);
+		t("prove is clean with exact reads only", prove(writes, { readVerbs: [""], readProcedures: ["users/me"] }).length === 0);
 		t("bad procedureStyle throws", (() => { try { decide({ method: "GET", url: base }, { procedureStyle: "x" }); return false; } catch { return true; } })());
 
 		// installGuard against a fake page. A held write is aborted at close, not released.
@@ -295,5 +310,11 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
 	} else if (o._[0] === "decide") {
 		if (!o.url) { console.error("decide needs --url"); process.exit(2); }
 		console.log(JSON.stringify(decide({ method: o.method || "GET", url: o.url, postData: o.body }, o)));
-	} else { console.error("usage: capture-guard.mjs names|decide|--self-test|--help"); process.exit(2); }
+	} else if (o._[0] === "prove") {
+		if (!o.writes) { console.error("prove needs --writes <file>"); process.exit(2); }
+		const leaks = prove(readFileSync(o.writes, "utf8").split("\n"), o);
+		for (const l of leaks) console.log(`LEAK\t${l.method} ${l.url}\t${l.reason}`);
+		console.log(leaks.length ? `${leaks.length} writes would reach the backend` : "every write is blocked");
+		process.exitCode = leaks.length ? 1 : 0;
+	} else { console.error("usage: capture-guard.mjs names|decide|prove|--self-test|--help"); process.exit(2); }
 }

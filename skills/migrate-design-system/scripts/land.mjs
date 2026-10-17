@@ -12,19 +12,22 @@ const HELP = `land.mjs <surface> <subject> [flags] -- <paths...>
 land.mjs --check-commit <sha> -- <paths...>
 land.mjs --self-test | --help
 
-Commits the working-tree state of the named paths and nothing else. A folder covers everything under it.
+Commits the working-tree state of the named paths and nothing else. Name exact files, because a folder takes everything
+under it, other workers' dirty files included.
   1. Takes a lock (a mkdir lock inside .git; a lock whose process died is taken over).
   2. Builds the commit in a private index seeded from HEAD, so a stale shared index cannot reach it.
   3. Refuses when write lines (mutate(, mutateAsync(, onSubmit, execute(, useMutation, non-GET fetch) were added,
      removed or moved and --bodies-check does not exit 0. Decide the tier by this diff, not by a row label.
-  4. Refuses when an added comment reads like a working note (worker, verifier, verdict, gate, run folder),
+  4. Refuses when a changed line in an --also file (a ratchet, baseline or list file every worker shares, one row
+     per line) names a file outside the named paths, so a file recomputed over a folder cannot carry others' rows.
+  5. Refuses when an added comment reads like a working note (worker, verifier, verdict, gate, run folder),
      or when the message carries a process trailer (Verdict:, Verifier:, Worker:, Fingerprint:, Sha256:).
-  5. Commits (git hooks run), asserts the commit's file list lies inside the named paths, resets only those
+  6. Commits (git hooks run), asserts the commit's file list lies inside the named paths, resets only those
      paths in the shared index, prints "committed <sha>" and then the file list as the last output.
 
 Flags
   --body <file>           commit body, product text only
-  --also <path>           one more path to include, repeatable (a baseline file the surface changed)
+  --also <path>           a shared file to include, repeatable. Recompute it for your own files only (step 4)
   --bodies-check "<cmd>"  exits 0 when valid request-body evidence is on file (env LAND_BODIES_CHECK). SURFACE is set
   --trailer "<line>"      attribution line from your session, repeatable. Nothing is added on its own
   --run-log <file>        append "time, surface, sha" as TSV here, never to the message
@@ -35,7 +38,7 @@ Flags
 
 Exit  0 landed  1 failure  2 bad arguments or unsafe path  3 commit touches files outside the set
       4 write lines changed, no valid bodies  5 working note in added code  6 process trailer in message
-      7 lock wait timed out  9 nothing to commit
+      7 lock wait timed out  8 a shared file names paths outside the set  9 nothing to commit
 Never kill a git child of this script mid-write. If git hangs, report it and wait.`;
 
 class Exit extends Error {
@@ -45,6 +48,7 @@ const die = (code, msg) => { throw new Exit(code, msg); };
 
 const WRITE_RE = /\b(mutate|mutateAsync|execute|useMutation)\s*\(|\bonSubmit\b|\bfetch\s*\([^)]*method\s*:\s*["'`](POST|PUT|PATCH|DELETE)/i;
 const NOTE_RE = /\b(worker|verifier|verdict|run folder|parity (run|table)|baseline capture|wave \d+)\b|\bgate\b/i;
+const PATH_RE = /(?:[\w@.-]+\/)+[\w@-][\w@.-]*\.[A-Za-z0-9]+/g;
 const COMMENT_RE = /^\s*(\/\/|\/\*|\*|#|\{\/\*|<!--)/;
 const TRAILER_RE = /^\s*(verdict|verifier|worker|fingerprint|sha256|checksum)\s*[:=]/im;
 
@@ -155,6 +159,12 @@ export async function land(o) {
 		git(["read-tree", "HEAD"], { env });
 		git(["add", "-A", "--", ...set], { env });
 		if (spawnSync("git", ["diff-index", "--cached", "--quiet", "HEAD", "--"], { env }).status === 0) die(9, `nothing to commit for ${set.join(" ")}`);
+		const own = normalize(o.paths, root);
+		for (const shared of normalize(o.also, root)) {
+			const changed = git(["diff-index", "--cached", "-p", "--no-color", "-U0", "HEAD", "--", shared], { env }).split("\n").filter((l) => /^[+-](?![+-]{2} )/.test(l));
+			const foreign = [...new Set(changed.flatMap((l) => l.match(PATH_RE) || []))].filter((f) => f !== shared && !inSet(f, own));
+			if (foreign.length) die(8, `${shared} changes rows for files outside this landing: ${foreign.join(" ")}. Recompute it for your own files only`);
+		}
 
 		const { writes, notes } = scanDiff(git(["diff-index", "--cached", "-p", "--no-color", "--no-ext-diff", "-U0", "HEAD", "--"], { env }));
 		if (writes.length) {
@@ -273,9 +283,13 @@ function selfTest() {
 	w(r, "route.txt", "route v2\n"); w(r, "baseline.json", "{}\n");
 	run(r, "s10", "Route", "--also", "baseline.json", "--", "route.txt");
 	check("--also adds the baseline file", sh(r, "show", "--name-only", "--format=", "HEAD").split("\n").sort().join(" "), "baseline.json route.txt");
+	w(r, "src/a.tsx", "a\n"); w(r, "baseline.json", '{"src/a.tsx": 1, "src/b.tsx": 4}\n');
+	check("a shared file carrying another file's row: exit 8", run(r, "s10", "A", "--also", "baseline.json", "--", "src/a.tsx").status, 8);
+	w(r, "baseline.json", '{"src/a.tsx": 1}\n');
+	check("a shared file changed only for its own files lands", run(r, "s10", "A", "--also", "baseline.json", "--", "src/a.tsx").status, 0);
 	w(r, "other.txt", "other v2\n");
 	run(r, "s10", "x", "--dry-run", "--", "other.txt");
-	check("--dry-run commits nothing", count(r), 2);
+	check("--dry-run commits nothing", count(r), 3);
 
 	r = mk();
 	w(r, "dir/a.txt", "x\n"); w(r, "dir/b.txt", "y\n"); sh(r, "add", "dir"); sh(r, "commit", "-q", "-m", "dir");

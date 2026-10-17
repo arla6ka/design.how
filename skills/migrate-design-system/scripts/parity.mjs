@@ -20,7 +20,7 @@ the typed text and returns the committed value, or throws to reject it. A result
 number  runs the 19 inputs: ${"2.5, -3, 1e3, 12.50, 0.123456789, 1,234.56, ' 42 ', '', abc, 12abc, 007, -0, a 20-digit number, 1.2.3, .5, 5., +3, a Unicode minus, '1 000'"}.
 date    runs each case in a child process once per zone (TZ is real). Default zones America/Los_Angeles, Asia/Tokyo, UTC,
         Pacific/Auckland. Cases are a JSON list of strings. If the OLD code already answers differently per zone, the row
-        says "report it" and passes only while the new code matches. Never fix that inside the migration.
+        says "report it" and passes only while the new code matches. A fix is an announced "intended change" row.
 Expectations file: {"<input or zone input>": "same" | "rejected" | "intended change" | "preexisting", "*": "same"}, or
 {"expect": "intended change", "note": "why"}. Missing keys mean "same". An "intended change" row that does not change fails.
 Exit 0 only when every row is as expected.`;
@@ -69,7 +69,7 @@ export function runParity({ kind, oldSpec, newSpec, fn, inputs, zones, expect = 
 			const n = m.neu[input];
 			const eq = same(o, n);
 			let v;
-			if (oldVaries(input) && want !== "intended change") v = eq ? ["ok (old answer is zone-dependent: report it, do not fix it here)", true] : ["FAIL changed a pre-existing zone-dependent answer inside the migration", false];
+			if (oldVaries(input) && want !== "intended change") v = eq ? ["ok (old answer is zone-dependent: report it, and fix it only as an intended change)", true] : ["FAIL changed a pre-existing zone-dependent answer with no intended change row", false];
 			else if (want === "same") v = eq ? ["ok", true] : ["FAIL differs, expected same", false];
 			else if (want === "rejected") v = n && n.rejected ? ["ok", true] : ["FAIL new did not reject", false];
 			else if (want === "intended change") v = eq ? ["FAIL no change, expected one", false] : ["ok (approve this change)", true];
@@ -124,7 +124,7 @@ function selfTest() {
 	t("date: the east zone is not blamed for the west-zone defect", !bad.some((r) => r.id.startsWith("Asia/Tokyo \"2025-03-15\"")));
 	const pre = date(badD, badD);
 	t("date: a pre-existing zone bug passes while new equals old", pre.every((r) => r.ok) && pre.some((r) => /report it/.test(r.verdict)));
-	t("date: fixing it inside the migration is flagged", date(badD, goodD).some((r) => !r.ok && /pre-existing/.test(r.verdict)));
+	t("date: an unannounced fix is flagged", date(badD, goodD).some((r) => !r.ok && /pre-existing/.test(r.verdict)));
 	rmSync(dir, { recursive: true, force: true });
 	console.log(fails ? `${fails} failed` : "all as expected");
 	return fails ? 1 : 0;
