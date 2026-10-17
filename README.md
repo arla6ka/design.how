@@ -26,7 +26,7 @@ Each skill swaps a guess for a step it can prove. It screenshots every route bef
 
 - **[design-system-boss](./skills/design-system-boss/SKILL.md)**. Start here. Say what's wrong in plain words, and it reads the repo, picks a playbook and runs the other skills in order. It ends with the system, one flow moved onto it and a check, then offers the full migration with its size.
 - **[build-design-system](./skills/build-design-system/SKILL.md)**. Builds tokens, one canonical component per family and a check from the app you have, and proves them on one real flow. Ends with five readiness audits before any migration.
-- **[migrate-design-system](./skills/migrate-design-system/SKILL.md)**. Moves every screen onto the system with parallel workers, each verified by another agent against its before capture. Start with audit mode, which changes nothing. Carries eight lessons from a real 45-hour migration.
+- **[migrate-design-system](./skills/migrate-design-system/SKILL.md)**. Moves every screen onto the system with parallel workers, each verified by another agent against its before capture. Start with audit mode, which changes nothing. Carries the lessons from a real multi-week migration.
 - **[token-mapping](./skills/token-mapping/SKILL.md)**. Maps hex codes and pixel values to your tokens by purpose, so an 8px radius never stands in for an 8px gap. It never edits.
 - **[component-docs](./skills/component-docs/SKILL.md)**. Writes a component's docs from its code and two real uses, with the rules next to the examples.
 - **[ui-review](./skills/ui-review/SKILL.md)**. Reviews a screen or flow, including states a screenshot misses, and ranks what's broken.
