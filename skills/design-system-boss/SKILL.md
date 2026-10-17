@@ -5,7 +5,7 @@ description: Use for vague whole-app design system asks on an app that already s
 
 # Design system boss
 
-A router. Read the app, match one playbook, copy its steps into `.design-system/state.md` word for word, and run them. A step you drop stays in the list as `skipped (<reason>)`. Words are in `GLOSSARY.md`, defaults in `taste.md`. The person's words, AGENTS.md or CLAUDE.md and saved memory win over everything here.
+A router. Read the app, match one playbook, copy its steps into `.design-system/state.md` word for word, and run them. A step you drop stays in the list as `skipped (<reason>)`. Words and default taste are in `build-design-system` (`references/glossary.md`, `references/taste.md`). The person's words, AGENTS.md or CLAUDE.md and saved memory win over everything here.
 
 ## Triggers
 
@@ -22,7 +22,7 @@ An installed system is the source of truth, so no playbook seeds or builds over 
 
 ## Setup, once per run
 
-Cut the run branch or use the one the person named. Ask every question once with its default applied (`taste.md`, design source, pilot flow). Write `.design-system/roles.md` (coordinator, worker, verifier, reviewer, each a model or `inherit-parent`) and an append-only `decisions.tsv`. The writer never grades itself.
+Cut the run branch or use the one the person named. Ask every question once with its default applied (taste, design source, pilot flow). Write `.design-system/roles.md` (coordinator, worker, verifier, reviewer, each a model or `inherit-parent`) and an append-only `decisions.tsv`. The writer never grades itself.
 
 ## Never ship
 

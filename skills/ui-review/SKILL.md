@@ -5,7 +5,7 @@ description: Use to critique a screen, flow, prototype or running build, accessi
 
 # UI review
 
-The render is the evidence. A description, DOM text or source code only supports it. Terms are in `GLOSSARY.md`. Severity, the 13 criteria and the edge cases are in `references/criteria.md`. An installed design system's own rules come first and count as agreed criteria.
+The render is the evidence. A description, DOM text or source code only supports it. Severity, the 13 criteria and the edge cases are in `references/criteria.md`. An installed design system's own rules come first and count as agreed criteria.
 
 ## Steps
 

@@ -17,7 +17,7 @@ run.mjs --self-test | --help
   every SKILL.md has name and a description that starts with "Use", no more than 400 characters
   every SKILL.md is 40 to 150 lines (warn above 150, fail above 300)
   every relative markdown link resolves, and no skill links into a sibling skill's folder
-  no private names, no em dashes, no curly quotes in skills/, evals/, GLOSSARY.md, taste.md and README.md
+  no private names, no em dashes, no curly quotes in skills/, evals/ and README.md
   every trigger skill exists, and every incident's rule phrase is in the file it names
 --triggers sends one prompt per case with the six descriptions. The host must print the skill name or "none".`;
 

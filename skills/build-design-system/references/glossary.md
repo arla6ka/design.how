@@ -1,6 +1,6 @@
 # Glossary
 
-One meaning per word, for every skill in `skills/`. A skill uses these words and does not redefine them. When a repo has its own `GLOSSARY.md`, the repo's wins.
+One meaning per word, for every skill in this set. A skill uses these words and does not redefine them. When a repo has its own glossary, the repo's wins.
 
 ## Work
 
@@ -59,7 +59,7 @@ _Avoid_: old code, deprecated (unless the registry says so)
 **Gap**: Something the system lacks that a surface needs. A gap is a row in the gap list and a request to the system's owner. It is never a workaround in a surface.
 _Avoid_: missing feature, TODO
 
-**Taste file**: `taste.md`, the accepted defaults for bans, voice, widths and reference systems. A skill reads the accepted one and never assumes a line the file leaves out.
+**Taste file**: the accepted defaults for bans, voice, widths and reference systems, saved to `.design-system/taste.md` from the default in `references/taste.md`. A skill reads the accepted one and never assumes a line the file leaves out.
 _Avoid_: style guide, brand rules
 
 ## Counts

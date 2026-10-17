@@ -5,11 +5,11 @@ description: Use when someone wants a design system built from the UI an app alr
 
 # Build a design system
 
-Vocabulary is in `GLOSSARY.md`, defaults for bans and widths in `taste.md`. The app's own look is the source. Invent no colour, font, shadow, gradient or motion value it does not already have, unless the person chose a design source and confirmed a sample.
+Vocabulary is in `references/glossary.md`, defaults for bans and widths in `references/taste.md`. The app's own look is the source. Invent no colour, font, shadow, gradient or motion value it does not already have, unless the person chose a design source and confirmed a sample.
 
 ## Steps
 
-1. **Frame.** Read AGENTS.md or CLAUDE.md, the manifest and the route tree. Write the complaint in the person's words, the first visible change that answers it, and the pilot flow (the one the complaint names, else the flow with the most component families and a form with an error state). Cut the run branch. Offer `taste.md` once with its bans unselected. Ask nothing else. Take the default, record it as `default (unanswered)` and go on.
+1. **Frame.** Read AGENTS.md or CLAUDE.md, the manifest and the route tree. Write the complaint in the person's words, the first visible change that answers it, and the pilot flow (the one the complaint names, else the flow with the most component families and a form with an error state). Cut the run branch. Offer `references/taste.md` once with its bans unselected and save the accepted copy to `.design-system/taste.md`. Ask nothing else. Take the default, record it as `default (unanswered)` and go on.
    Done when the complaint, pilot, branch and accepted taste file are written down.
 
 2. **Inventory and baselines.** List every surface, its states and its tier. Count raw values in occurrences (`#[0-9a-fA-F]{3,8}`, `text-gray-500`, `p-[13px]`) and group components into families. Capture every surface in every state at the narrowest and widest supported width (390 and 1280 by default), one fresh navigation per width, before any edit. Delete what nothing uses, in its own commit.

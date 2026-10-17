@@ -5,7 +5,7 @@ description: Use when an app has to move onto a design system that already exist
 
 # Migrate to a design system
 
-Words are in `GLOSSARY.md`, bans, widths and voice in `taste.md`. The system is settled and behaviour stays unchanged. A missing token or component is a gap for the system's owner, never a workaround here.
+Words are in `build-design-system`'s glossary, bans, widths and voice in the accepted `.design-system/taste.md`. The system is settled and behaviour stays unchanged. A missing token or component is a gap for the system's owner, never a workaround here.
 
 ## Modes
 

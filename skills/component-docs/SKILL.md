@@ -5,7 +5,7 @@ description: Use to write one component's documentation entry from its code, sto
 
 # Component docs
 
-A draft entry for one component, built only from what its sources say. Gaps are marked, not filled. It does not judge the design and it publishes nothing. Words are in `GLOSSARY.md`, the heading order and the example in `references/doc-format.md`.
+A draft entry for one component, built only from what its sources say. Gaps are marked, not filled. It does not judge the design and it publishes nothing. The heading order and the example in `references/doc-format.md`.
 
 ## Steps
 

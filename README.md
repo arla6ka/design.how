@@ -31,7 +31,7 @@ Each skill swaps a guess for a step it can prove. It screenshots every route bef
 - **[component-docs](./skills/component-docs/SKILL.md)**. Writes a component's docs from its code and two real uses, with the rules next to the examples.
 - **[ui-review](./skills/ui-review/SKILL.md)**. Reviews a screen or flow, including states a screenshot misses, and ranks what's broken.
 
-Shared words are in [GLOSSARY.md](./GLOSSARY.md). Your bans, widths and voice are in [taste.md](./taste.md); replace it with your own. Six scripts do the checks prose cannot: `check-system.mjs`, `land.mjs`, `bodies-check.mjs`, `capture-guard.mjs`, `legacy.mjs` and `parity.mjs`. Each has `--help` and `--self-test`. `node evals/run.mjs --lint` checks the skills themselves, and `--triggers` asks a host which skill each prompt starts.
+Shared words are in [glossary.md](./skills/build-design-system/references/glossary.md), and the default bans, widths and voice in [taste.md](./skills/build-design-system/references/taste.md). Both ship inside `build-design-system`, which the other skills already build on, so copying the skill folders copies them. Replace the taste file with your own. Six scripts do the checks prose cannot: `check-system.mjs`, `land.mjs`, `bodies-check.mjs`, `capture-guard.mjs`, `legacy.mjs` and `parity.mjs`. Each has `--help` and `--self-test`. `node evals/run.mjs --lint` checks the skills themselves, and `--triggers` asks a host which skill each prompt starts.
 
 ## Design systems
 

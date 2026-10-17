@@ -5,7 +5,7 @@ description: Use to report how hardcoded style values on a page, file or diff ma
 
 # Token mapping
 
-A read-only report that lands raw values (hex, px, shadows) on a token list someone else owns. Terms are in `GLOSSARY.md`. Classes, normalising and tolerances are in `references/mapping-rules.md`. "Check the tokens on the settings page" is enough of an ask. Find the values and the list yourself.
+A read-only report that lands raw values (hex, px, shadows) on a token list someone else owns. Classes, normalising and tolerances are in `references/mapping-rules.md`. "Check the tokens on the settings page" is enough of an ask. Find the values and the list yourself.
 
 ## Steps
 

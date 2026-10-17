@@ -1,6 +1,6 @@
 # Taste
 
-The author's defaults for what the UI looks and reads like. It is a starting point, not a rule of the skills. Replace the file with one that has the same headings, or edit it, and tell the skills where it is. A skill reads the accepted file and never assumes a line it leaves out.
+The author's defaults for what the UI looks and reads like. It is a starting point, not a rule of the skills. Replace it with one that has the same headings, or edit it. The run saves the accepted copy to `.design-system/taste.md`, and every skill reads that copy. A skill reads the accepted file and never assumes a line it leaves out.
 
 ## Bans
 
