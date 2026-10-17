@@ -33,13 +33,14 @@ For each interactive primitive write a table of what fires when, and make each r
 | Escape in a dialog | Closes the top layer, focus returns to the opener | assert `document.activeElement` |
 | Confirm success, confirm failure, opener removed | Focus lands on the opener, on the opener, on the next row or the list | assert each |
 | Typed text the sanitizer would change | The keystroke is ignored, not committed as something else | type `2.5`, assert the box and the value |
+| Text the control cannot parse | Submit is refused and the field shows why. The last good value is never sent | type `abc`, submit, assert 0 requests |
 
 Every overlay and form primitive's PR carries its focus-return matrix.
 
 ## Layout
 
 - Tables have a responsive plan, not only `hideBelow`: a primary flexible column, a minimum width and a stacked tier. Measure that row controls stay reachable inside the scroller at 390, 768, 1280 and 1920. A column newly hidden at 390 is always a gate.
-- Templates expose a named width, a per-route column override (the deepest route wins) and an aside slot. A 64 px change at 1280 came from two systems with different wide tokens and padding.
+- Templates expose a named width, a per-route column override (the deepest route wins) and an aside slot. A 64 px change at 1280 came from two systems with different wide tokens and padding. Keep one page width per section and give reading content a measure inside it (`trap/text-measure`), rather than narrowing one page.
 - A change to the shell or a page template is verified on one downstream route per layout family at three widths. Compare main `scrollHeight` with `clientHeight`, check centring on auth pages, and count `aria-current` per tablist.
 - Removing or renaming a system API sweeps every caller in the same change, dirty files included, or keeps an alias for one wave. Typecheck the whole consumer set afterward.
 - Docs that ship with a component run in this order: description, examples, variants, states, props, usage, accessibility, tokens, related. `component-docs` writes them.

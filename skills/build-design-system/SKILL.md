@@ -52,7 +52,7 @@ A family that is not ready is not migrated. Its screens stay on legacy.
 - Wrong: `{saving ? "Saving..." : "Save"}`. Right: the idle label stays, a spinner sits inside the same box, `aria-busy` is set.
 - Wrong: "never use sed -i" in a brief. Right: the ban, its substitute, and a hook or check that enforces it.
 - A fix that recurs twice becomes a check rule or a script, not another sentence.
-- A baseline, fixture or check is never edited to make a diff pass. Fix the code.
+- A baseline or fixture is never edited to make a diff pass. A check that flags correct code is fixed in the check, with a fixture for the case, never by bending the code.
 - A count no script produced, or a check never seen failing, is not reported.
 
 ## Done

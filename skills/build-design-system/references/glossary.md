@@ -18,7 +18,7 @@ _Avoid_: batch, round
 
 ## Decisions
 
-**Decision**: A choice that a reversible change settles. The run makes it and records the evidence. Merges inside a tolerance, adds-only accessibility changes and fixes to broken behaviour are decisions.
+**Decision**: A choice that a reversible change settles. The run makes it and records the evidence. Merges inside a tolerance, adds-only accessibility changes and announced fixes to broken behaviour are decisions.
 
 **Gate**: A product or brand choice a person could answer either way. It carries a default, the run applies the default on the run branch, and the person reverses it by naming it at merge. A gate never holds the run.
 _Avoid_: blocker, open question, TODO
@@ -31,7 +31,7 @@ _Avoid_: token replacement, cleanup
 
 ## Evidence
 
-**Baseline**: How a surface looked and behaved before the first migration commit, captured in the environment CI uses.
+**Baseline**: How a surface looked and behaved before the first migration commit, captured in the environment CI uses. When the base moves, the baseline moves with it.
 _Avoid_: snapshot, golden
 
 **Parity**: The new control gives the same answer as the old one for the same input. Checked with a table, one row per input, and every differing row is approved by a person or fixed.
@@ -40,7 +40,7 @@ _Avoid_: regression test, visual match
 **Write surface**: A surface whose code sends a request that changes data (`mutate(`, `mutateAsync(`, `onSubmit`, `execute(`, a non-GET `fetch`). Its tier is set by the diff, never by the row label.
 _Avoid_: tier A (as a label on a row)
 
-**Verifier**: An agent that did not write the code. It runs the app at a named commit and writes a verdict. A type check, a green CI run and a worker saying "done" are inputs to a verdict, never the verdict.
+**Verifier**: An agent that did not write the code. It runs the app at a named commit and writes its verdict to a file before its final message. A type check, a green CI run and a worker saying "done" are inputs to a verdict, never the verdict.
 _Avoid_: reviewer, QA agent
 
 **Verdict**: `verified`, `issues` or `blocked`, followed by what was not exercised. A claim names the command that proved it in this session. Evidence older than the last edit is stale. Evidence that was not collected is `blocked`, never `verified`.
@@ -56,7 +56,7 @@ _Avoid_: atom, base component
 **Legacy**: Code the system replaces: a module, a path or a raw value the migration must reach zero on. The **ratchet** is the committed per-file count that may fall and never rise.
 _Avoid_: old code, deprecated (unless the registry says so)
 
-**Gap**: Something the system lacks that a surface needs. A gap is a row in the gap list and a request to the system's owner. It is never a workaround in a surface.
+**Gap**: Something the system lacks that a surface needs. A gap is a row in the gap list and a request to the system's owner. It is never a workaround in a surface, and a prop the system has that the caller never passed is not a gap.
 _Avoid_: missing feature, TODO
 
 **Taste file**: the accepted defaults for bans, voice, widths and reference systems, saved to `.design-system/taste.md` from the default in `references/taste.md`. A skill reads the accepted one and never assumes a line the file leaves out.

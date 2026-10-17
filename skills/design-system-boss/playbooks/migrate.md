@@ -4,7 +4,7 @@
 2. Confirm the readiness audits from `build-design-system` hold. If they do not, stop at the audit and list the open rows.
 3. Run `migrate-design-system` through its steps. In audit mode it ends at the plan and the offer.
 4. Brief every worker with its MAY EDIT list and the lessons that apply (`migrate-design-system`, lessons).
-5. Check each return on its files. A verdict counts only from an agent that did not write the code.
+5. Judge each return from `git diff` and its verdict file, never from its message. A verdict counts only from an agent that did not write the code.
 6. At close, run the correct step and the comment review. Triage again.
 7. Report unanswered defaults first, then counts from commands, then a ranked table of what was found and not fixed.
 

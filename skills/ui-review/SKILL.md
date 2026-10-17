@@ -26,7 +26,7 @@ The render is the evidence. A description, DOM text or source code only supports
 - An inferred finding enters Next only as the check that settles it.
 - A claim that something works or is fixed names a command or capture from this session.
 - Contrast, target size and keyboard problems are ranked. A change to the accessibility tree that only adds semantics is ranked. One that removes or restructures semantics goes to a person.
-- A criterion 13 finding or pass from a screenshot is invalid. It needs a measured probe.
+- A criterion 13 finding or pass from a screenshot is invalid. It needs a measured probe. A focus ring is the reverse. Reach the control with real Tab presses and judge the ring from the capture, because a container that draws it through `:has(:focus-visible)` leaves the focused element reporting no outline.
 - Product decisions behind a fix go to For a person to decide. Keeping the user's input is never one.
 
 ## Output

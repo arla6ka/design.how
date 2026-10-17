@@ -41,6 +41,7 @@ A person describing a symptom rather than a component:
 | `trap/field-form-enter` | Fields outside a `form`, so Enter does nothing | One `form`, one submit, native constraints passed through |
 | `trap/field-error-link` | Error text near the field but not tied to it | `aria-invalid` plus `aria-describedby` |
 | `trap/field-error-timing` | Errors on the first keystroke | First show on blur or submit, then live |
+| `trap/date-local-midnight` | A date-only value passed through a midnight `Date` (`new Date("2025-03-15")`) and shown or sent in another zone | Keep it a `YYYY-MM-DD` string, or read and write it in UTC. Test west of UTC |
 | `trap/field-keeps-input` | A failed request clears what was typed | Keep every entered value |
 | `trap/required-everywhere` | A required marker on every field | Mark the rarer of required and optional |
 | `trap/touch-input-zoom` | Input text under 16 px on a phone | 16 px at touch widths. Never disable pinch zoom |
@@ -85,6 +86,7 @@ A person describing a symptom rather than a component:
 | `trap/narrow-hidden-nav` | At 390 px nav links or columns sit past a clipped edge with no cue | A menu button, a wrap, or a fade at the edge. A gate lists each hidden item |
 | `trap/link-cue` | A link in body copy with no underline and the text's colour | A resting cue. Changing it is a gate listing every surface |
 | `trap/table-divs` | A table made of divs | A table, or the grid role with its keyboard model |
+| `trap/chosen-text-truncated` | A name, legal suffix or other text the user chose for legal or identity reasons cut with an ellipsis | Wrap it. It never truncates |
 | `trap/empty-value` | A blank cell, a typed dash here, "N/A" there | One primitive for empty values, announced as "None" |
 | `trap/numbers-shift` | Changing numbers in proportional figures | `font-variant-numeric: tabular-nums` |
 | `trap/color-only-status` | Status told by colour alone | Text or an icon carries it |
