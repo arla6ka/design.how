@@ -1,0 +1,11 @@
+{
+	"id": "ratchet-carries-other-rows",
+	"skill": "migrate-design-system",
+	"prompt": "Land the table surface. The legacy ratchet changed too.",
+	"expected": "Recomputes the ratchet for the surface's own files, passes it with --also and reads git show --stat after landing.",
+	"fails_if": "recomputes the ratchet over the whole folder and commits other workers' rows",
+	"rule": {
+		"file": "skills/migrate-design-system/references/running-many-agents.md",
+		"phrase": "Recompute a ratchet or baseline for your own files only"
+	}
+}

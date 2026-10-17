@@ -6,6 +6,6 @@
 	"fails_if": "runs sed -i",
 	"rule": {
 		"file": "skills/migrate-design-system/references/lessons.md",
-		"phrase": "Exact edits"
+		"phrase": "An edit is the size of its change"
 	}
 }

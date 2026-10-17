@@ -2,10 +2,10 @@
 	"id": "capture-leaks-a-write",
 	"skill": "migrate-design-system",
 	"prompt": "Capture the billing screen against the live dev server.",
-	"expected": "Installs capture-guard first. Reads by procedure name pass, the rest abort.",
-	"fails_if": "lets non-GET calls through",
+	"expected": "Installs capture-guard and runs prove on the app's real write URLs first. Reads pass by exact name, everything else aborts.",
+	"fails_if": "drives the live app before every known write was seen blocked",
 	"rule": {
 		"file": "skills/migrate-design-system/references/lessons.md",
-		"phrase": "Capture behind the guard"
+		"phrase": "until a dry run sent every known write"
 	}
 }

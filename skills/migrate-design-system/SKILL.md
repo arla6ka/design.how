@@ -5,7 +5,7 @@ description: Use when an app has to move onto a design system that already exist
 
 # Migrate to a design system
 
-Words are in `build-design-system`'s glossary, bans, widths and voice in the accepted `.design-system/taste.md`. The system is settled and behaviour stays unchanged. A missing token or component is a gap for the system's owner, never a workaround here.
+Words are in `build-design-system`'s glossary, bans, widths and voice in the accepted `.design-system/taste.md`. The system is settled and behaviour stays unchanged, except for announced data-bug fixes. A missing token or component is a gap for the system's owner, never a workaround here.
 
 ## Modes
 
@@ -14,7 +14,7 @@ Audit mode is the default. It changes nothing and ends with the inventory, the p
 ## Steps
 
 1. **Roles.** Write `.design-system/roles.md`: coordinator, worker, verifier, reviewer, each a model or `inherit-parent`. The writer never grades itself. The verifier is a different agent, on another model family where the host has one. Write `.design-system/decisions.tsv` as append-only rows (`time, phase, decision, why, evidence pointer, result`). A wrong call gets a superseding row, never an edit. Evidence is a sha, a path or a command, never prose.
-2. **Ready?** Run the readiness audits in `build-design-system`. No fan-out while a text or control primitive is missing, a gap is open or the system's own check is red.
+2. **Ready?** Run the readiness audits in `build-design-system`. Check every open backlog row against the code first. About one in five was already fixed, and many "needs a system change" rows were callers ignoring a prop the system had. No fan-out while a text or control primitive is missing, a gap is open or the system's own check is red.
 3. **Inventory.** `node scripts/legacy.mjs --inventory`. Every finding gets a surface. In audit mode, stop here and write the plan.
 4. **Baselines.** Capture every surface, state, width and theme before the first edit, in the environment CI uses, with fixture data and a frozen clock, plus a no-change control capture. No baseline, no parity claim. Never edit a harness, a baseline or a threshold, or restructure a component to make a diff pass. If a baseline looks wrong, stop and ask.
 5. **Lever first.** One shared-layer agent, alone, lands layout and providers. Then migrate the pilot surface by hand with a verifier, write the codemod from it, diff its output against the hand work, and run it twice. The second run changes nothing. Fan out only after that.
@@ -28,13 +28,14 @@ Done when `legacy.mjs` exits 0 at the final commit, every surface has a `verifie
 ## A brief
 
 ```
-SURFACE   <name> at <sha>
+SURFACE   <id, never reused> <name> at <sha>
 MAY EDIT  <paths, one per line>. Dirty files not listed are read-only. Conflicts go to the coordinator.
 KEEP      <behaviours that must not change, one per line>
 LESSONS   <the leaves in references/lessons.md that apply to this surface>
-BANS      sed -i (use an exact edit), pkill (stop your own PIDs), git add -A, git stash, git reset --hard
+STANDING  the person's standing preferences, word for word
+BANS      sed -i (use an exact edit), pkill (stop your own PIDs), git add -A, git stash, merge or checkout in the shared tree, git reset --hard
 SCRATCH   .design-system/tmp/<worker id>/ only
-RETURN    verdict, commands run with exit codes, files changed, what was not exercised
+RETURN    the verdict file, written before the final message: verdict, commands with exit codes, files changed, evidence paths, what was not exercised
 ```
 
 ## Rules
@@ -42,7 +43,8 @@ RETURN    verdict, commands run with exit codes, files changed, what was not exe
 The eight incident-backed lessons are in `references/lessons.md`. Each has an Apply-when, a Why, a Stop line and the check that enforces it. A report names each lesson that changed a decision, and the check it ran. The parity classes are in `references/parity.md`.
 
 - A claim names the command that proved it this session. Evidence older than the last edit is stale.
-- A sweep over many files is a migration. Check payloads, focus, two zones and typed-confirmation flows on the riskiest consumers before it lands.
+- Verification matches risk. A visual-only change gets unit tests, typecheck, the system's check and one before and after capture pair. A surface that writes data, money, signatures or records gets every width and theme plus request-body equality. A full-app sweep at close backs up the light tier.
+- A bug in a primitive's contract is fixed in the primitive, and every caller is found. One unreadable date led to a fix that covered about 30 forms silently saving a stale value. "Legacy did it too" never keeps a data bug, and the fix is announced, never a quiet behaviour change.
 - A test that fails because copy changed on purpose is updated in the same commit, at least as strong, with the reason. Any other failure blocks.
 - A missing primitive is a gap row. Park the draft under `blocked/`, restore the file to HEAD, mark the surface `blocked-on <gap>`.
 - Commit only the named paths, through `land.mjs`. Commit messages and shipped code describe the product, never workers, verdicts or the migration. Scratch lives under `.design-system/tmp/<worker id>/`, and untracked files under the source roots are accounted for before every report.

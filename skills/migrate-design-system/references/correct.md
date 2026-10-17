@@ -26,6 +26,8 @@ Keep it in the system's agent instructions.
 | Table controls reachable inside the scroller | verifier measurement at four widths | 0 of 185 row controls in view |
 | Named page widths (wide, hub) equal legacy at 1280 | width table plus a measured content box | a 64 px shift from two different wide tokens |
 | File `accept` matches MIME as well as extension | `parity.mjs` class, a lint on `accept=` | a PDF refused for having no extension |
+| A shared file changes only its own rows | `land.mjs --also` | a ratchet recomputed over a folder that carried other workers' files |
+| No live run before every write is seen blocked | `capture-guard.mjs prove` | an abort filter on the wrong URL shape that created two records |
 
 When a rule is already in the table and nothing enforces it, that is a repeat. Fix it at a higher level in the same change. Drop a rule once its mistake cannot happen.
 

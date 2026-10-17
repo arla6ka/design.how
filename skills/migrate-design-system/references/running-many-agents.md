@@ -31,11 +31,22 @@ A refused call stops that worker's piece. Report the exact command and the refus
 
 ## Coordinators and resume
 
-- A coordinator hands back after 25 landings or 6 hours. A fresh one rebuilds from the run folder. One that ran past that degraded and looped near 616k tokens.
+- Judge every return from files, never from a message. An implementer's work is what `git diff` shows, and some stopped early or wrote nothing. A verifier writes its verdict file (one verdict per item, with evidence paths) before its final message, because verifiers died before reporting and coordinators waited forever. No file means rerun once, then judge the evidence yourself and say so.
+- Keep each lane resumable from its brief, backlog, ledger and verdicts on disk. Spend limits, agent caps and machine load stopped lanes many times, and a fresh coordinator rebuilt each from the folder in minutes. One id per surface or cluster, never reused.
+- Resume by fingerprint. If the verified commit equals the surface's fingerprint, land it. If equal and unverified, verify. If the files changed, rerun the checks.
+- A coordinator hands back after 25 landings or 6 hours. One that ran past that degraded and looped near 616k tokens.
 - Never end a turn with a worker running. A background worker left alive keeps writing into a repo nobody checks. Spawn waves as foreground calls, several in one message, and drain before handing back.
-- The host allows 20 live subagents. Keep the window at 8 to 12.
-- Resume by fingerprint. If the verified commit equals the surface's fingerprint, land it. If equal and unverified, verify. If the files changed, rerun the checks. Four usage-limit cutoffs and one restart killed every worker, and resume cost minutes because the run folder held the state.
+- Cap live agents below the host's limit. The host allowed 20, and a window of 8 to 12 held.
+- The person's standing preferences ("never delete files, list them instead") go in every brief word for word, so each new worker has them.
+
+## Shared files
+
+A file every lane writes, such as a ratchet, a baseline, a registry or a docs index, is where landings leak. Recompute a ratchet or baseline for your own files only and pass it with `--also`, which refuses a changed line that names another worker's file. A generated docs index spans every page, so one lane owns docs. Feature lanes queue their docs text and the docs lane lands it in one commit, so no commit in between carries a stale index.
 
 ## Landing
 
-`node scripts/land.mjs --help` has the flags. It takes a lock, builds the commit in a private index from HEAD, scans the staged diff for write lines, asserts the commit's file list equals the named paths, then resets only those paths in the shared index. A stale shared index once reverted a landed route, and the private index is why that cannot happen now.
+`node scripts/land.mjs --help` has the flags. It takes a lock, builds the commit in a private index from HEAD, asserts the commit's file list equals the named paths, then resets only those paths in the shared index. A stale shared index once reverted a landed route, and a shared list file committed whole once carried another worker's uncommitted changes. Name exact files, and read `git show --stat HEAD` after every landing.
+
+## When the base moves
+
+Merge upstream in a separate worktree. Never run merge, stash or checkout in the shared tree. Re-merge right before integrating, update the shared tree with a two-tree read (`git read-tree -m -u <old> <new>`), which refuses when it would touch a file someone has uncommitted, then move the branch ref. Move the before build to the new base too, rebuild its packages and recapture with a fresh cache, or every before and after diff mixes in the merge.
