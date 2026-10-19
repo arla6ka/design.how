@@ -22,6 +22,18 @@ It works with any coding agent that reads skills. In Claude Code you can also ru
 
 Each one installs with shadcn and brings its own skill, so your agent builds with its components and follows its rules.
 
+### Glaze
+
+![Glaze: a voice note being captured in a card, with level bars on either side and one glass Send it button](assets/glaze.webp)
+
+Glassy and compact, for AI products, with glass only on what you press.
+
+```bash
+npx shadcn@latest add https://design.how/r/glaze/theme.json
+```
+
+[Components and source](systems/glaze) and [docs](https://design.how/systems/glaze).
+
 ### Lime
 
 ![Lime: a banking app's home screen with a balance, one glowing Add button and a savings goal](assets/lime.webp)
@@ -36,7 +48,7 @@ npx shadcn@latest add https://design.how/r/lime/theme.json
 
 ### Quartz
 
-![Quartz: a helpdesk for AI agents with a conversations chart, a queue of tool calls waiting on a person and an agent drafting a reply](assets/quartz.webp)
+![Quartz: a helpdesk for AI agents with a chart of the last 24 hours of conversations](assets/quartz.webp)
 
 Cold and calm, for AI agents and developer tools, with colour only for what a thing is and what went wrong.
 

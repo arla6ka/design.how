@@ -288,7 +288,6 @@
   display: flex; align-items: center; gap: var(--space-2); min-width: 0;
   min-height: var(--control-lg); padding: var(--space-2) var(--space-4);
   &:has(button) { padding-inline-end: var(--space-2); }
-  @media (pointer: coarse) { & button { min-height: var(--control-lg); } }
 }
 @utility menu-popup {
   :where(&) { min-width: var(--menu-min); max-width: min(var(--overlay), var(--available-width)); max-height: var(--available-height); padding: var(--space-1); overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; }

@@ -110,7 +110,7 @@ export function DeployLook({className}: {className?: string}) {
             {decision === 'rolled-back' && <>Rolled back to <span className="text-text-1 type-tag">v13</span>. Conversations are back on the previous release.</>}
           </p>
         </PanelBody>
-        <PanelFooter className="@max-xs/deploy:flex-col-reverse @max-xs/deploy:items-stretch">
+        <PanelFooter>
           <Button variant="secondary" disabled={!waiting} onClick={() => setDecision('rolled-back')}>Roll back</Button>
           <Button disabled={!waiting} onClick={() => setDecision('resuming')}>{decision === 'resuming' ? 'Resuming' : 'Resume rollout'}</Button>
         </PanelFooter>

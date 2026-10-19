@@ -1,0 +1,48 @@
+[data-system="glaze"], .glaze {
+  background: var(--page);
+  color: var(--text-1);
+  font: var(--type-body);
+  letter-spacing: var(--tracking-body);
+  text-wrap: pretty;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color-scheme: light;
+}
+[data-system="glaze"][data-theme="dark"], .glaze[data-theme="dark"], [data-theme="dark"] [data-system="glaze"], [data-theme="dark"] .glaze { color-scheme: dark; }
+@layer base {
+  .glaze :where(*, ::before, ::after), [data-system="glaze"] :where(*, ::before, ::after) { box-sizing: border-box; border: 0 solid var(--line-faint); margin: 0; padding: 0; }
+  .glaze :where(h1, h2, h3, h4, h5, h6, p, figure, blockquote, dl, dd, pre) { margin: 0; font: inherit; }
+  .glaze :where(ul, ol) { list-style: none; }
+  .glaze :where(a) { color: inherit; text-decoration: inherit; }
+  .glaze :where(button, input, select, textarea) { font: inherit; letter-spacing: inherit; color: inherit; background: transparent; }
+  .glaze :where(button, [role="button"]) { cursor: pointer; }
+  .glaze :where(button:disabled, [aria-disabled="true"]) { cursor: not-allowed; }
+  .glaze :where(img, video, canvas, svg) { display: block; max-width: 100%; }
+  .glaze :where(table) { border-collapse: collapse; }
+  .glaze :where(code, kbd, samp) { font-family: var(--font-mono); font-size: calc(1em * var(--mono-scale)); letter-spacing: 0; }
+  .glaze :where(pre) { font-family: var(--font-mono); }
+  .glaze :where(td, th, time, data, output) { font-variant-numeric: tabular-nums; }
+  .glaze :where(a, button, summary, input, select, textarea, label, [role="button"], [role="tab"], [role="menuitem"], [role="option"], [role="switch"], [role="checkbox"], [role="radio"]) {
+    transition-property: color, background-color, border-color, opacity;
+    transition-duration: var(--dur-state);
+    transition-timing-function: var(--ease-out);
+  }
+  .glaze :where(*, ::before, ::after), [data-system="glaze"] :where(*, ::before, ::after) { outline-color: var(--focus); }
+}
+.glaze ::selection { background: var(--ink-15); color: var(--text-1); }
+.glaze :where(*):is(:focus-visible, [data-force-focus-visible]) { outline: var(--focus-width) solid var(--focus); outline-offset: var(--focus-offset); }
+@supports selector(::-webkit-scrollbar) {
+  @layer base { .glaze, .glaze *, [data-system="glaze"], [data-system="glaze"] * { scrollbar-color: auto; } }
+}
+.glaze ::-webkit-scrollbar, .glaze::-webkit-scrollbar, [data-system="glaze"] ::-webkit-scrollbar { width: var(--scrollbar-size); height: var(--scrollbar-size); background: transparent; }
+.glaze ::-webkit-scrollbar-thumb, .glaze::-webkit-scrollbar-thumb, [data-system="glaze"] ::-webkit-scrollbar-thumb { background-color: var(--scrollbar-thumb); background-clip: padding-box; border: var(--scrollbar-gap) solid transparent; border-radius: var(--radius-pill); }
+.glaze ::-webkit-scrollbar-track, .glaze ::-webkit-scrollbar-corner, [data-system="glaze"] ::-webkit-scrollbar-track, [data-system="glaze"] ::-webkit-scrollbar-corner { background: transparent; }
+.glaze ::-webkit-scrollbar-button, [data-system="glaze"] ::-webkit-scrollbar-button { display: none; }
+@supports not selector(::-webkit-scrollbar) {
+  .glaze, .glaze *, [data-system="glaze"], [data-system="glaze"] * { scrollbar-width: thin; scrollbar-color: var(--scrollbar-thumb) transparent; }
+}
+@media (pointer: coarse) {
+  .glaze input:not([type="checkbox"], [type="radio"], [type="range"], [type="button"], [type="submit"], [type="file"]),
+  .glaze textarea,
+  .glaze select { font-size: max(16px, 1em); }
+}
