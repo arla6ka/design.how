@@ -184,7 +184,6 @@ The class to use follows each token in brackets. Color names take bg-, text- or 
 - [Skeleton](https://design.how/systems/lime/components/skeleton.md): Still grey shapes in place of content that is loading, such as recent activity. `import {Skeleton, skeletonVariants} from '@/components/lime/ui/skeleton'`
 - [Error state](https://design.how/systems/lime/components/error-state.md): What failed to load, in its place, with Try again. `import {ErrorState} from '@/components/lime/ui/error-state'`
 - [Toast](https://design.how/systems/lime/components/toast.md): A short note after an action, such as Moved $50 to savings, with an optional Undo. `import {ToastProvider, useToast, createToastManager} from '@/components/lime/ui/toast'`
-- [Payment done](https://design.how/systems/lime/components/payment-done.md): The confirmation after you send money: to whom, how much, its status, and Undo for a short time. `import {PaymentDone} from '@/components/lime/ui/payment-done'`
 
 ### Overlays
 - [Dialog](https://design.how/systems/lime/components/dialog.md): A focused task over a scrim, such as sending money. `import {Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, DialogClose, backdropClass, dialogVariants} from '@/components/lime/ui/dialog'`

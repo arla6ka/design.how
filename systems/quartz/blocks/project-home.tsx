@@ -94,10 +94,10 @@ function Overview({height, metrics}: {height?: number; metrics?: boolean}) {
   return <RunsFrame range={range} onRangeChange={setRange} height={height} metrics={metrics}/>;
 }
 
-function TitleRow() {
+function TitleRow({heading: Heading = 'h1'}: {heading?: 'h1' | 'h2'}) {
   return <div className="flex items-center justify-between gap-4">
     <div className="flex min-w-0 flex-col gap-1">
-      <h1 className="truncate type-heading-sm">Helpdesk</h1>
+      <Heading className="truncate type-heading-sm">Helpdesk</Heading>
       <p className="truncate type-body-sm text-text-3">3 agents working</p>
     </div>
     <div className="flex shrink-0 items-center gap-2">
@@ -110,7 +110,7 @@ function TitleRow() {
 export function HomeScreen({className}: {className?: string}) {
   return (
     <section aria-label="Workspace home" className={cn('@container/home flex w-full max-w-md flex-col gap-4 text-text-1', className)}>
-      <TitleRow/>
+      <TitleRow heading="h2"/>
       <Overview height={120} metrics={false}/>
       <NeedsLook/>
     </section>
