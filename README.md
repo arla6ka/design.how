@@ -58,6 +58,18 @@ npx shadcn@latest add https://design.how/r/quartz/theme.json
 
 [Components and source](systems/quartz) and [docs](https://design.how/systems/quartz).
 
+### Sodium
+
+![Sodium: a running backfill with its partitions bar and run numbers, and its steps below with one writing partitions](assets/sodium.webp)
+
+Sharp and mono, for infrastructure and data tools, with one yellow action per view.
+
+```bash
+npx shadcn@latest add https://design.how/r/sodium/theme.json
+```
+
+[Components and source](systems/sodium) and [docs](https://design.how/systems/sodium).
+
 ## Skills
 
 These turn the UI your app already ships into a design system your agent can use, add a check that catches new drift, and move every screen onto it when you ask.

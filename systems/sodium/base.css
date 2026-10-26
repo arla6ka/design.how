@@ -1,0 +1,52 @@
+[data-system="sodium"], .sodium {
+  background: var(--page);
+  color: var(--text-1);
+  font: var(--type-body);
+  letter-spacing: var(--tracking-body);
+  text-wrap: pretty;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color-scheme: light;
+}
+[data-system="sodium"][data-theme="dark"], .sodium[data-theme="dark"], [data-theme="dark"] [data-system="sodium"], [data-theme="dark"] .sodium { color-scheme: dark; }
+@layer base {
+  .sodium :where(*, ::before, ::after), [data-system="sodium"] :where(*, ::before, ::after) { box-sizing: border-box; border: 0 solid var(--line); border-radius: 0; margin: 0; padding: 0; }
+  .sodium :where(h1, h2, h3, h4, h5, h6, p, figure, blockquote, dl, dd, pre) { margin: 0; font: inherit; }
+  .sodium :where(ul, ol) { list-style: none; }
+  .sodium :where(a) { color: inherit; text-decoration: inherit; }
+  .sodium :where(button, input, select, textarea) { font: inherit; letter-spacing: inherit; color: inherit; background: transparent; }
+  .sodium :where(button, [role="button"]) { cursor: pointer; }
+  .sodium :where(button:disabled, [aria-disabled="true"]) { cursor: not-allowed; }
+  .sodium :where(img, video, canvas, svg) { display: block; max-width: 100%; }
+  .sodium :where(svg.lucide rect) { rx: 0; ry: 0; }
+  .sodium :where(table) { border-collapse: collapse; }
+  .sodium :where(code, kbd, samp) { font-family: var(--font-mono); font-size: calc(1em * var(--mono-scale)); letter-spacing: 0; }
+  .sodium :where(pre) { font-family: var(--font-mono); }
+  .sodium :where(pre code, pre kbd, pre samp) { font-size: inherit; }
+  .sodium :where(td, th, time, data, output) { font-variant-numeric: tabular-nums; }
+  .sodium :where(a, button, summary, input, select, textarea, label, [role="button"], [role="tab"], [role="menuitem"], [role="option"], [role="switch"], [role="checkbox"], [role="radio"]) {
+    transition-property: color, background-color, border-color, opacity;
+    transition-duration: var(--dur-state);
+    transition-timing-function: var(--ease-out);
+  }
+  .sodium :where(*, ::before, ::after), [data-system="sodium"] :where(*, ::before, ::after) { outline-color: var(--focus); }
+}
+.sodium ::selection { background: var(--selected); color: var(--text-1); }
+.sodium :where(*):is(:focus-visible, [data-force-focus-visible]) { outline: var(--focus-width) solid var(--focus); outline-offset: var(--focus-offset); }
+@supports selector(::-webkit-scrollbar) {
+  @layer base { .sodium, .sodium *, [data-system="sodium"], [data-system="sodium"] * { scrollbar-color: auto; } }
+}
+.sodium ::-webkit-scrollbar, .sodium::-webkit-scrollbar, [data-system="sodium"] ::-webkit-scrollbar { width: var(--scrollbar-size); height: var(--scrollbar-size); background: transparent; }
+.sodium ::-webkit-scrollbar-thumb, .sodium::-webkit-scrollbar-thumb, [data-system="sodium"] ::-webkit-scrollbar-thumb { background-color: transparent; background-clip: padding-box; border: var(--scrollbar-gap) solid transparent; border-radius: var(--radius); }
+.sodium :is(:hover, :focus-within)::-webkit-scrollbar-thumb, .sodium:is(:hover, :focus-within)::-webkit-scrollbar-thumb, [data-system="sodium"] :is(:hover, :focus-within)::-webkit-scrollbar-thumb { background-color: var(--scrollbar-thumb); }
+.sodium ::-webkit-scrollbar-track, .sodium ::-webkit-scrollbar-corner, [data-system="sodium"] ::-webkit-scrollbar-track, [data-system="sodium"] ::-webkit-scrollbar-corner { background: transparent; }
+.sodium ::-webkit-scrollbar-button, [data-system="sodium"] ::-webkit-scrollbar-button { display: none; }
+@supports not selector(::-webkit-scrollbar) {
+  .sodium, .sodium *, [data-system="sodium"], [data-system="sodium"] * { scrollbar-width: thin; scrollbar-color: transparent transparent; }
+  .sodium :is(:hover, :focus-within), [data-system="sodium"] :is(:hover, :focus-within) { scrollbar-color: var(--scrollbar-thumb) transparent; }
+}
+@media (pointer: coarse) {
+  .sodium input:not([type="checkbox"], [type="radio"], [type="range"], [type="button"], [type="submit"], [type="file"]),
+  .sodium textarea,
+  .sodium select { font-size: max(16px, 1em); }
+}
