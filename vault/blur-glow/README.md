@@ -16,7 +16,7 @@ The glow is a real bloom, not a stack of blurred copies. The word mask is blurre
 npx skills add https://design.how/vault/blur-glow
 ```
 
-That installs the skill in `skill/`: the brief, the FIXED steps, the VARIABLE knobs, a template in `assets/template/` and `scripts/check.mjs`, which checks the copy in your project against the performance contract. The template is React and TypeScript. `source/` is the same visual with every file it has on the site.
+That installs the skill in `skill/`: the brief, the FIXED steps, the VARIABLE knobs, a template in `assets/template/` and `scripts/check.mjs`, which checks the copy in your project against the performance contract. The template is React and TypeScript.
 
 It sets its type in `--visual-rounded`, a system stack in `fonts.css` (ui-rounded, system-ui, sans-serif). Put your own face first.
 

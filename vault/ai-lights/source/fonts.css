@@ -1,5 +1,0 @@
-/* The font variables AI lights reads, each a system stack. VARIABLE: put the project's own face first in each. */
-:root {
-  --visual-sans: system-ui, sans-serif;
-  --visual-mono: ui-monospace, monospace;
-}

@@ -16,7 +16,7 @@ Nothing is blurred. The trail is accumulation: after k overlapping copies at alp
 npx skills add https://design.how/vault/fade-motion
 ```
 
-That installs the skill in `skill/`: the brief, the FIXED steps, the VARIABLE knobs, a template in `assets/template/` and `scripts/check.mjs`, which checks the copy in your project against the performance contract. The template is React and TypeScript. `source/` is the same visual with every file it has on the site, its playground included.
+That installs the skill in `skill/`: the brief, the FIXED steps, the VARIABLE knobs, a template in `assets/template/` and `scripts/check.mjs`, which checks the copy in your project against the performance contract. The template is React and TypeScript.
 
 It sets its type in `--visual-pixel`, a system stack in `fonts.css` (ui-monospace, monospace). Put your own face first.
 

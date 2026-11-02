@@ -16,7 +16,7 @@ It is one fragment shader on one full-frame quad. Each pixel snaps to the centre
 npx skills add https://design.how/vault/sandbox
 ```
 
-That installs the skill in `skill/`: the brief, the FIXED steps, the VARIABLE knobs, a template in `assets/template/` and `scripts/check.mjs`, which checks the copy in your project against the performance contract. The template is React and TypeScript with three.js. `source/` is the same visual with every file it has on the site, its playground included.
+That installs the skill in `skill/`: the brief, the FIXED steps, the VARIABLE knobs, a template in `assets/template/` and `scripts/check.mjs`, which checks the copy in your project against the performance contract. The template is React and TypeScript with three.js.
 
 The skill ships placeholder clips, short abstract loops, in `skill/assets/media/`. Copy them to `public/sandbox/` and replace each with your own at the same path. The originals aren't in this repo, and the template never loads anything from another host.
 

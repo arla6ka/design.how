@@ -16,7 +16,7 @@ The outline is a hull, not a post effect. Each crystal gets a child mesh with th
 npx skills add https://design.how/vault/crystal-cluster
 ```
 
-That installs the skill in `skill/`: the brief, the FIXED steps, the VARIABLE knobs, a template in `assets/template/` and `scripts/check.mjs`, which checks the copy in your project against the performance contract. The template is React and TypeScript with three.js. `source/` is the same visual with every file it has on the site.
+That installs the skill in `skill/`: the brief, the FIXED steps, the VARIABLE knobs, a template in `assets/template/` and `scripts/check.mjs`, which checks the copy in your project against the performance contract. The template is React and TypeScript with three.js.
 
 ## Knobs
 

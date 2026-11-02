@@ -16,7 +16,7 @@ Every scrap is drawn, not loaded. A seeded generator, hashed from the phrase, pi
 npx skills add https://design.how/vault/ransom-note
 ```
 
-That installs the skill in `skill/`: the brief, the FIXED steps, the VARIABLE knobs, a template in `assets/template/` and `scripts/check.mjs`, which checks the copy in your project against the performance contract. The template is React and TypeScript. `source/` is the same visual with every file it has on the site, its playground included.
+That installs the skill in `skill/`: the brief, the FIXED steps, the VARIABLE knobs, a template in `assets/template/` and `scripts/check.mjs`, which checks the copy in your project against the performance contract. The template is React and TypeScript.
 
 It sets its type in `--visual-serif` and `--visual-display` and `--visual-grotesk` and `--visual-sans` and `--visual-wide` and `--visual-mono` and `--visual-pixel`, a system stack in `fonts.css` (Georgia, serif; Georgia, serif; system-ui, sans-serif; system-ui, sans-serif; system-ui, sans-serif; ui-monospace, monospace; ui-monospace, monospace). Put your own face first.
 
