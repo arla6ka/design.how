@@ -1,0 +1,5 @@
+/* The font variables Design tiles reads, each a system stack. VARIABLE: put the project's own face first in each. */
+:root {
+  --visual-display: Georgia, serif;
+  --visual-sans: system-ui, sans-serif;
+}

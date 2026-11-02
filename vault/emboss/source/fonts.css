@@ -1,0 +1,4 @@
+/* The font variables Realistic emboss reads, each a system stack. VARIABLE: put the project's own face first in each. */
+:root {
+  --visual-wide: system-ui, sans-serif;
+}

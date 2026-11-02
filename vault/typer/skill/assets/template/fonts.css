@@ -1,0 +1,4 @@
+/* The font variables Typer reads, each a system stack. VARIABLE: put the project's own face first in each. */
+:root {
+  --visual-sans: system-ui, sans-serif;
+}
