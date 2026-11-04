@@ -98,6 +98,7 @@ Every visual pauses off screen and on a hidden tab, draws one still frame under 
 <!-- vault:start -->
 | Visual | What it does | Install |
 |-|-|-|
+| [Stack type](vault/stack-type) | One line of capitals stacked nine deep on a drum, every letter draining to the one solid row on its own beat while the outlined echoes scramble. | `npx skills add https://design.how/vault/stack-type` |
 | [Roll type](vault/roll-type) | Three short phrases taking turns, every word rolling up out of sight through glass as the next phrase rolls in under it. | `npx skills add https://design.how/vault/roll-type` |
 | [Warp type](vault/warp-type) | Six short sentences, half a second each, where the verb bends its own letters. | `npx skills add https://design.how/vault/warp-type` |
 | [Flip type](vault/flip-type) | One bold word that keeps becoming the next, each letter falling to a new row through a few random glyphs. | `npx skills add https://design.how/vault/flip-type` |
