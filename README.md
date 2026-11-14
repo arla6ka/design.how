@@ -8,7 +8,7 @@ Design systems, skills and visuals for coding agents, from [design.how](https://
 npx skills@latest add https://design.how
 ```
 
-Or from GitHub, which installs the same six skills:
+Or from GitHub, which installs the same seven skills:
 
 ```bash
 npx skills@latest add arla6ka/design.how
@@ -80,6 +80,10 @@ These turn the UI your app already ships into a design system your agent can use
 - [token-mapping](skills/token-mapping/SKILL.md). Maps hex codes and pixel values to your tokens by purpose, so an 8px radius never stands in for an 8px gap. It never edits.
 - [component-docs](skills/component-docs/SKILL.md). Writes a component's docs from its code and two real uses in your product, with the rules right next to the examples.
 - [ui-review](skills/ui-review/SKILL.md). Reviews a screen or flow, including the states a screenshot misses, and ranks what's actually broken.
+
+One more stands on its own:
+
+- [make-font](skills/make-font/SKILL.md). Makes your own font from fonts you like. Send screenshots or font files; it measures them, finds the closest open-licence font, fits its proportions, widths and spacing to the numbers, checks it, and hands back an OFL font with web files and a printed font book. It never copies a reference's outlines.
 
 Shared words are in [glossary.md](skills/build-design-system/references/glossary.md), and the default bans, widths and voice in [taste.md](skills/build-design-system/references/taste.md). Both ship inside `build-design-system`, which the other skills build on, so install it next to any skill you add on its own. Replace the taste file with your own.
 

@@ -11,7 +11,7 @@
   "plugins": [
     {
       "name": "design-system-skills",
-      "description": "Build a design system from your app, enforce it with checks, migrate every screen onto it, map values to tokens, document components and review UI",
+      "description": "Build a design system from your app, enforce it with checks, migrate every screen onto it, map values to tokens, document components, review UI and make your own font",
       "source": "./",
       "strict": false,
       "skills": [
@@ -20,7 +20,8 @@
         "./skills/migrate-design-system",
         "./skills/token-mapping",
         "./skills/component-docs",
-        "./skills/ui-review"
+        "./skills/ui-review",
+        "./skills/make-font"
       ]
     }
   ]

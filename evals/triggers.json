@@ -160,5 +160,27 @@
 				"goes_to": "none"
 			}
 		]
+	},
+	"make-font": {
+		"should_fire": [
+			"Make me a font like these.",
+			"I want a serif with this feel for our product.",
+			"Build a typeface from these screenshots.",
+			"Can you make our own font based on the fonts we like?"
+		],
+		"should_not_fire": [
+			{
+				"prompt": "Which font token should this heading use?",
+				"goes_to": "token-mapping"
+			},
+			{
+				"prompt": "Add a Google Font to the site.",
+				"goes_to": "none"
+			},
+			{
+				"prompt": "Review the typography on the pricing page.",
+				"goes_to": "ui-review"
+			}
+		]
 	}
 }
