@@ -73,6 +73,12 @@ export function lint(root) {
 		const text = readFileSync(f, "utf8");
 		const lines = text.split("\n").length - 1;
 		const fm = /^---\nname: (.+)\ndescription: (.+)\nmetadata:\n  summary: (.+)\n---\n/.exec(text);
+		// The values are plain YAML scalars: a colon followed by a space, or a space then #, ends the value early, and a
+		// value can't start with an indicator. Strict parsers (GitHub's among them) reject the whole frontmatter for it.
+		// The regex above can't see that, so check each value the way YAML reads it.
+		if (fm) for (const [key, v] of [["name", fm[1]], ["description", fm[2]], ["summary", fm[3]]]) {
+			if (/: | #|:$/.test(v) || /^[\[\]{},&*!|>'"%@`#-]/.test(v)) bad.push(`${n}: ${key} isn't valid plain YAML (a ": " or " #" inside, or a quote or symbol first); reword it`);
+		}
 		if (!fm) bad.push(`${n}: frontmatter must be name, description, then metadata with summary`);
 		else {
 			if (fm[1] !== n) bad.push(`${n}: name is ${fm[1]}`);
@@ -233,6 +239,10 @@ function selfTest() {
 	t("a README skill list that leaves a skill out fails", lint(root).bad.some((m) => /README.md skill list: no entry for a/.test(m)));
 	w("README.md", "<!-- skills:start -->\n- [a](skills/a/SKILL.md). Tests things.\n<!-- skills:end -->\n");
 	t("matching lists pass", lint(root).bad.length === 0);
+	w("skills/a/SKILL.md", `---\nname: a\ndescription: Use when testing: the colon breaks YAML.\nmetadata:\n  summary: Tests things\n---\n${body}`);
+	t("a colon and space inside a value fails as YAML", lint(root).bad.some((m) => /isn't valid plain YAML/.test(m)));
+	w("skills/a/SKILL.md", `---\nname: a\ndescription: Use when testing (a colon-free value), such as "run it".\nmetadata:\n  summary: Tests things\n---\n${body}`);
+	t("parentheses and inner quotes are valid YAML", lint(root).bad.length === 0);
 	rmSync(root, { recursive: true, force: true });
 	console.log(fails ? `${fails} failed` : "all as expected");
 	return fails ? 1 : 0;

@@ -1,6 +1,6 @@
 ---
 name: make-motion
-description: Use when someone wants a motion graphics video of their product: a launch video, feature demo, teaser or explainer, such as "make a launch video for this", "/make-motion" or "roast my video idea". It roasts the idea, scripts it in beats, builds it in Remotion in their design system with music made in code, checks it by measurement, and delivers an MP4. Not for editing footage.
+description: Use when someone wants a motion graphics video of their product (a launch video, feature demo, teaser or explainer), such as "make a launch video for this", "/make-motion" or "roast my video idea". It roasts the idea, scripts it in beats, builds it in Remotion in their design system with music made in code, checks it by measurement, and delivers an MP4. Not for editing footage.
 metadata:
   summary: Makes a motion graphics video
 ---
