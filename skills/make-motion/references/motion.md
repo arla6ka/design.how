@@ -30,6 +30,8 @@ the bar (`references/review.md`). Build for it from the script on:
 
 These read as generated. The look review checks for every one:
 
+- a screen a stranger can't read in a second: diagrams of the process, pipelines, cards of internal steps, labels
+  of the tool's own vocabulary ("beats", "stills", "cues");
 - grey placeholder bars where content should be: draw real, invented, plausible content (prices, names, rows);
 - decorative frame lines, crosshair corners and grids that mean nothing;
 - UI shrunk into the top half of the frame with the rest empty;
@@ -85,8 +87,8 @@ draws twice. Floor it: the shutter runs forward, and rounding sends its later sa
 - It never quite stops: holds drift 3 to 6 px a second (0.05 to 0.1 px a frame), each move keeps one direction. The
   first version of this file said "a frame"; at 60 fps that's 180 to 360 px a second and pushed a caption off frame.
 - Cap the peak at about 40 px a frame at 1350 wide.
-- Keep a 0.02° rotation floor only while the camera rotates, so the browser doesn't re-rasterise text when a rotation
-  crosses zero. Leave it off scenes with hairlines and no rotation: it stair-steps them.
+- Keep a 0.02° rotation floor on a moving camera (`Push` in `src/kit/motion.tsx` has one), so the browser
+  re-rasterises it the same way on every frame. Leave it off still scenes with hairlines: it stair-steps them.
 - Lay content out with CSS `zoom` at the largest scale it reaches and let the transform only shrink it. Chrome draws a
   transform-scaled layer once and re-draws it sharp a few frames later: a one-frame step.
 - Never settle a zoom on exactly 1, or on a value that makes whole device pixels at the render scale.
@@ -116,8 +118,9 @@ Each surface gets at least one, and each scene at least three things alive (abov
 - **No.** A lock or a badge shakes side to side three times when something is refused. Start the shake from rest.
 - **Crop.** A screenshot leaves a hole in the page where it was cut, lifts on a spring, floats, swings back and flips
   to show what it became.
-- **Typing.** A prompt or command types in from a fixed left edge, a character every 3 frames, with its full width
-  reserved so nothing re-centres and a steady caret.
+- **Typing.** A prompt or command types in from a fixed left edge, a character every 3 frames, each fading in over
+  its 3 frames (a glyph appearing whole steps a calm frame), with its full width reserved so nothing re-centres and a
+  steady caret.
 - **Fan.** Cards leave a stack one at a time, each on its own beat, with a small rotation that overshoots and settles.
 - **Flip.** Words change face one by one like a split-flap, with the width easing between the two faces' measured
   widths so the line closes up smoothly.

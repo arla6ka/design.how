@@ -28,8 +28,9 @@ below, never your own opinion of the cut. Each returns findings as: frame range,
 severity (must fix, should fix, minor), and a fix. Without workers, run the briefs yourself one at a time, and say so.
 
 **Story, for a stranger.** "You have never heard of this product. Watch the first 3 seconds and say what it's about.
-Then watch it all and say the one sentence it tells. Name any scene you'd cut, any caption that repeats another or
-says what the picture shows, and any moment you were lost or bored."
+Then watch it all and say the one sentence it tells. For every screen, say in five words what it shows; a screen you
+can't is a must fix. Name any scene you'd cut, any caption that repeats another or says what the picture shows, any
+word on screen only the maker would know, and any moment you were lost or bored."
 
 **Motion.** "Go through the cut frame by frame around every cut and arrival. Find anything that jumps, teleports,
 doubles, ghosts, reflows, collides or stops dead. For each scene, count the things moving at once: under three is a

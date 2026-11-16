@@ -54,7 +54,7 @@ function Shot({theme, scene}: {theme: VideoTheme; scene: Scene}) {
     <AbsoluteFill style={{background: bg}}>
       <Sampled frame={frame} n={n} mix={blurMix(theme, scene, frame)} render={t => (
         <AbsoluteFill style={{background: bg}}>
-          <AbsoluteFill style={{transform: `translate3d(${whipAt(theme, t, from, to, whipIn, whipOut).toFixed(2)}px, 0, 0)`}}>{scene.draw(t)}</AbsoluteFill>
+          <AbsoluteFill style={{transform: `translate3d(${whipAt(theme, t, from, to, whipIn, whipOut)}px, 0, 0)`}}>{scene.draw(t)}</AbsoluteFill>
         </AbsoluteFill>
       )}/>
     </AbsoluteFill>

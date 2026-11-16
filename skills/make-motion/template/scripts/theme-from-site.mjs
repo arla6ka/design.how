@@ -94,7 +94,7 @@ async function google(family) {
   if (!family || /system-ui|apple|segoe|helvetica|arial|sans-serif|serif|monospace/i.test(family)) return 'system';
   const slug = family.toLowerCase().replace(/[^a-z0-9]/g, '');
   try {
-    const r = await fetch(`https://raw.githubusercontent.com/google/fonts/main/ofl/${slug}/METADATA.pb`, {headers: {'User-Agent': 'motion-video'}});
+    const r = await fetch(`https://raw.githubusercontent.com/google/fonts/main/ofl/${slug}/METADATA.pb`, {headers: {'User-Agent': 'make-motion'}});
     return r.ok ? 'ofl' : 'unknown';
   } catch {
     return 'unknown';

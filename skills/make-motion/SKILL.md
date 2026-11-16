@@ -1,11 +1,11 @@
 ---
-name: motion-video
-description: Use when someone wants a motion graphics video of their product: a launch video, feature demo, teaser or explainer, such as "make a launch video for this", "/motion-video" or "roast my video idea". It roasts the idea, scripts it in beats, builds it in Remotion in their design system with music made in code, checks it by measurement, and delivers an MP4. Not for editing footage.
+name: make-motion
+description: Use when someone wants a motion graphics video of their product: a launch video, feature demo, teaser or explainer, such as "make a launch video for this", "/make-motion" or "roast my video idea". It roasts the idea, scripts it in beats, builds it in Remotion in their design system with music made in code, checks it by measurement, and delivers an MP4. Not for editing footage.
 metadata:
   summary: Makes a motion graphics video
 ---
 
-# Motion video
+# Make motion
 
 The person brings an idea: a product, a feature, a launch. This skill turns it into a 15 to 25 second motion
 graphics video, for X by default, that a stranger understands with the sound off, and that looks made by hand. It runs the whole loop by itself unless
@@ -13,10 +13,10 @@ the person asks to approve each stage (`step`).
 
 | You say | It does |
 |-|-|
-| `/motion-video <idea>` | the whole loop, one shot |
-| `/motion-video step <idea>` | stops for a yes after the script, the stills and the review cut |
-| `/motion-video roast <idea>` | step 2 only: the roasted pitch and three hooks |
-| `/motion-video theme <source>` | step 3 only: resolves and checks a theme |
+| `/make-motion <idea>` | the whole loop, one shot |
+| `/make-motion step <idea>` | stops for a yes after the script, the stills and the review cut |
+| `/make-motion roast <idea>` | step 2 only: the roasted pitch and three hooks |
+| `/make-motion theme <source>` | step 3 only: resolves and checks a theme |
 
 ## Before anything
 
@@ -84,6 +84,8 @@ folder under `src/` and delete the example. `references/pipeline.md` has every c
 ## Rules
 
 - Open on the product, busy from frame 0. Never a title card first.
+- Every screen reads at a glance to a stranger: familiar UI doing one obvious thing, the outcome and not the
+  machinery. No process diagrams, no internal steps, no tool vocabulary on screen.
 - More going on, not less: three things alive in every scene, moves that overlap, a camera that works, one change of
   scale per scene, the subject filling the frame (`references/motion.md`, "Energy"). The energy check measures it.
 - Every scene is new. Shared code is the kit (curves, blur, whips, captions, theme), never a previous video's scenes.

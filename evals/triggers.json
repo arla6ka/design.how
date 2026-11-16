@@ -183,7 +183,7 @@
 			}
 		]
 	},
-	"motion-video": {
+	"make-motion": {
 		"should_fire": [
 			"Make a launch video for my app.",
 			"Animate our product launch for X.",

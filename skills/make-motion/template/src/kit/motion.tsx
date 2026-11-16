@@ -111,8 +111,8 @@ export function Caption({theme, text, from, to, frame, x, y, color, style}: {
         return (
           <span key={i} style={{position: 'relative', display: 'inline-block', marginRight: '0.24em', letterSpacing: `${t.tracking}em`}}>
             <span style={{visibility: 'hidden'}}>{word}</span>
-            <span style={{position: 'absolute', left: 0, top: 0, whiteSpace: 'nowrap', opacity, letterSpacing: `${tracking.toFixed(3)}em`,
-              transform: `translate3d(${(-(word.length - 1) * spreadOut).toFixed(3)}em, ${dy}px, 0)`}}>{word}</span>
+            <span style={{position: 'absolute', left: 0, top: 0, whiteSpace: 'nowrap', opacity, letterSpacing: `${tracking}em`,
+              transform: `translate3d(${-(word.length - 1) * spreadOut}em, ${dy}px, 0)`}}>{word}</span>
           </span>
         );
       })}
@@ -132,7 +132,8 @@ export function Push({scale, max, origin: [ox, oy], children, style}: {scale: nu
     <div style={{position: 'absolute', ...style}}>
       <div style={{position: 'absolute', left: 0, top: 0, width: 0, height: 0, transformOrigin: `${ox}px ${oy}px`,
         transform: `rotate(0.02deg) scale(${scale / max})`}}>
-        <div style={{position: 'absolute', left: ox - ox * max, top: oy - oy * max, zoom: max}}>{children}</div>
+        {/* Chrome multiplies a zoomed element's own left and top by its zoom, so the offset is divided by it. */}
+        <div style={{position: 'absolute', left: (ox - ox * max) / max, top: (oy - oy * max) / max, zoom: max}}>{children}</div>
       </div>
     </div>
   );

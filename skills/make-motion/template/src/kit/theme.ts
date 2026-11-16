@@ -58,7 +58,8 @@ export const DESIGN_HOW: VideoTheme = {
   },
   font: {
     display: {family: 'Inter Tight', weight: 500, fallback: 'Arial, sans-serif', src: {google: 'https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&display=block'}, licence: 'ofl'},
-    text: {family: 'Inter Tight', weight: 400, fallback: 'Arial, sans-serif', licence: 'ofl'},
+    // The same src as display: a face with no src is a system face and never gets the loaded copy.
+    text: {family: 'Inter Tight', weight: 400, fallback: 'Arial, sans-serif', src: {google: 'https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&display=block'}, licence: 'ofl'},
     mono: {family: 'ui-monospace', fallback: 'SFMono-Regular, Menlo, monospace'},
   },
   type: {caption: {size: 76, weight: 500, leading: 1.1, tracking: -0.015}, display: 58, body: 21, meta: 17},
@@ -88,7 +89,13 @@ export function resolve(over: Partial2<VideoTheme> & {preset?: 'punchy' | 'calm'
     return out;
   };
   const {preset: _, ...rest} = over;
-  return merge({...base, motion}, rest);
+  const out = merge({...base, motion}, rest);
+  // A face's src is replaced, not merged: a local file must not keep the default's Google URL beside it.
+  for (const k of ['display', 'text', 'mono'] as const) {
+    const face = rest.font?.[k];
+    if (face && 'src' in face) out.font[k] = {...out.font[k], src: face.src};
+  }
+  return out;
 }
 
 // Contrast (WCAG 2): the gate in references/theme.md.
@@ -134,8 +141,7 @@ export function checkContrast(t: VideoTheme) {
 /** A colour between a and b, 0 to 1, in oklab, so a theme change glides instead of swapping. */
 export const mix = (a: Hex, b: Hex, k: number) => k <= 0 ? a : k >= 1 ? b : `color-mix(in oklab, ${a} ${((1 - k) * 100).toFixed(2)}%, ${b})`;
 
-/** CSS font stack for a face. */
-/** The family name a face is registered under while it renders. */
+/** The family name a face is registered under while it renders. A face with no src is a system face. */
 export const alias = (f: Face) => (f.src ? `${f.family} (video)` : f.family);
 
 /** CSS font stack for a face: its alias first, so only the copy the video loaded is ever used. */

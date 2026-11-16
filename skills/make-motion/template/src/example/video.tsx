@@ -107,8 +107,11 @@ function Proof({frame}: {frame: number}) {
 function End({frame}: {frame: number}) {
   const t = THEME;
   // The command types itself, a character every 3 frames, with a steady caret: you type a command, you don't click it.
-  const cmd = '/motion-video';
-  const shown = Math.max(0, Math.min(cmd.length, Math.floor((whole(frame) - TYPE) / 3)));
+  const cmd = '/make-motion';
+  // Each character fades in over its 3 frames, so a calm end card never steps a whole glyph in one frame.
+  const charOpacity = (i: number) => ramp(frame, [TYPE + i * 3, TYPE + i * 3 + 3], [0, 1], LINEAR);
+  // Characters typed so far, the one fading in included; the caret follows them.
+  const typed = Math.max(0, Math.min(cmd.length, Math.floor((whole(frame) - TYPE) / 3) + 1));
   const rise = ramp(frame, [END, END + 28], [60, 0], settle);
   return (
     <AbsoluteFill style={{alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 34}}>
@@ -133,8 +136,14 @@ function End({frame}: {frame: number}) {
         opacity: ramp(frame, [END, END + 12], [0, 1], LINEAR), transform: `translateY(${rise}px)`}}>Your product</div>
       <div style={{padding: '18px 32px', borderRadius: t.shape.radius.control, border: `${t.shape.hairline}px solid ${t.color.hair}`, background: t.color.well,
         color: t.color.ink, fontFamily: stack(t.font.mono), fontSize: 40, opacity: ramp(frame, [END + 6, END + 18], [0, 1]), whiteSpace: 'pre'}}>
-        <span>{cmd.slice(0, shown)}</span><span style={{color: 'transparent'}}>{cmd.slice(shown)}</span>
-        <span style={{display: 'inline-block', width: 4, height: 40, marginLeft: 2, verticalAlign: -6, background: t.color.accent}}/>
+        {/* The full command, hidden, holds the box's width; the typed part and its caret sit over it. */}
+        <span style={{position: 'relative', display: 'inline-block'}}>
+          <span style={{visibility: 'hidden'}}>{cmd}</span>
+          <span style={{position: 'absolute', left: 0, top: 0}}>
+            {[...cmd.slice(0, typed)].map((c, i) => <span key={i} style={{opacity: charOpacity(i)}}>{c}</span>)}
+            <span style={{display: 'inline-block', width: 4, height: 40, marginLeft: 2, verticalAlign: -6, background: t.color.accent}}/>
+          </span>
+        </span>
       </div>
     </AbsoluteFill>
   );

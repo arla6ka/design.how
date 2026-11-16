@@ -1,5 +1,5 @@
 import {useEffect, useState} from 'react';
-import {continueRender, delayRender, staticFile} from 'remotion';
+import {cancelRender, continueRender, delayRender, staticFile} from 'remotion';
 import {alias, type Face, type VideoTheme} from './theme';
 
 // Loads the theme's faces before the first frame, so no frame is drawn, or measured, in a fallback font.
@@ -48,9 +48,8 @@ export function useThemeFonts(theme: VideoTheme) {
     Promise.all(unique.map(loadFace))
       .then(() => document.fonts.ready)
       .then(() => continueRender(handle), (e: Error) => {
-        // Fail the render loudly rather than draw a single frame in the fallback.
-        console.error(e.message);
-        throw e;
+        // Fail the render at once, loudly, rather than draw a frame in the fallback or wait out the timeout.
+        cancelRender(e);
       });
   }, [handle, theme]);
 }

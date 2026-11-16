@@ -34,8 +34,10 @@ design-system-boss reads the app, picks a playbook and runs the other skills in 
 - [component-docs](skills/component-docs/SKILL.md). Documents a component.
 - [ui-review](skills/ui-review/SKILL.md). Reviews a screen.
 - [make-font](skills/make-font/SKILL.md). Makes your own font.
-- [motion-video](skills/motion-video/SKILL.md). Makes a motion graphics video.
+- [make-motion](skills/make-motion/SKILL.md). Makes a motion graphics video.
 <!-- skills:end -->
+
+make-motion was called motion-video on its first day. If you installed it then, install again to get /make-motion.
 
 The design system skills share one glossary, [glossary.md](skills/build-design-system/references/glossary.md), and one set of defaults for bans, widths and voice, [taste.md](skills/build-design-system/references/taste.md). Both ship inside build-design-system, so install it next to any skill you add alone: `npx skills@latest add arla6ka/design.how --skill build-design-system --skill ui-review`. Replace the taste file with your own. make-font stands on its own.
 

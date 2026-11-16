@@ -24,6 +24,11 @@ Take the idea as the person gave it and push on it, in this order. Write the ans
 
 ### The layers
 
+- **Every screen reads at a glance.** A stranger watching muted gets each screen in under a second, because it's
+  something they've seen before (a phone, a browser tab, a chat, a calendar, a receipt) doing one obvious thing.
+  Show the outcome, never the machinery: no diagrams of your process, no pipelines, no cards of internal steps, no
+  labels like "Picture" and "Sound". A launch video for make-motion that opened on "it writes the story first" over
+  a row of beat cards lost everyone who hadn't read the skill.
 - **A hook that is a story, not a title.** Two or three short captions that set up a problem the viewer has had.
 - **Slow enough at the start, never still.** The first 6 to 8 seconds can be calmer; the viewer is still deciding.
   Calm means one story beat at a time, not one thing moving: the camera, the UI and the captions still move together.

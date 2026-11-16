@@ -17,7 +17,9 @@ export function pointerAt(frame: number, stops: Stop[], glide = 40) {
   for (let i = 1; i < stops.length; i++) {
     const s = stops[i];
     if (frame >= s.at) { p = s; continue; }
-    const k = minJerk((frame - (s.at - glide)) / glide);
+    // A move never starts before the stop it leaves from has ended: a short gap glides in the time it has.
+    const start = Math.max(p.at, s.at - glide);
+    const k = minJerk((frame - start) / (s.at - start));
     return {x: p.x + (s.x - p.x) * k, y: p.y + (s.y - p.y) * k};
   }
   return {x: p.x, y: p.y};

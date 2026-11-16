@@ -50,10 +50,11 @@ if (mode === 'jumps' || mode === 'energy') {
 if (mode === 'x') {
   const master = path.join(out, 'master.mp4');
   if (!fs.existsSync(master)) throw new Error(`No master yet: npm run master ${id}`);
-  // X plays about 1920x1200 at most, so it gets a lanczos downscale rather than the master.
+  // X plays about 1920x1200 at most, so it gets a lanczos downscale rather than the master. The audio is copied:
+  // a second AAC encode raised a master's true peak from -2.4 to -0.6 dBTP and failed the audio check.
   ffmpeg('-i', master, '-vf', 'scale=1350:1080:flags=lanczos', '-c:v', 'libx264', '-preset', 'slow', '-crf', '14', '-profile:v', 'high',
     '-level', '4.2', '-pix_fmt', 'yuv420p', '-colorspace', 'bt709', '-color_primaries', 'bt709', '-color_trc', 'bt709', '-color_range', 'tv',
-    '-g', '120', '-c:a', 'aac', '-b:a', '192k', '-ar', '48000', '-movflags', '+faststart', path.join(out, 'x.mp4'));
+    '-g', '120', '-c:a', 'copy', '-movflags', '+faststart', path.join(out, 'x.mp4'));
   console.log(`wrote ${path.relative(root, path.join(out, 'x.mp4'))}`);
   process.exit(0);
 }
@@ -84,7 +85,7 @@ if (mode === 'review') {
   const rows = Math.ceil(composition.durationInFrames / 10 / 4);
   ffmpeg('-i', file, '-vf', `select='not(mod(n\\,10))',scale=338:-1,tile=4x${rows}`, '-frames:v', '1', path.join(out, 'contact.png'));
   done(path.join(out, 'contact.png'));
-  console.log('This cut is silent. Run the jump check next: npm run jumps ' + path.relative(root, file));
+  console.log(`This cut is silent. Check it next: npm run jumps ${id} and npm run energy ${id}`);
 }
 
 if (mode === 'master') {
