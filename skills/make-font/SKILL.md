@@ -1,6 +1,8 @@
 ---
 name: make-font
 description: Use when someone wants their own font made from fonts they like, such as "make me a font like these", "/make-font" or "build a typeface from these screenshots". It measures the references, fits the closest open-licence font to them, checks it, and delivers an OFL font with web files and a font book. It never copies outlines.
+metadata:
+  summary: Makes your own font
 ---
 
 # Make a font

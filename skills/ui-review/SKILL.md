@@ -1,6 +1,8 @@
 ---
 name: ui-review
 description: Use to critique a screen, flow, prototype or running build, accessibility included, and rank what is broken, such as "check this page before I ship", "is this flow ready", "is it accessible", keyboard or screen-reader checks, "it feels off on my phone" or "it feels janky". Not for token compliance, which is token-mapping.
+metadata:
+  summary: Reviews a screen
 ---
 
 # UI review

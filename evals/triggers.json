@@ -182,5 +182,27 @@
 				"goes_to": "ui-review"
 			}
 		]
+	},
+	"motion-video": {
+		"should_fire": [
+			"Make a launch video for my app.",
+			"Animate our product launch for X.",
+			"Roast my idea for a launch video.",
+			"Make a 20 second motion graphics demo of this feature."
+		],
+		"should_not_fire": [
+			{
+				"prompt": "Animate this button's hover state.",
+				"goes_to": "none"
+			},
+			{
+				"prompt": "Cut my screen recording down to 30 seconds.",
+				"goes_to": "none"
+			},
+			{
+				"prompt": "Make me a font like these.",
+				"goes_to": "make-font"
+			}
+		]
 	}
 }

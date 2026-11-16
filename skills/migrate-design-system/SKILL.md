@@ -1,6 +1,8 @@
 ---
 name: migrate-design-system
 description: Use when an app has to move onto a design system that already exists, such as "migrate the app to our design system", "move every screen onto the new components", a rollout, or an adoption audit. Not for making the system or for swapping raw values for tokens, which are build-design-system.
+metadata:
+  summary: Migrates onto it
 ---
 
 # Migrate to a design system

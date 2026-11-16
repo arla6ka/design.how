@@ -14,7 +14,11 @@ run.mjs --case <incident id>               print an incident case to run by hand
 run.mjs --self-test | --help
 
 --lint checks, and exits 1 with one line per problem
-  every SKILL.md has name and a description that starts with "Use", no more than 400 characters
+  every SKILL.md has name, a description that starts with "Use", no more than 400 characters, and metadata with a
+  summary of 40 characters at most, the short line design.how/skills shows. No other top-level key: the spec allows
+  only name, description, license, compatibility, metadata and allowed-tools
+  the skill folders, .claude-plugin/marketplace.json, evals/triggers.json and the README's skill list (between its
+  skills markers) name the same skills
   every SKILL.md is 40 to 150 lines (warn above 150, fail above 300)
   every relative markdown link resolves, and no skill links into a sibling skill's folder
   no em dashes and no curly quotes in any .md, .mjs or .json file in skills/ and evals/, or in README.md
@@ -22,7 +26,7 @@ run.mjs --self-test | --help
   (plurals too), a word in backticks only in backticks, and an entry with a parenthetical ("lead (for the
   coordinator)") is a scoped ban the lint cannot see, so it is left to review. _Avoid_ lines themselves are skipped
   every trigger skill exists (goes_to may be "none"), and every incident's rule phrase is in the file it names
---triggers sends one prompt per case with the six descriptions. The host must print the skill name or "none".
+--triggers sends one prompt per case with every skill's description. The host must print the skill name or "none".
 An incident proves that its rule's phrase is written down, not that an agent follows it. Run the case by hand
 (--case) to see the behaviour.`;
 
@@ -68,12 +72,13 @@ export function lint(root) {
 		const f = join(skills, n, "SKILL.md");
 		const text = readFileSync(f, "utf8");
 		const lines = text.split("\n").length - 1;
-		const fm = /^---\nname: (.+)\ndescription: (.+)\n---\n/.exec(text);
-		if (!fm) bad.push(`${n}: frontmatter must be name then description`);
+		const fm = /^---\nname: (.+)\ndescription: (.+)\nmetadata:\n  summary: (.+)\n---\n/.exec(text);
+		if (!fm) bad.push(`${n}: frontmatter must be name, description, then metadata with summary`);
 		else {
 			if (fm[1] !== n) bad.push(`${n}: name is ${fm[1]}`);
 			if (!fm[2].startsWith("Use")) bad.push(`${n}: description must start with "Use" (a trigger, not a workflow)`);
 			if (fm[2].length > 400) bad.push(`${n}: description is ${fm[2].length} characters`);
+			if (fm[3].length > 40) bad.push(`${n}: summary is ${fm[3].length} characters, over 40`);
 		}
 		if (lines < 40) bad.push(`${n}: SKILL.md is ${lines} lines, under 40`);
 		if (lines > 300) bad.push(`${n}: SKILL.md is ${lines} lines, over the hard ceiling of 300`);
@@ -118,6 +123,17 @@ export function lint(root) {
 			for (const s of v.should_not_fire) if (s.goes_to !== "none" && !names.includes(s.goes_to)) bad.push(`triggers.json: ${n} sends "${s.prompt}" to unknown ${s.goes_to}`);
 		}
 	}
+	// The lists design.how's sync writes from the folders. A hand edit, or a sync that never ran, shows up here.
+	const same = (label, list) => {
+		for (const n of names) if (!list.includes(n)) bad.push(`${label}: no entry for ${n}`);
+		for (const n of list) if (!names.includes(n)) bad.push(`${label}: unknown skill ${n}`);
+	};
+	const market = join(root, ".claude-plugin/marketplace.json");
+	if (existsSync(market)) same("marketplace.json", JSON.parse(readFileSync(market, "utf8")).plugins.flatMap((p) => p.skills ?? []).map((s) => s.replace(/^\.\/skills\//, "")));
+	const readme = join(root, "README.md");
+	const listed = existsSync(readme) ? /<!-- skills:start -->([\s\S]*?)<!-- skills:end -->/.exec(readFileSync(readme, "utf8")) : null;
+	if (listed) same("README.md skill list", [...listed[1].matchAll(/^- \[([\w-]+)\]/gm)].map((m) => m[1]));
+	else if (existsSync(readme)) bad.push("README.md: no <!-- skills:start --> and <!-- skills:end --> markers around the skill list");
 	const inc = join(root, "evals/incidents");
 	if (existsSync(inc)) {
 		for (const f of readdirSync(inc).filter((x) => x.endsWith(".json"))) {
@@ -158,12 +174,12 @@ function selfTest() {
 	const root = mkdtempSync(join(tmpdir(), "evals-"));
 	const w = (f, s) => { mkdirSync(dirname(join(root, f)), { recursive: true }); writeFileSync(join(root, f), s); };
 	const body = Array.from({ length: 45 }, (_, i) => `line ${i}`).join("\n") + "\n";
-	w("skills/a/SKILL.md", `---\nname: a\ndescription: Use when testing.\n---\n${body}`);
+	w("skills/a/SKILL.md", `---\nname: a\ndescription: Use when testing.\nmetadata:\n  summary: Tests things\n---\n${body}`);
 	w("skills/a/references/x.md", "See [y](y.md).\n");
 	t("a clean tree lints clean except the broken link", lint(root).bad.join() === "skills/a/references/x.md: broken link y.md");
 	w("skills/a/references/y.md", "ok\n");
 	t("a resolved link is clean", lint(root).bad.length === 0);
-	w("skills/b/SKILL.md", `---\nname: b\ndescription: Does things.\n---\nshort\n`);
+	w("skills/b/SKILL.md", `---\nname: b\ndescription: Does things.\nmetadata:\n  summary: Does things\n---\nshort\n`);
 	t("a description that is not a trigger, and a short file, fail", lint(root).bad.length === 2);
 	rmSync(join(root, "skills/b"), { recursive: true });
 	w("skills/a/references/x.md", "See [z](../../b/references/z.md).\n");
@@ -194,7 +210,7 @@ function selfTest() {
 	rmSync(join(root, "skills/build-design-system"), { recursive: true });
 	w("skills/a/references/x.md", "Read `references/gone.md` first.\n");
 	t("a backticked path to a missing skill file fails", lint(root).bad.some((m) => /names references\/gone.md/.test(m)));
-	w("skills/b/SKILL.md", `---\nname: b\ndescription: Use when testing.\n---\n${body}`);
+	w("skills/b/SKILL.md", `---\nname: b\ndescription: Use when testing.\nmetadata:\n  summary: Tests things\n---\n${body}`);
 	w("skills/b/scripts/run.mjs", "\n");
 	w("skills/a/references/x.md", "Run `node b/scripts/run.mjs --help`, then `references/y.md`.\n");
 	t("a backticked path into another skill resolves by its name", lint(root).bad.every((m) => !/x\.md/.test(m)));
@@ -204,6 +220,19 @@ function selfTest() {
 	t("an incident whose phrase is in the rule file passes", lint(root).bad.every((m) => !/incidents/.test(m)));
 	w("evals/incidents/i.json", JSON.stringify({ rule: { file: "skills/a/SKILL.md", phrase: "absent words" } }));
 	t("an incident whose phrase is missing fails", lint(root).bad.some((m) => /incidents\/i.json/.test(m)));
+	rmSync(join(root, "evals/incidents"), { recursive: true });
+	w("skills/a/SKILL.md", `---\nname: a\ndescription: Use when testing.\n---\n${body}`);
+	t("a SKILL.md without a summary fails", lint(root).bad.some((m) => /then metadata with summary/.test(m)));
+	w("skills/a/SKILL.md", `---\nname: a\ndescription: Use when testing.\nsummary: Tests things\n---\n${body}`);
+	t("a top-level summary fails", lint(root).bad.some((m) => /then metadata with summary/.test(m)));
+	w("skills/a/SKILL.md", `---\nname: a\ndescription: Use when testing.\nmetadata:\n  summary: Tests things\n---\n${body}`);
+	w(".claude-plugin/marketplace.json", JSON.stringify({ plugins: [{ skills: ["./skills/a", "./skills/gone"] }] }));
+	t("a marketplace skill with no folder fails", lint(root).bad.some((m) => /marketplace.json: unknown skill gone/.test(m)));
+	w(".claude-plugin/marketplace.json", JSON.stringify({ plugins: [{ skills: ["./skills/a"] }] }));
+	w("README.md", "<!-- skills:start -->\n<!-- skills:end -->\n");
+	t("a README skill list that leaves a skill out fails", lint(root).bad.some((m) => /README.md skill list: no entry for a/.test(m)));
+	w("README.md", "<!-- skills:start -->\n- [a](skills/a/SKILL.md). Tests things.\n<!-- skills:end -->\n");
+	t("matching lists pass", lint(root).bad.length === 0);
 	rmSync(root, { recursive: true, force: true });
 	console.log(fails ? `${fails} failed` : "all as expected");
 	return fails ? 1 : 0;

@@ -1,6 +1,8 @@
 ---
 name: build-design-system
 description: Use when someone wants a design system built from the UI an app already ships, or one phase of it, such as "extract tokens from the app", "add states to our Button", "replace the hardcoded colors with tokens" or "start a design system". Moving screens onto an existing system's components is migrate-design-system. A vague whole-app ask goes to design-system-boss.
+metadata:
+  summary: Builds a system
 ---
 
 # Build a design system
