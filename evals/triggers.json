@@ -204,5 +204,27 @@
 				"goes_to": "make-font"
 			}
 		]
+	},
+	"make-logo": {
+		"should_fire": [
+			"Make me a logo for my app.",
+			"I need a mark and a wordmark for our startup.",
+			"Here are logos I like, make ours.",
+			"Design a logo for a coffee shop called Halt."
+		],
+		"should_not_fire": [
+			{
+				"prompt": "Recolour our logo for dark mode.",
+				"goes_to": "none"
+			},
+			{
+				"prompt": "Make me a font like these.",
+				"goes_to": "make-font"
+			},
+			{
+				"prompt": "Pick an icon for the settings button.",
+				"goes_to": "none"
+			}
+		]
 	}
 }
